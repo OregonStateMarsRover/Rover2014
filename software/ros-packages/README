@@ -1,0 +1,2 @@
+All Rover ROS packages should go here. You should set your ROS_PACKAGE_PATH
+environment variable to include this directory.
