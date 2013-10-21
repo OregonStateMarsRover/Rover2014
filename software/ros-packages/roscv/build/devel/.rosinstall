@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/brenemal/ros/vision_ws/src/roscv/build/devel/setup.sh
