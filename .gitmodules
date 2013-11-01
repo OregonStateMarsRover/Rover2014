@@ -1,0 +1,3 @@
+[submodule "software/ros-packages/camera_umd"]
+	path = software/ros-packages/camera_umd
+	url = https://github.com/ktossell/camera_umd.git
