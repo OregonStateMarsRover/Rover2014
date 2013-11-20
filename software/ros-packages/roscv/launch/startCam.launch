@@ -1,0 +1,18 @@
+<launch>
+    <node name="uvc_cam_left" pkg="uvc_camera" type="uvc_stereo_node" output="screen" ns="my_stereo">
+		<param name="left/device" value="/dev/video1" />
+		<param name="right/device" value="/dev/video2" />
+		<param name="fps" value="60.0" />	
+		<param name="width" value="640" />
+		<param name="height" value="480" />
+		<param name="frame_id" value="frame" />
+		<param name="skip_frames" value="20.0" />
+    </node>
+    <node name="stereo_process" pkg="stereo_image_proc" type="stereo_image_proc" ns="my_stereo">
+    	<param name="prefilter_size" value="15.0" />
+    	<param name="min_disparity" value="0.0" />
+    	<param name="disparity_range" value="32.0" />
+    	<param name="uniqueness_ratio" value="10.0" />
+    	<param name="speckle_size" value="400.0" />
+    </node>
+</launch>
