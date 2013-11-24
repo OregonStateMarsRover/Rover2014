@@ -13,7 +13,7 @@
 #define DRIVE_BACKWARD 0
 #define DRIVE_STOP 2
 
-#define PACKETSIZE 12
+#define PACKETSIZE 6
 
 volatile unsigned char nextState;
 

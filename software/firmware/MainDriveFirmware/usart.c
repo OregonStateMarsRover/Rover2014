@@ -69,55 +69,34 @@ ISR (USART0_RX_vect){
     bufferpos++;
 
     if(bufferpos == PACKETSIZE){
-        char orig_estop[2] = {255, 255};
-        char orig_leftspeed[2] = {255, 255};
-        char orig_rightspeed[2] = {255, 255};
-        char orig_checksum[2] = {255, 255};
-        unsigned char new_estop = {255};
-        unsigned char new_leftspeed = {255};
-        unsigned char new_rightspeed = {255};
-        unsigned char new_checksum = {255};
         unsigned char leftDir = leftDir;
         unsigned char rightDir = rightDir;
 
         bufferpos = 0;
 
-        orig_estop[0] = receive_buffer[2];
-        orig_estop[1] = receive_buffer[3];
-        orig_leftspeed[0] = receive_buffer[4];
-        orig_leftspeed[1] = receive_buffer[5];
-        orig_rightspeed[0] = receive_buffer[6];
-        orig_rightspeed[1] = receive_buffer[7];
-        orig_checksum[0] = receive_buffer[8];
-        orig_checksum[1] = receive_buffer[9];
 
-        new_estop = strtol(orig_estop, NULL, 16);
-        new_leftspeed = strtol(orig_leftspeed, NULL, 16);
-        new_rightspeed = strtol(orig_rightspeed, NULL, 16);
-        new_checksum = strtol(orig_checksum, NULL, 16);
-
-        if(new_leftspeed == 127){
-            new_leftspeed = 0;
-            leftDir = DRIVE_FORWARD;
-        }else if(new_leftspeed < 127){
-            new_leftspeed = 127 - new_leftspeed;
+        if(receive_buffer[2] == 127){
+            receive_buffer[2] = 0;
+            leftDir = DRIVE_STOP;
+        }else if(receive_buffer[2] < 127){
+            receive_buffer[2] = 127 - receive_buffer[2];
             leftDir = DRIVE_BACKWARD;
-        }else if(new_leftspeed > 127){
-            new_leftspeed -= 127;
+        }else if(receive_buffer[2] > 127){
+            receive_buffer[2] -= 127;
             leftDir = DRIVE_FORWARD;
         }
 
-        if(new_rightspeed == 127){
-            new_rightspeed = 0;
-            rightDir = DRIVE_FORWARD;
-        }else if(new_rightspeed < 127){
-            new_rightspeed = 127 - new_rightspeed;
+        if(receive_buffer[3] == 127){
+            receive_buffer[3] = 0;
+            rightDir = DRIVE_STOP;
+        }else if(receive_buffer[3] < 127){
+            receive_buffer[3] = 127 - receive_buffer[3];
             rightDir = DRIVE_BACKWARD;
-        }else if(new_rightspeed > 127){
-            new_rightspeed -= 127;
+        }else if(receive_buffer[3] > 127){
+            receive_buffer[3] -= 127;
             rightDir = DRIVE_FORWARD;
         }
-        Sabertooth_SetMotors(SABERTOOTHADDRESS, leftDir, new_leftspeed, rightDir, new_rightspeed);
+        Sabertooth_SetMotors(SABERTOOTHADDRESS, leftDir, receive_buffer[2], rightDir, receive_buffer[3]);
 
     }
 

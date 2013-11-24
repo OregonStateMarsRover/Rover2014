@@ -50,12 +50,6 @@ int main(void)
                 break;
 
             case DRIVING:
-                //Sabertooth_DriveTest();
-                if(GetByteUART() == 'S'){
-                    SendStringUSART0((unsigned char *)"Stop Command Received.\r\n");
-                    currentState = WAITFORHOST;
-                    break;
-                }
                 break;
 
             case 3:
