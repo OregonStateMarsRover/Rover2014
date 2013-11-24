@@ -1,1 +1,5 @@
 Firmware for the motor controllers should go here.
+
+All firmware developed using codeblocks and avr-gcc.
+
+Make sure to change your build path to include your cloned path.
