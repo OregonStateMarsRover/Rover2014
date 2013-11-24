@@ -37,7 +37,6 @@ void SendStringUSART0(unsigned char *data){
 
 unsigned char GetByteUART(void){
 	if((UCSR0A & (1 << RXC0))){
-        //~(1 << RCX0)
         return(UDR0);
 	}else{
         return -1;

@@ -2,23 +2,60 @@
 #include <stdint.h>
 #include <Sabertooth.h>
 #include <util/delay.h>
+#include <main.h>
+#include <Mega2560.h>
 
 void Initialize_Sabertooth(void){
-    SendByteUSART1(170);        //Autobaud Byte for Sabertooth
+    SendByteUSART1(AUTOBAUD_BYTE);                                          //This byte tells the controller to automatically determine the usart communication speed.
     Sabertooth_HardStop();
 }
 
+void Sabertooth_SetMotors(unsigned char address, unsigned char LeftDir, unsigned char LeftSpeed, unsigned char RightDir, unsigned char RightSpeed){
+
+    if(LeftDir == DRIVE_FORWARD){
+        LeftDir = LEFT_FORWARD;
+    }else if(LeftDir == DRIVE_BACKWARD){
+        LeftDir = LEFT_BACK;
+    }else if(LeftDir == DRIVE_STOP){
+        LeftDir = LEFT_FORWARD;
+        LeftSpeed = 0;
+    }
+
+    if(RightDir == DRIVE_FORWARD){
+        RightDir = RIGHT_FORWARD;
+    }else if(RightDir == DRIVE_BACKWARD){
+        RightDir = RIGHT_BACK;
+    }else if(RightDir == DRIVE_STOP){
+        RightDir = RIGHT_FORWARD;
+        RightSpeed = 0;
+    }
+
+    unsigned char LeftChecksum = Sabertooth_Checksum(address, LeftDir, LeftSpeed);
+    unsigned char RightChecksum = Sabertooth_Checksum(address, RightDir, RightSpeed);
+
+
+    SendByteUSART1(address);
+    SendByteUSART1(LeftDir);
+    SendByteUSART1(LeftSpeed);
+    SendByteUSART1(LeftChecksum);
+
+    SendByteUSART1(address);
+    SendByteUSART1(RightDir);
+    SendByteUSART1(RightSpeed);
+    SendByteUSART1(RightChecksum);
+}
+
 void Sabertooth_LeftDrive(unsigned char direction, unsigned char speed){
-    unsigned char address = SABERTOOTHADDRESS;
-    unsigned char command;
+    unsigned char address = SABERTOOTHADDRESS;                              //Assigns our define to a nice variable so the compiler won't complain
+    unsigned char command = command;                                        //Cannot be initialized unassigned due to compiler optimizations
 
     if(direction == 2){
         command = 0;
         speed = 0;
     }else if(direction == 1){
-        command = 0;        //Sabertooth command for driving motor 1 forward
+        command = 0;                                                        //Sabertooth command for driving motor 1 forward
     }else if(direction == 0){
-        command = 1;        //Sabertooth command for driving motor 1 backwards
+        command = 1;                                                        //Sabertooth command for driving motor 1 backwards
     }
 
     SendByteUSART1(SABERTOOTHADDRESS);
@@ -28,8 +65,8 @@ void Sabertooth_LeftDrive(unsigned char direction, unsigned char speed){
 }
 
 void Sabertooth_RightDrive(unsigned char direction, unsigned char speed){
-    unsigned char address = SABERTOOTHADDRESS;
-    unsigned char command;
+    unsigned char address = SABERTOOTHADDRESS;                              //Assigns our define to a nice variable so the compiler won't complain
+    unsigned char command = command;                                        //Cannot be initialized unassigned due to compiler optimizations
 
     if(direction == 2){
         command = 0;
@@ -60,23 +97,19 @@ void Sabertooth_HardStop(void){
 void Sabertooth_DriveTest(void){
     int i;
     for(i = 0 ; i < 128 ; i++){
-        Sabertooth_LeftDrive(1, i);
-        Sabertooth_RightDrive(1, i);
-        _delay_ms(20);
+        Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_FORWARD, i, DRIVE_FORWARD, i);
+        Mega2560_delay_ms(20);
     }
     for( ; i > 0 ; i--){
-        Sabertooth_LeftDrive(1, i);
-        Sabertooth_RightDrive(1, i);
-        _delay_ms(20);
+        Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_FORWARD, i, DRIVE_FORWARD, i);
+        Mega2560_delay_ms(20);
     }
     for(i = 0 ; i < 128 ; i++){
-        Sabertooth_LeftDrive(0, i);
-        Sabertooth_RightDrive(0, i);
-        _delay_ms(20);
+        Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_BACKWARD, i, DRIVE_BACKWARD, i);
+        Mega2560_delay_ms(20);
     }
     for( ; i > 0 ; i--){
-        Sabertooth_LeftDrive(0, i);
-        Sabertooth_RightDrive(0, i);
-        _delay_ms(20);
+        Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_BACKWARD, i, DRIVE_BACKWARD, i);
+        Mega2560_delay_ms(20);
     }
 }

@@ -11,7 +11,7 @@
 
 int main(void)
 {
-    nextState = 255;
+    nextState = NOINTERRUPT;
     unsigned char currentState = 0;
 
     while(1){
@@ -36,11 +36,11 @@ int main(void)
                     sei();
                     break;
                 }
-                _delay_ms(500);
+                Mega2560_delay_ms(500);
                 PORTB |= (1<<PB7);
-                _delay_ms(100);
+                Mega2560_delay_ms(100);
                 PORTB &= ~(1<<PB7);
-                _delay_ms(100);
+                Mega2560_delay_ms(100);
                 break;
 
             case DRIVING:
