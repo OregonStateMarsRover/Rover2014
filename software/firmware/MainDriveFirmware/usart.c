@@ -2,6 +2,9 @@
 #include <usart.h>
 #include <avr/interrupt.h>
 #include <main.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <Sabertooth.h>
 
 void Initialize_USART0(double newbaud){
     PRR0 &= ~(1<<PRUSART0);  //Disables power saving mode
@@ -62,9 +65,62 @@ void SendByteUSART1(char data){
 }
 
 ISR (USART0_RX_vect){
-    SendStringUSART0((unsigned char *)"Serial Data Receieved...\r\n");
-    SendByteUSART0(UDR0);
-    nextState = WAITFORHOST;
+    receive_buffer[bufferpos] = UDR0;
+    bufferpos++;
+
+    if(bufferpos == PACKETSIZE){
+        char orig_estop[2] = {255, 255};
+        char orig_leftspeed[2] = {255, 255};
+        char orig_rightspeed[2] = {255, 255};
+        char orig_checksum[2] = {255, 255};
+        unsigned char new_estop = {255};
+        unsigned char new_leftspeed = {255};
+        unsigned char new_rightspeed = {255};
+        unsigned char new_checksum = {255};
+        unsigned char leftDir = leftDir;
+        unsigned char rightDir = rightDir;
+
+        bufferpos = 0;
+
+        orig_estop[0] = receive_buffer[2];
+        orig_estop[1] = receive_buffer[3];
+        orig_leftspeed[0] = receive_buffer[4];
+        orig_leftspeed[1] = receive_buffer[5];
+        orig_rightspeed[0] = receive_buffer[6];
+        orig_rightspeed[1] = receive_buffer[7];
+        orig_checksum[0] = receive_buffer[8];
+        orig_checksum[1] = receive_buffer[9];
+
+        new_estop = strtol(orig_estop, NULL, 16);
+        new_leftspeed = strtol(orig_leftspeed, NULL, 16);
+        new_rightspeed = strtol(orig_rightspeed, NULL, 16);
+        new_checksum = strtol(orig_checksum, NULL, 16);
+
+        if(new_leftspeed == 127){
+            new_leftspeed = 0;
+            leftDir = DRIVE_FORWARD;
+        }else if(new_leftspeed < 127){
+            new_leftspeed = 127 - new_leftspeed;
+            leftDir = DRIVE_BACKWARD;
+        }else if(new_leftspeed > 127){
+            new_leftspeed -= 127;
+            leftDir = DRIVE_FORWARD;
+        }
+
+        if(new_rightspeed == 127){
+            new_rightspeed = 0;
+            rightDir = DRIVE_FORWARD;
+        }else if(new_rightspeed < 127){
+            new_rightspeed = 127 - new_rightspeed;
+            rightDir = DRIVE_BACKWARD;
+        }else if(new_rightspeed > 127){
+            new_rightspeed -= 127;
+            rightDir = DRIVE_FORWARD;
+        }
+        Sabertooth_SetMotors(SABERTOOTHADDRESS, leftDir, new_leftspeed, rightDir, new_rightspeed);
+
+    }
+
     //UCSR0B &= ~(1 << RXCIE0); //Manually clears interrupt flag if you don't read the data on the port
     return;
 }

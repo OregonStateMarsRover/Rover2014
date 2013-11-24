@@ -13,6 +13,11 @@
 #define DRIVE_BACKWARD 0
 #define DRIVE_STOP 2
 
+#define PACKETSIZE 12
+
 volatile unsigned char nextState;
+
+volatile unsigned char receive_buffer[PACKETSIZE];
+volatile unsigned char bufferpos;
 
 #endif // MAIN_H_INCLUDED

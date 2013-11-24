@@ -11,8 +11,14 @@
 
 int main(void)
 {
-    nextState = NOINTERRUPT;
     unsigned char currentState = 0;
+    nextState = NOINTERRUPT;
+
+    for(int i = 0 ; i < PACKETSIZE ; i++){
+        receive_buffer[i] = 255;
+    }
+
+    bufferpos = 0;
 
     while(1){
         if(nextState != NOINTERRUPT){
@@ -44,7 +50,7 @@ int main(void)
                 break;
 
             case DRIVING:
-                Sabertooth_DriveTest();
+                //Sabertooth_DriveTest();
                 if(GetByteUART() == 'S'){
                     SendStringUSART0((unsigned char *)"Stop Command Received.\r\n");
                     currentState = WAITFORHOST;
