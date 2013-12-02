@@ -29,44 +29,10 @@ def get_controlPort(checkString):
 	  return port
     except serial.SerialException:
       pass
-    
-def drive_test(SerPort):
-  for x in range(127, 254):
-      SerPort.write(chr(255))
-      SerPort.write(chr(255))
-      SerPort.write(chr(x))
-      SerPort.write(chr(x))
-      SerPort.write(chr(255 ^ x ^ x))
-      SerPort.write(chr(255))
-      time.sleep(.1)
-  for x in reversed(range(127, 254)):
-      SerPort.write(chr(255))
-      SerPort.write(chr(255))
-      SerPort.write(chr(x))
-      SerPort.write(chr(x))
-      SerPort.write(chr(255 ^ x ^ x))
-      SerPort.write(chr(255))
-      time.sleep(.1)
-  for x in reversed(range(0, 127)):
-      SerPort.write(chr(255))
-      SerPort.write(chr(255))
-      SerPort.write(chr(x))
-      SerPort.write(chr(x))
-      SerPort.write(chr(255 ^ x ^ x))
-      SerPort.write(chr(255))
-      time.sleep(.1)
-  for x in range(0, 127):
-      SerPort.write(chr(255))
-      SerPort.write(chr(255))
-      SerPort.write(chr(x))
-      SerPort.write(chr(x))
-      SerPort.write(chr(255 ^ x ^ x))
-      SerPort.write(chr(255))
-      time.sleep(.1)
 
-def SendPacket(SerPort, left, right):  
+def SendPacket(SerPort, left, right, estop):  
       SerPort.write(chr(255))
-      SerPort.write(chr(0))
+      SerPort.write(chr(estop))
       SerPort.write(chr(left))
       SerPort.write(chr(right))
       SerPort.write(chr(0 ^ left ^ right))
@@ -83,16 +49,20 @@ if __name__ == '__main__':
   time.sleep(2)
   DrvSer.write(chr(68))
   time.sleep(2)
+  
+  writenull = open(os.devnull, 'w')
  
   while(1):
-    os.system('clear')
     pygame.event.get()
     left = int((MyJoystick.get_axis(1)* -127) + 127)
     right = int((MyJoystick.get_axis(4)* -127) + 127)
-    print "Left Value " + str(left)
-    print "Right Value " + str(right)
-    SendPacket(DrvSer, left, right)    
-    time.sleep(.001)
+    estop = not (int(MyJoystick.get_button(5)))
+    os.system('clear')
+    print "Left Value: " + str(left)
+    print "Right Value: " + str(right)
+    print "E-Stop: " + str(estop)
+    SendPacket(DrvSer, left, right, estop)    
+    time.sleep(.01)
  
  
  

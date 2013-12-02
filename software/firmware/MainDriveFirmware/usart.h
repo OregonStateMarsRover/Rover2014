@@ -8,5 +8,5 @@ unsigned char GetByteUART(void);
 
 void Initialize_USART1(double newbaud);
 void SendByteUSART1(char data);
-
+unsigned char ChecksumUSART0(unsigned char estop, unsigned char left, unsigned char right);
 #endif // USART_H_INCLUDED

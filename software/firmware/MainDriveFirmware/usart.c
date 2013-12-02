@@ -105,14 +105,7 @@ ISR (USART0_RX_vect){
                 rightDir = DRIVE_FORWARD;
             }
             Sabertooth_SetMotors(SABERTOOTHADDRESS, leftDir, receive_buffer[2], rightDir, receive_buffer[3]);
-
         }
-
-
-
-
     }
-
-    //UCSR0B &= ~(1 << RXCIE0); //Manually clears interrupt flag if you don't read the data on the port
     return;
 }
