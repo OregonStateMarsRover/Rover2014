@@ -1,6 +1,7 @@
 import os
 import serial
 import time
+from operator import xor
 from serial.tools import list_ports
 
 serbaud = 9600
@@ -34,7 +35,7 @@ def drive_test(SerPort):
       SerPort.write(chr(255))
       SerPort.write(chr(x))
       SerPort.write(chr(x))
-      SerPort.write(chr(255))
+      SerPort.write(chr(255 ^ x ^ x))
       SerPort.write(chr(255))
       time.sleep(.1)
   for x in reversed(range(127, 254)):
@@ -42,7 +43,7 @@ def drive_test(SerPort):
       SerPort.write(chr(255))
       SerPort.write(chr(x))
       SerPort.write(chr(x))
-      SerPort.write(chr(255))
+      SerPort.write(chr(255 ^ x ^ x))
       SerPort.write(chr(255))
       time.sleep(.1)
   for x in reversed(range(0, 127)):
@@ -50,7 +51,7 @@ def drive_test(SerPort):
       SerPort.write(chr(255))
       SerPort.write(chr(x))
       SerPort.write(chr(x))
-      SerPort.write(chr(255))
+      SerPort.write(chr(255 ^ x ^ x))
       SerPort.write(chr(255))
       time.sleep(.1)
   for x in range(0, 127):
@@ -58,7 +59,7 @@ def drive_test(SerPort):
       SerPort.write(chr(255))
       SerPort.write(chr(x))
       SerPort.write(chr(x))
-      SerPort.write(chr(255))
+      SerPort.write(chr(255 ^ x ^ x))
       SerPort.write(chr(255))
       time.sleep(.1)
   

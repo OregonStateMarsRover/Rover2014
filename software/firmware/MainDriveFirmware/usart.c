@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <Sabertooth.h>
+#include <Mega2560.h>
 
 void Initialize_USART0(double newbaud){
     PRR0 &= ~(1<<PRUSART0);  //Disables power saving mode
@@ -64,6 +65,10 @@ void SendByteUSART1(char data){
     UDR1 = data;
 }
 
+unsigned char ChecksumUSART0(unsigned char estop, unsigned char left, unsigned char right){
+    return (estop ^ left ^ right);
+}
+
 ISR (USART0_RX_vect){
     receive_buffer[bufferpos] = UDR0;
     bufferpos++;
@@ -74,29 +79,37 @@ ISR (USART0_RX_vect){
 
         bufferpos = 0;
 
+        if(receive_buffer[1] == 1){
+            Sabertooth_HardStop();
+        }else if(receive_buffer[4] == ChecksumUSART0(receive_buffer[1], receive_buffer[2], receive_buffer[3])){
 
-        if(receive_buffer[2] == 127){
-            receive_buffer[2] = 0;
-            leftDir = DRIVE_STOP;
-        }else if(receive_buffer[2] < 127){
-            receive_buffer[2] = 127 - receive_buffer[2];
-            leftDir = DRIVE_BACKWARD;
-        }else if(receive_buffer[2] > 127){
-            receive_buffer[2] -= 127;
-            leftDir = DRIVE_FORWARD;
+            if(receive_buffer[2] == 127){
+                receive_buffer[2] = 0;
+                leftDir = DRIVE_STOP;
+            }else if(receive_buffer[2] < 127){
+                receive_buffer[2] = 127 - receive_buffer[2];
+                leftDir = DRIVE_BACKWARD;
+            }else if(receive_buffer[2] > 127){
+                receive_buffer[2] -= 127;
+                leftDir = DRIVE_FORWARD;
+            }
+
+            if(receive_buffer[3] == 127){
+                receive_buffer[3] = 0;
+                rightDir = DRIVE_STOP;
+            }else if(receive_buffer[3] < 127){
+                receive_buffer[3] = 127 - receive_buffer[3];
+                rightDir = DRIVE_BACKWARD;
+            }else if(receive_buffer[3] > 127){
+                receive_buffer[3] -= 127;
+                rightDir = DRIVE_FORWARD;
+            }
+            Sabertooth_SetMotors(SABERTOOTHADDRESS, leftDir, receive_buffer[2], rightDir, receive_buffer[3]);
+
         }
 
-        if(receive_buffer[3] == 127){
-            receive_buffer[3] = 0;
-            rightDir = DRIVE_STOP;
-        }else if(receive_buffer[3] < 127){
-            receive_buffer[3] = 127 - receive_buffer[3];
-            rightDir = DRIVE_BACKWARD;
-        }else if(receive_buffer[3] > 127){
-            receive_buffer[3] -= 127;
-            rightDir = DRIVE_FORWARD;
-        }
-        Sabertooth_SetMotors(SABERTOOTHADDRESS, leftDir, receive_buffer[2], rightDir, receive_buffer[3]);
+
+
 
     }
 
