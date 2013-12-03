@@ -6,8 +6,17 @@
 #include <Mega2560.h>
 
 void Initialize_Sabertooth(void){
-    SendByteUSART1(AUTOBAUD_BYTE);                                          //This byte tells the controller to automatically determine the usart communication speed.
+    SendByteUSART1(AUTOBAUD_BYTE);                          //This byte tells the controller to automatically determine the usart communication speed.
+    Sabertooth_WriteCommand(SABERTOOTHADDRESS, 14, 2);      //This setting enables the sabertooth watchdog, which will stop the motors after a certain period of no control packets.
     Sabertooth_HardStop();
+}
+
+void Sabertooth_WriteCommand(unsigned char address, unsigned char command, unsigned char value){
+
+    SendByteUSART1(address);
+    SendByteUSART1(command);
+    SendByteUSART1(value);
+    SendByteUSART1(Sabertooth_Checksum(address, command, value));
 }
 
 void Sabertooth_SetMotors(unsigned char address, unsigned char LeftDir, unsigned char LeftSpeed, unsigned char RightDir, unsigned char RightSpeed){

@@ -11,6 +11,7 @@
 
 
 void Initialize_Sabertooth(void);
+void Sabertooth_WriteCommand(unsigned char address, unsigned char command, unsigned char value);
 void Sabertooth_SetMotors(unsigned char address, unsigned char LeftDir, unsigned char LeftSpeed, unsigned char RightDir, unsigned char RightSpeed);
 void Sabertooth_LeftDrive(unsigned char direction, unsigned char speed);
 
