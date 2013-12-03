@@ -29,7 +29,7 @@ if __name__ == '__main__':
     print "Right Value: " + str(right)
     print "E-Stop: " + str(estop)
     SendPacket(left, right, estop)    
-    time.sleep(.005)
+    time.sleep(.015)
  
  
  

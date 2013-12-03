@@ -35,13 +35,16 @@ def get_controlPort(checkString):
       pass
 
 def SendPacket(SerPort, left, right, estop, chksum):  
+      #try:
       SerPort.write(chr(255))
       SerPort.write(estop)
       SerPort.write(left)
       SerPort.write(right)
       SerPort.write(chksum)
       SerPort.write(chr(255))
-      
+      #except:
+	#print "Bad packet found. Ignoring..."
+	
 if __name__ == '__main__':
   RoverDrivePort = get_controlPort(RoverDrivePortString)
   DrvSer = serial.Serial(RoverDrivePort, serbaud, timeout=sertimeout)
@@ -61,7 +64,7 @@ if __name__ == '__main__':
       print "Right Value: " + str(int(ord(right)))
       print "E-Stop: " + str(int(ord(estop)))
       SendPacket(DrvSer, left, right, estop, chksum)
-      time.sleep(.005)
+      time.sleep(.01)
  
  
  
