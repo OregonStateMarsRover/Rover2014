@@ -4,10 +4,12 @@ import time
 import socket
 from serial.tools import list_ports
 
-UDP_IP = "127.0.0.1"
-UDP_PORT = 5005
+UDP_LOCAL = "127.0.0.1"
+UDP_REMOTE = "127.0.0.1"
+UDP_SEND = 5005
+UDP_RECEIVE = 5006
 socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-socket.bind((UDP_IP, UDP_PORT))
+socket.bind((UDP_LOCAL, UDP_RECEIVE))
 
 serbaud = 9600
 sertimeout = 3
@@ -51,7 +53,16 @@ if __name__ == '__main__':
   time.sleep(2)
   DrvSer.write(chr(68))
   time.sleep(2)
- 
+  Packet = "Ready"
+  socket.sendto(Packet, (UDP_REMOTE, UDP_SEND))
+  data = None
+  while(1):
+    socket.sendto(Packet, (UDP_REMOTE, UDP_SEND))
+    data, addr = socket.recvfrom(1024)
+    if data == "Ready":
+      socket.sendto(Packet, (UDP_REMOTE, UDP_SEND))
+      break
+  
   while(1):
     os.system('clear')
     data, addr = socket.recvfrom(1024)
@@ -62,9 +73,10 @@ if __name__ == '__main__':
       chksum = data[4]
       print "Left Value: " + str(int(ord(left)))
       print "Right Value: " + str(int(ord(right)))
-      print "E-Stop: " + str(int(ord(estop)))
+      print "E-Stop: " + str(bool(int(ord(estop))))
       SendPacket(DrvSer, left, right, estop, chksum)
       time.sleep(.01)
+      socket.sendto(Packet, (UDP_REMOTE, UDP_SEND))
  
  
  
