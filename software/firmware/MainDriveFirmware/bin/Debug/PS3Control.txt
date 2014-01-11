@@ -1,0 +1,12 @@
+Install the xboxdrv package. Or get it from the source.
+sudo apt-get install xboxdrv
+Plug in your PS3 DualShock controller via USB. The LEDs will flash. You should see relevant lines in your /var/log/syslog file (or equivalent, depending on your distribution – I’m using Ubuntu 13.04).
+usb 4-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+usb 4-2: Product: PLAYSTATION(R)3 Controller
+usb 4-2: Manufacturer: Sony
+sony 0003:054C:0268.0008: Fixing up Sony Sixaxis report descriptor
+input: Sony PLAYSTATION(R)3 Controller as /devices/pci0000:00/0000:00:13.2/usb4/4-2/4-2:1.0/input/input18
+sony 0003:054C:0268.0008: input,hiddev0,hidraw0: USB HID v1.11 Joystick [Sony PLAYSTATION(R)3 Controller] on usb-0000:00:13.2-2/input0
+Press the PlayStation button to enable it. The LEDs will continue to flash, but input will now register.
+Run xboxdrv.
+sudo xboxdrv --detach-kernel-driver

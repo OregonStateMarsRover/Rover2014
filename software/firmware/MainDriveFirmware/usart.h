@@ -1,6 +1,8 @@
 #ifndef USART_H_INCLUDED
 #define USART_H_INCLUDED
 
+#define ESTOP 0b00000001
+
 void Initialize_USART0(double newbaud);
 void SendByteUSART0(char data);
 void SendStringUSART0 (unsigned char *data);

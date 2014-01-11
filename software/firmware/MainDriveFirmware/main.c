@@ -51,7 +51,6 @@ int main(void)
 
             case DRIVING:
                 break;
-
             case 3:
                 break;
 

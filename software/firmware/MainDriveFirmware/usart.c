@@ -79,7 +79,7 @@ ISR (USART0_RX_vect){
 
         bufferpos = 0;
 
-        if(receive_buffer[1] == 1){
+        if(receive_buffer[1] & ESTOP){
             Sabertooth_HardStop();
         }else if(receive_buffer[4] == ChecksumUSART0(receive_buffer[1], receive_buffer[2], receive_buffer[3])){
 

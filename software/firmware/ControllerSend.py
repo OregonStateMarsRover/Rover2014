@@ -35,7 +35,7 @@ if __name__ == '__main__':
     if data  == "Ready":
       pygame.event.get()
       left = int((MyJoystick.get_axis(1)* -127) + 127)
-      right = int((MyJoystick.get_axis(4)* -127) + 127)
+      right = int((MyJoystick.get_axis(3)* -127) + 127)
       estop = not (int(MyJoystick.get_button(5)))
       os.system('clear')
       print "Left Value: " + str(left)
