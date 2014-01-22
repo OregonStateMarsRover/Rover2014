@@ -9,15 +9,22 @@ import cv2
 
 def importImages():
 
-	images[] = [][]
+	images = [] 
 
 	for i in range(20):
-		string = "tennisball" + (i + 1) + ".jpg"
+		string = "tennisball" + str(i + 1) + ".jpg"
 	
 		img = cv2.imread(string, cv2.CV_LOAD_IMAGE_COLOR)
-		res = cv2.resize(img, ((1/2)*width, (1/2)*height))
-		blur = cv2.gaussianBlur(res, (5,5), 0)
+		res = cv2.resize(img, (100, 100))
+		blur = cv2.GaussianBlur(res, (5,5), 0)
 
-		images[i] = blur		
+		images.append(blur)		
 
 	return images
+
+images =importImages();
+
+for i in range(20):
+	cv2.imshow("image", images[i])
+	cv2.waitKey(0)
+cv2.DestroyAllWindows()
