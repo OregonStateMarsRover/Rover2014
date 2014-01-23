@@ -12,7 +12,7 @@ def importImages():
 	images = [] 
 
 	for i in range(20):
-		string = "tennisball" + str(i + 1) + ".jpg"
+		string = "images" + str(i + 1) + ".png"
 	
 		img = cv2.imread(string, cv2.CV_LOAD_IMAGE_COLOR)
 		res = cv2.resize(img, (100, 100))
