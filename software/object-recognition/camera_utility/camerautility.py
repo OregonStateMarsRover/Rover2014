@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 # 
 # Description: Starts webcam and takes a picture when spacebar is pressed
 # Author:      Cody Ray Freeman Hoeft (OSU Mars Rover Team)
@@ -11,7 +12,7 @@ import cv2
 import os
 
 #constant format will be root000.ftype
-root = "image"
+root = "../images/image"
 ftype = ".png"
 
 #This function is responsible for displaying the video on screen
@@ -68,7 +69,7 @@ def get_name():
 
 #Init Program
 
-capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture(1)
 
 camera_loop(capture)
 
