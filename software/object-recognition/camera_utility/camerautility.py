@@ -12,7 +12,7 @@ import cv2
 import os
 
 #constant format will be root000.ftype
-root = "image"
+root = "../images/image"
 ftype = ".png"
 
 #This function is responsible for displaying the video on screen
