@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 # 
 # Description: Starts webcam and takes a picture when spacebar is pressed
 # Author:      Cody Ray Freeman Hoeft (OSU Mars Rover Team)
