@@ -8,8 +8,11 @@ import cv2
 import pdb
 import math
 
-MIN_H = 0.1
-MAX_H = 1.0
+WIDTH=640/2
+HEIGHT=480/2
+DEPTH_SCALE=30
+MIN_H = 1.0
+MAX_H = 2.0
 THETA = math.pi/4.0
 
 class obstacle_detector:
@@ -25,28 +28,61 @@ class obstacle_detector:
 		disp_np = np.array(disp, np.float).reshape((480,640))
 		fb = focal * baseline
 		dist = fb / disp_np
-		#pdb.set_trace()
+		dist = cv2.resize(dist, (WIDTH, HEIGHT))
 
 		scale = dist / (dist.mean() * 3)
 		cv2.imshow("depth", scale)
-		obs = np.zeros((480,640))
+		obs = np.zeros((HEIGHT,WIDTH), np.uint8)
 
+		#self.filter_dist(dist, obs, 5, 8)
 		self.find_obstacles(dist, obs)
 		cv2.imshow("obstacle", obs)
+		#cv2.imwrite("out.png", obs)
 		cv2.waitKey(1)
 
-	def find_obstacles(self, depth, obs):
+	def filter_dist(self, depth, obs, min_d, max_d):
 		for x, y in np.ndindex(depth.shape):
 			d = depth[x,y]
-			if d < 0: continue
-			if obs[x,y] == 255: continue
-
-
-			if 5 < depth[x,y] < 10:
+			if min_d < d < max_d:
 				obs[x,y] = 255
 
+	def find_obstacles(self, depth, obs):
+		print "Start"
+		c = [x for x in np.ndindex(depth.shape)]
+		c.reverse()
+		for y, x in c:
+			d = depth[y,x]
+			if d < 0: continue
+			if obs[y,x] > 255: continue
+
+			scale = self.depth_scale(d)
+			min_row = y - int(max(MIN_H * scale, 1.0))
+			max_row = y - int(max(MAX_H * scale, 1.0))
+			
+			min_row = max(min_row, 0)
+			max_row = max(max_row, 0)	
+
+			#px, py are the depth pixels in the 'cone' being
+			#examined
+			obstacle = False
+			for py in range(min_row, max_row, -1):
+				dx = int(math.tan(THETA) * (y-py))
+				min_col = x - dx
+				max_col = x + dx
+				for px in range(min_col, max_col):
+					pd = depth[py, px]
+					if pd < 0: continue
+					dz = dx / (scale * DEPTH_SCALE)
+					if d - dz < pd < d + dz:
+						obstacle = True
+						#obs[py, px] = 255
+						break
+			if obstacle: obs[y,x] = 255
+			else: obs[y,x] = 100
+		print "Done"
+
 	def depth_scale(self, depth):
-		return 30.0
+		return 5.0
 		
 
 if __name__ == '__main__':
