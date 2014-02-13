@@ -1,0 +1,11 @@
+<launch>
+    <node name="uvc_cam_left" pkg="uvc_camera" type="uvc_camera_node" output="screen" ns="my_stereo">
+		<param name="device" value="/dev/video1" />	
+		<param name="fps" value="60.0" />	
+		<param name="width" value="640" />
+		<param name="height" value="480" />
+		<param name="frame_id" value="frame" />
+		<param name="skip_frames" value="20.0" />
+    </node>
+    
+</launch>
