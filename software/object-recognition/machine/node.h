@@ -1,36 +1,25 @@
-#define MAXCLASS 8
-#define E (2.7182818284590452353602874713526624977572470937L )
-
 #include <iostream>
 #include <cmath>
-#include <gsl/gsl_math.h>
 #include <vector>
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <ctime>
 #include <sstream>
-
+#include "constants.h"
 using namespace std;
 
 class node{
-	double w1, w2, bias;
+	int numinputs;
+	vector<double> w;
+	double bias;
+	double output;
 	
 	public:
-	node(float, float, float);
-	void adjust_w1(float);
-	float get_w1();
+	node(int inputs, double bias);
+	double getweight(int n);
+	double activation_sum(vector<double> input);
+	double activation(vector<double>);
+	double activation_prime(double);
+
 };
-struct surf_descriptor{
-	int x;
-	int y;
-	float descs[128];
-};
-
-
-
-int vector2class(vector<int>);
-vector<int> class2vector(int);
-vector<vector<surf_descriptor> > get_surf_from_file(string);
-float activation(float);
-float activation_prime(float);
-
