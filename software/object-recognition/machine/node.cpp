@@ -33,7 +33,6 @@ int vector2class(vector<int> v){
  * Assumes that classification is valid
  */
 vector<int> class2vector(int classification){
-	int counter = 0;
 	vector<int> v;
 	for(int i=0; i < MAXCLASS; ++i){
 		v.push_back(classification == i);
@@ -41,9 +40,56 @@ vector<int> class2vector(int classification){
 	return v;
 }
 
-int main(){
-	cout << "test" << endl;
-	node n(2, 3, sqrt(3));
-	cout << n.get_w1() << endl;
+/*
+ * This will read the surf descriptor data file that we generated with
+ * a python script. this data is of the format
+ * image_id<int> x<int> y<int> 1...128<float>
+ *
+ */
+
+vector<vector<surf_descriptor> > get_surf_from_file(string filename){
+	ifstream f(filename.c_str(), ios::in);
+	if(!f.is_open()){
+		cout << "couldnt open file" << endl;
+		exit(EXIT_FAILURE);
+	}
+	// level 1 is the image, level two is the descriptors 
+	vector<vector<surf_descriptor> > imagev;
+	string line;
+	int img = 0;	
+	while(getline(f, line)){	
+		istringstream iis(line);
+		int image, x, y;
+		if(!(iis >> image >> x >> y)){
+			cout << "Bad Data format" << endl;
+			continue;
+		}
+		if(img == image){	
+			vector<surf_descriptor> descv;
+			imagev.push_back(descv);
+			++img;
+		}
+		surf_descriptor item;
+		item.x = x;
+		item.y = y;
+		for(int i=0; i < 128; ++i){
+			iis >> item.descs[i];
+		}
+		imagev[image].push_back(item);	
+	}
+	return imagev;
+}
+
+float activation(float a){
+	return 1/(1+pow(E, -a));
+}
+
+float activation_prime(float a){
+	return pow(E, a)/pow(pow(E, a)+1, 2);
+}
+
+int main(){	
+	vector<vector<surf_descriptor> > imagev = get_surf_from_file("surf_desc.dat");
+	cout << "imported descriptors for " << imagev.size() << " images" << endl;
 	return 0;
 }

@@ -26,11 +26,10 @@ def importImages():
 			blur = cv2.gaussianBlur(res, (5,5), 0)
 			images[i] = blur
 		elif sys.argv[1] == "surf":
-			#print "starting image:", i		
+			print "starting image:", i		
 			img = cv2.imread(path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
 			surf = cv2.SURF(500)
 			kp, desc = surf.detectAndCompute(img, None)	
-			"""
 			for z, pt in enumerate(kp):
 				f.write("%d " % i)
 				f.write("%d %d" % pt.pt)
@@ -39,7 +38,6 @@ def importImages():
 					descs += " %f" % x
 				descs += "\n"
 				f.write(descs)	
-			"""
 	return images
 
 if __name__ == '__main__':
