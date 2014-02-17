@@ -19,7 +19,7 @@ MIN_H = 1.5
 MAX_H = 2.0
 THETA = math.pi/4.0
 MIN_AREA=40
-DEBUG=False
+DEBUG=True
 
 class Timer:
 	def __init__(self, name):
@@ -37,7 +37,7 @@ class Timer:
 
 class obstacle_detector:
 	def __init__(self):
-		self.boxes = None
+		self.raw_image = None
 		self.disp_callback = rospy.Subscriber("/my_stereo/disparity", DisparityImage, self.callback_disp)
 		self.img_callback = rospy.Subscriber("/my_stereo/left/image_rect_color", Image, self.callback_img)
 		cv2.namedWindow("depth", cv2.WINDOW_AUTOSIZE)
@@ -51,24 +51,14 @@ class obstacle_detector:
 		np_arr = np.fromstring(data.data, np.uint8)
 		np_arr = np_arr.reshape((480,640,3))
 		np_arr = cv2.resize(np_arr, (WIDTH, HEIGHT))
-
-
-		if self.boxes is not None:
-			ob = np_arr.copy()
-			ob = cv2.cvtColor(ob, cv2.COLOR_BGR2HSV)
-			_max = len(self.boxes)
-			for l,s in enumerate(self.boxes[::-1]):
-				hue = 120-int(float(l)/float(_max)*120)
-				for x,y,w,h in s:
-					cv2.rectangle(ob, (x,y), (x+w,y+h), (hue,255,255),-1)
-			ob = cv2.cvtColor(ob, cv2.COLOR_HSV2BGR)
-			np_arr = cv2.addWeighted(np_arr, 0.7, ob, 0.3, 0)
-
-		cv2.imshow("final", np_arr)
-		cv2.waitKey(1)
+		self.raw_image = np_arr
 
 
 	def callback_disp(self, data):
+		current_image = None
+		if self.raw_image is not None:
+			current_image = self.raw_image.copy()
+
 		focal = data.f
 		baseline = data.T	
 		disp = struct.unpack(str(data.image.width*data.image.height)+'f', data.image.data)
@@ -115,10 +105,22 @@ class obstacle_detector:
 				cv2.imshow(str(x), slices[x])
 				cv2.waitKey(1)
 
-		det_tmp = np.clip(scale_obs, 0, 1)
-		det = cv2.cvtColor(det_tmp.astype(np.float32), cv2.COLOR_GRAY2RGB)
+		#det_tmp = np.clip(scale_obs, 0, 1)
+		#det = cv2.cvtColor(det_tmp.astype(np.float32), cv2.COLOR_GRAY2RGB)
+		if current_image is not None:
+			ob = current_image.copy()
+			ob = cv2.cvtColor(ob, cv2.COLOR_BGR2HSV)
+			_max = len(boxes)
+			for l,s in enumerate(boxes[::-1]):
+				hue = 120-int(float(l)/float(_max)*120)
+				for x,y,w,h in s:
+					cv2.rectangle(ob, (x,y), (x+w,y+h), (hue,255,255),-1)
+			ob = cv2.cvtColor(ob, cv2.COLOR_HSV2BGR)
+			current_image = cv2.addWeighted(current_image, 0.7, ob, 0.3, 0)
 
-		self.boxes = boxes
+		if current_image is not None:
+			cv2.imshow("final", current_image)
+		cv2.waitKey(1)
 
 	def find_obstacles(self, depth, obs):
 		c = [x for x in np.ndindex(depth.shape)]
