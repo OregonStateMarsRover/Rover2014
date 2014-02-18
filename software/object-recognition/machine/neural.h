@@ -12,7 +12,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 //include my stuff
-#include "node.h"
+#include "neural_network.h"
 
 #include "constants.h"
 
@@ -25,16 +25,8 @@ struct surf_descriptor{
 	double descs[128];
 };
 
-struct neural_network{
-	vector<double> inputs;
-	vector<node> hidden;
-	vector<node> outputs;
-};
-
-
-int vector2class(vector<int>);
-vector<int> class2vector(int);
+int vector2class(vector<double>);
+vector<double> class2vector(int);
 vector<vector<surf_descriptor> > get_surf_from_file(string);
 int rgbcat(int r, int g, int b);
-vector<double> run_nn(neural_network nn);
-neural_network nn_init(vector<double> inputs);
+

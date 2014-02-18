@@ -10,16 +10,16 @@
 using namespace std;
 
 class node{
-	int numinputs;
-	vector<double> w;
+	int numinputs;	
 	double bias;
 	double output;
 	
 	public:
+	vector<double> w;
+
 	node(int inputs, double bias);
 	double getweight(int n);
 	double activation_sum(vector<double> input);
 	double activation(vector<double>);
 	double activation_prime(double);
-
 };

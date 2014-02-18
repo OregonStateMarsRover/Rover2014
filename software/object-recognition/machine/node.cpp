@@ -1,5 +1,11 @@
 #include "node.h"
 
+//need n which is learning rate
+//error = y-t
+//dw = n*e*y_2(1-y_2)y_1
+//dv = n*d2*x
+//d2 = sum of all outputs(w_kj*(e*y_2(1-y_2))y(1-y)) // the wight is preupdate
+
 using namespace std;
 
 node::node(int inputs, double bias){	
@@ -27,7 +33,12 @@ double node::activation_sum(vector<double> input){
 
 double node::activation(vector<double> inputs){
 	double a = this->activation_sum(inputs);
-	this->output = 1/(1+pow(E, -a));	
+	this->output = 1/(1+pow(E, -a));
+	if(this->output > .95){
+		this->output = 1;
+	}else if(this->output < .05){
+		this->output = 0;
+	}
 	return this->output;
 }
 

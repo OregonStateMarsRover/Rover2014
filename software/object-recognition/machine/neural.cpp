@@ -6,7 +6,7 @@ using namespace cv;
 /*
  * Converts a vector to a classification number
  */
-int vector2class(vector<int> v){
+int vector2class(vector<double> v){
 	int counter = 0;
 	while(v.at(counter) == 0 && counter < MAXCLASS){
 		counter++;
@@ -21,8 +21,8 @@ int vector2class(vector<int> v){
  * Converts a classification number to a vector
  * Assumes that classification is valid
  */
-vector<int> class2vector(int classification){
-	vector<int> v;
+vector<double> class2vector(int classification){
+	vector<double> v;
 	for(int i=0; i < MAXCLASS; ++i){
 		v.push_back(classification == i);
 	}
@@ -74,36 +74,43 @@ vector<vector<surf_descriptor> > get_surf_from_file(string filename){
 	return imagev;
 }
 
-neural_network nn_init(vector<double> inputs){
-	neural_network nn;
-	nn.inputs = inputs;
-	int numinputs = inputs.size();
-	//start by setting up the hidden and output layers for the neural network
-	for(int i=0; i<HIDDEN; ++i){
-		node n(numinputs, .01);
-		nn.hidden.push_back(n);
+/*
+ * this is a function to try and test if the neural network can find x2 bellow 256(8 bit)
+ */
+void train_x2(){
+	vector<vector<double> > inputs;
+	vector<vector<double> > outputs;
+	for(int i = 0; i < 256; i+=3){
+		vector<double> x;	
+		x.push_back(i);
+		inputs.push_back(x);
+		vector<double> y;
+		int bin = i*i;
+		while(bin > 0){
+			if(bin%2 == 1){
+				y.push_back(1);
+				bin--;
+			}
+			bin /= 2;
+		}
+		y.push_back(i*i);
+		outputs.push_back(y);
 	}
-	for(int i=0; i<MAXCLASS; ++i){
-		node n(numinputs, .01);
-		nn.outputs.push_back(n);
+	neural_network nn(inputs.size(), 8);
+	nn.train(inputs, outputs);
+	for(int i=1; i < 256; i+=2){
+		vector<double> input;
+		input.push_back(i);
+		vector<double> outs = nn.run(input);
+		double total = 0;
+		for(int n = 0; n < 8; ++n){
+			if(outs[n] == 1){
+				total += pow(2, 8-n);
+			}
+		}
+		//cout << "Test:" << i << ":" << total << endl;
 	}
-	return nn;
 }
-
-vector<double> run_nn(neural_network nn){
-	vector<double> hout;
-	for(unsigned int i=0; i<nn.hidden.size(); ++i){
-		double out = nn.hidden[i].activation(nn.inputs);
-		hout.push_back(out);
-	}
-	vector<double> output;
-	for(unsigned int i=0; i<nn.outputs.size(); ++i){
-		double out = nn.outputs[i].activation(hout);
-		output.push_back(out);	
-	}
-	return output;
-}
-
 
 int main(){
 	//TODO add support for looping through all of the image files
@@ -130,8 +137,7 @@ int main(){
 			inputs.push_back(rgbc/256256256);
 		}
 	}	
-	//now that we know the size of the input layer we can create the nural network
-	neural_network nn = nn_init(inputs);
-	vector<double> output = run_nn(nn);	
+	//now that we know the size of the input layer we can create the nural network	
+	train_x2();	
 	return 0;
 }
