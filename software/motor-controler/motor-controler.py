@@ -1,9 +1,7 @@
 import itertools #Used to break apart string
 
 DEFAULTSPEED = 20 #Should be a integer
-
-#Specific Class Structure
-class motor_control_class:
+class control_class:
     def __init__(self, port):
         self.port = port
         self.speed = DEFAULTSPEED
@@ -12,7 +10,7 @@ class motor_control_class:
         self.speed = 10 * int(raw_speed)
         print("Set Speed: " + raw_speed)
 
-    def __waitr(self):
+    def _waitr(self):
         #Wait for R response from controller
         #use self.port
         pass
@@ -21,42 +19,32 @@ class motor_control_class:
         #not to sure about this one
         pass
 
+
+#Specific Class Structure
+class motor_control_class(control_class):
     def forward(self, raw_distance):
         distance = 100 * int(raw_distance)
-        self.__waitr()
+        self._waitr()
         print("Distance: " + raw_distance)
 
     def backward(self, raw_distance):
         distance = 100 * int(raw_distance)
-        self.__waitr()
+        self._waitr()
         print("Distance Backward: " + raw_distance)
 
     def rotate(self, raw_degrees):
         degrees = int(raw_degrees)
-        self.__waitr()
+        self._waitr()
         print("Rotate: " + raw_degrees)
         
-class arm_control_class:
-    def __init__(self, port):
-        self.port = port
-        self.speed = DEFAULTSPEED
-    
-    def setspeed(self, raw_speed):
-        self.speed = 10 * int(raw_speed)
-        print("Set Speed: " + raw_speed)
-
-    def __waitr(self):
-        #Wait for R response from controller
-        #use self.port
-        pass
-
+class arm_control_class(control_class):
     def sendstatus(self, status):
         #not to sure about this one
         pass
 
     def base_rotate(self, raw_degrees):
         degrees = 100 * int(raw_degrees)
-        self.__waitr()
+        self._waitr()
         print("Rotate Base to " + raw_degrees)
 
 def registerdevices():
