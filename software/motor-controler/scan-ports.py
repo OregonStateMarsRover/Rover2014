@@ -11,7 +11,7 @@ def scan():
            s = serial.Serial(i)
            available.append( (i, s.portstr))
            s.close()
-       except serial.SerialException:
+       except:
            pass
    return available
 
