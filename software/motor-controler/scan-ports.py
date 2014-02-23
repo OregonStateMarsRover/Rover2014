@@ -6,7 +6,7 @@ from serial.tools import list_ports
 def scan():
    # scan for available ports. return a list of tuples (num, name)
    available = []
-   for i in range(256):
+   for i in range(1, 256):
        try:
            s = serial.Serial(i)
            available.append( (i, s.portstr))
