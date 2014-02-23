@@ -8,11 +8,11 @@ from std_msgs.msg import String
 #		or not
 ################################################################################
 def talker():
-   # Sets node called "motor_busy" as publishing to the motor_control topic
-   # The "motor_busy" :will also publish similar info to the arm_control topic
+   # Sets node called "motor_controller" as publishing to the motor_control topic
+   # The "motor_controller" :will also publish similar info to the arm_control topic
    motor_pub = rospy.Publisher("motor_control", String)
    arm_pub = rospy.Publisher("arm_control", String)
-   rospy.init_node("motor_busy")
+   rospy.init_node("motor_controller")
 
    # Run the operation of checking if the motor/arm is busy or not and publishing
    # that information. It sleeps between publishes for a second

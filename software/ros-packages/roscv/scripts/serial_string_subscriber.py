@@ -16,11 +16,11 @@ def callback(data):
 #              arms
 #########################################################################
 def listener():
-   # Subscribes to arm_control and motor_control topics and initializes the
+   # Subscribes to motor_command and on_command topics and initializes the
    # to the motor_controller node
    rospy.init_node("motor_controller", anonymous=True)
-   rospy.Subscriber("motor_control", String, callback)
-   rospy.Subscriber("arm_control", String, callback)
+   rospy.Subscriber("motor_command", String, callback)
+   rospy.Subscriber("arm_command", String, callback)
    rospy.spin()   # Keeps it running until node is closed
 
 if __name__ == "__main__":
