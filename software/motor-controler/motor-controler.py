@@ -1,6 +1,7 @@
 import itertools #Used to break apart string
 
 DEFAULTSPEED = 20 #Should be a integer
+
 class control_class:
     def __init__(self, port):
         self.port = port
@@ -22,26 +23,34 @@ class control_class:
 
 #Specific Class Structure
 class motor_control_class(control_class):
+    def checkarmstate(self):
+        #This one could be a problem, because it is out of the scope of the class
+        pass
+
+    def halt(self):
+        #stop the robot!
+        pass
+
     def forward(self, raw_distance):
+        checkarmstate()
         distance = 100 * int(raw_distance)
         self._waitr()
         print("Distance: " + raw_distance)
+        
 
     def backward(self, raw_distance):
+        checkarmstate()
         distance = 100 * int(raw_distance)
         self._waitr()
         print("Distance Backward: " + raw_distance)
 
     def rotate(self, raw_degrees):
+        checkarmstate()
         degrees = int(raw_degrees)
         self._waitr()
         print("Rotate: " + raw_degrees)
         
 class arm_control_class(control_class):
-    def sendstatus(self, status):
-        #not to sure about this one
-        pass
-
     def base_rotate(self, raw_degrees):
         degrees = 100 * int(raw_degrees)
         self._waitr()
@@ -53,10 +62,10 @@ def registerdevices():
     dictionary['arm'] = "/dev/ptt5/"
     return dictionary
 
-#Hook for pause function of robot
+#Hook for pause function of robot, returns 1 if robot is paused
 def checkforpause():
-    pass
-
+    #get the status of the pause
+    return 0
 #Gets the new feed 
 def get_published():
     publisher_string = "f100s10r45b500d30f5"
@@ -83,6 +92,7 @@ def main():
                 'r': body.rotate,
                 'd': arm.base_rotate
             } [path[x]] (path[x+1])
+            body.halt()
         ##
         repeat = False
 
