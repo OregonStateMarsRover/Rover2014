@@ -1,7 +1,8 @@
+#socat /dev/ttyS0,raw,echo=0,crnl /dev/ttyS1,raw,echo=0,crnl
 import serial
 
 def server():
-	port = "/dev/tty7"
+	port = "/dev/tty0"
 	s = serial.Serial(port)
 	while 1:
 		line = s.readline()
