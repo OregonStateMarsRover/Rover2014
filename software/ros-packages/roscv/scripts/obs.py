@@ -13,13 +13,14 @@ import math
 DOWNSCALE=2
 WIDTH=640/DOWNSCALE
 HEIGHT=480/DOWNSCALE
-SLICES=5
+SLICES=10
 DEPTH_SCALE=30
 MIN_H = 1.5
 MAX_H = 2.0
 THETA = math.pi/4.0
 MIN_AREA=40
 DEBUG=False
+MAX_RANGE=30.0
 
 class Timer:
 	def __init__(self, name):
@@ -77,8 +78,7 @@ class obstacle_detector:
 		dist = fb / disp_np
 		dist = cv2.resize(dist, (WIDTH, HEIGHT))
 
-		sf = dist.mean() * 3.0
-		scale = dist / sf
+		scale = dist / MAX_RANGE
 		cv2.imshow("depth", scale)
 		cv2.waitKey(1)
 		obs = np.zeros((HEIGHT,WIDTH), np.uint8)
@@ -88,7 +88,7 @@ class obstacle_detector:
 			self.find_obstacles(dist, obs)
 
 		scale_obs = obs.copy()
-		scale_obs = scale_obs / sf
+		scale_obs = scale_obs / MAX_RANGE
 		cv2.imshow("obstacle", scale_obs)
 		cv2.waitKey(1)
 
@@ -99,7 +99,7 @@ class obstacle_detector:
 			slices.append(s)
 
 		with Timer("Slice") as _:
-			self.filter(obs, slices, sf)
+			self.filter(obs, slices, MAX_RANGE)
 
 		with Timer("Denoise") as _:
 			for x in range(len(slices)):
