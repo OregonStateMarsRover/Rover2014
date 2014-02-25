@@ -14,15 +14,15 @@ DOWNSCALE=1
 WIDTH=640/DOWNSCALE
 HEIGHT=480/DOWNSCALE
 
-FX=240
-FY=240
-FW=40
-FH=60
+FX=235+10
+FY=225+10
+FW=55-10*2
+FH=92-10*2
 
-BX=370
-BY=235
-BW=40
-BH=45
+BX=360+10
+BY=228+10
+BW=60-10*2
+BH=65-10*2
 
 class obstacle_detector:
 	def __init__(self):
@@ -36,8 +36,7 @@ class obstacle_detector:
 		np_arr = np_arr.reshape((480,640,3))
 		np_arr = cv2.resize(np_arr, (WIDTH, HEIGHT))
 
-		cv2.rectangle(np_arr, (FX,FY), (FX+FW,FY+FH), (255,255,255))
-		cv2.rectangle(np_arr, (BX,BY), (BX+BW,BY+BH), (255,255,255))
+		self.draw_box(np_arr)
 		cv2.imshow("img", np_arr)
 		cv2.waitKey(1)
 
@@ -52,19 +51,29 @@ class obstacle_detector:
 		dist = cv2.resize(dist, (WIDTH, HEIGHT))
 
 		ds = self.get_avg_dists(dist)
-		print sum(ds[0])/len(ds[0]) 
-		print sum(ds[1])/len(ds[1]) 
+		self.print_dist("Near", ds[0])
+		self.print_dist("Far", ds[1])
 
 		sf = 20.0
 		scale = dist / sf
+		self.draw_box(scale)
 		cv2.imshow("disp", scale)
 		cv2.waitKey(1)
 
+	def draw_box(self, img):
+		cv2.rectangle(img, (FX,FY), (FX+FW,FY+FH), (255,255,255))
+		cv2.rectangle(img, (BX,BY), (BX+BW,BY+BH), (255,255,255))
+
+	def print_dist(self, s, l):
+		d = sum(l) / len(l)
+		print s,"\t",d
+
 	def get_avg_dists(self, dist):
+		from math import isnan, isinf
 		dists = [[],[]]
 		for y,x in np.ndindex(dist.shape):
 			v = dist[y,x]
-			if v <= 0: continue
+			if v <= 0 or isnan(v) or isinf(v): continue
 			if x in range(FX,FX+FW) and y in range(FY,FY+FH):
 				dists[0].append(v)
 			if x in range(BX,BX+BW) and y in range(BY,BY+BH):
