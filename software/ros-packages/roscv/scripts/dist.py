@@ -14,15 +14,15 @@ DOWNSCALE=1
 WIDTH=640/DOWNSCALE
 HEIGHT=480/DOWNSCALE
 
-FX=235+10
-FY=225+10
-FW=55-10*2
-FH=92-10*2
+FX=230#+10
+FY=225#+10
+FW=60#-10*2
+FH=92#-10*2
 
-BX=360+10
-BY=228+10
-BW=60-10*2
-BH=65-10*2
+BX=360#+10
+BY=228#+10
+BW=60#-10*2
+BH=65#-10*2
 
 class obstacle_detector:
 	def __init__(self):
@@ -51,8 +51,13 @@ class obstacle_detector:
 		dist = cv2.resize(dist, (WIDTH, HEIGHT))
 
 		ds = self.get_avg_dists(dist)
-		self.print_dist("Near", ds[0])
-		self.print_dist("Far", ds[1])
+		nd = self.print_dist("Near", ds[0])
+		nd = 4
+		self.print_length("Near", nd, (FW, FH))
+		fd = self.print_dist("Far", ds[1])
+		fd = 6
+		self.print_length("Far", fd, (BW, BH))
+		print ""
 
 		sf = 20.0
 		scale = dist / sf
@@ -67,6 +72,13 @@ class obstacle_detector:
 	def print_dist(self, s, l):
 		d = sum(l) / len(l)
 		print s,"\t",d
+		return d
+
+	def print_length(self, s, dist, l):
+		print s,"\t",
+		for x in l:
+			print self.calc_length(dist, x),
+		print ""
 
 	def get_avg_dists(self, dist):
 		from math import isnan, isinf
@@ -79,6 +91,13 @@ class obstacle_detector:
 			if x in range(BX,BX+BW) and y in range(BY,BY+BH):
 				dists[1].append(v)
 		return dists
+
+	#63x56
+	#64x42
+	def calc_length(self, dist, pl):
+		fl = 600.0 #TODO
+		length = dist * float(pl) / fl
+		return length
 
 if __name__ == '__main__':
 	try:
