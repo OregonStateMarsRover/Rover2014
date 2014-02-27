@@ -45,8 +45,8 @@ class obstacle_detector:
 		self.raw_image = None #Stores the raw image from the cameras
 
 		#Callback description
-		self.disp_callback = rospy.Subscriber("/my_stereo/disparity", DisparityImage, self.callback_disp)
-		self.img_callback = rospy.Subscriber("/my_stereo/left/image_rect_color", Image, self.callback_img)
+		#self.disp_callback = rospy.Subscriber("/my_stereo/disparity", DisparityImage, self.callback_disp)
+		#self.img_callback = rospy.Subscriber("/my_stereo/left/image_rect_color", Image, self.callback_img)
 
 		#Set up cv2 windows
 		cv2.namedWindow("depth", cv2.WINDOW_AUTOSIZE)
@@ -57,6 +57,13 @@ class obstacle_detector:
 		if DEBUG:
 			for x in range(SLICES):
 				cv2.namedWindow(str(x), cv2.WINDOW_AUTOSIZE)
+
+	def spin(self):
+		di = rospy.wait_for_message("/my_stereo/disparity", DisparityImage)
+		ri = rospy.wait_for_message("/my_stereo/left/image_rect_color", Image)
+
+		self.callback_img(ri)
+		self.callback_disp(di)
 
 	def callback_img(self, data):
 		np_arr = np.fromstring(data.data, np.uint8)
@@ -252,7 +259,8 @@ if __name__ == '__main__':
 	try:
 		od = obstacle_detector()
 		rospy.init_node("obstacle_detector", anonymous=True)
-		rospy.spin()
+		while True:
+			od.spin()
 	except rospy.ROSInterruptException:
 		pass
 	cv2.destroyAllWindows()
