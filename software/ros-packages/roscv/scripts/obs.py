@@ -12,18 +12,18 @@ import cv2
 import pdb
 import math
 
-DOWNSCALE=2
+DOWNSCALE=3
 WIDTH=640/DOWNSCALE
 HEIGHT=480/DOWNSCALE
 SLICES=20
 DEPTH_SCALE=1 #was 30
 MIN_H = 0.10
-MAX_H = 0.11
+MAX_H = 0.15
 THETA = math.pi/6.0
 MIN_AREA=40
 DEBUG=False
 MIN_RANGE=2.0
-MAX_RANGE=30.0
+MAX_RANGE=40.0
 
 #Dumb class for timing tests
 class Timer:
@@ -149,7 +149,7 @@ class obstacle_detector:
 					cv2.rectangle(ob, (x,y), (x+w,y+h), (hue,255,255),-1)
 			ob = cv2.cvtColor(ob, cv2.COLOR_HSV2BGR)
 			#Mix bounding image with raw image for transparency
-			current_image = cv2.addWeighted(current_image, 0.7, ob, 0.3, 0)
+			current_image = cv2.addWeighted(current_image, 0.5, ob, 0.5, 0)
 
 		#Display image if exists
 		if current_image is not None:
@@ -163,7 +163,7 @@ class obstacle_detector:
 		from math import isnan, isinf
 		for y, x in c:
 			d = depth[y,x]
-			if d < MIN_RANGE or isnan(d) or isinf(d): continue #TODO
+			if d < MIN_RANGE or isnan(d) or isinf(d): continue 
 			if obs[y,x] > 0: continue
 
 			scale = self.depth_scale(d)
@@ -172,6 +172,8 @@ class obstacle_detector:
 			
 			min_row = max(min_row, 0)
 			max_row = max(max_row, 0)
+			#TODO Limit the number of vertical rows examined? Does this make sense?
+			max_row = max(max_row, min_row-5) #TODO TODO TODO
 
 			#px, py are the depth pixels in the 'cone' being
 			#examined
@@ -194,7 +196,8 @@ class obstacle_detector:
 	#TODO: return ranges
 	def fill_slices(self, obs, outs, _max):
 		levels = len(outs) #Determine number of slices we're working
-		_min =  obs.min() #find minimum obstacle distance
+		#_min =  obs.min() #find minimum obstacle distance
+		_min = 0.0 #Related to TODO: Fix normalization together
 		#Maybe that should just 0?
 		r = _max - _min #Range of values
 		step_dist = 1.0 / float(levels)
