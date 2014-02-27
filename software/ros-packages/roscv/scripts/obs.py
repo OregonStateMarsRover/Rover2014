@@ -22,6 +22,7 @@ MAX_H = 0.11
 THETA = math.pi/6.0
 MIN_AREA=40
 DEBUG=False
+MIN_RANGE=2.0
 MAX_RANGE=30.0
 
 #Dumb class for timing tests
@@ -60,7 +61,7 @@ class obstacle_detector:
 	def callback_img(self, data):
 		np_arr = np.fromstring(data.data, np.uint8)
 		np_arr = np_arr.reshape((480,640,3))
-		np_arr = cv2.resize(np_arr, (WIDTH, HEIGHT))
+		#np_arr = cv2.resize(np_arr, (WIDTH, HEIGHT))
 		self.raw_image = np_arr
 
 	def callback_disp(self, data):
@@ -121,7 +122,7 @@ class obstacle_detector:
 			for x in range(len(slices)):
 				slices[x] = self.remove_noise(slices[x])
 
-		#Get bounding boxes of slices
+		#Get bounding boxes of detected contours in slices
 		boxes = []
 		with Timer("Bbox") as _:
 			for x in slices:
@@ -143,6 +144,8 @@ class obstacle_detector:
 			for l,s in enumerate(boxes[::-1]):
 				hue = 120-int(float(l)/float(_max)*120)
 				for x,y,w,h in s:
+					#Scale box dimensions back to full scale
+					x,y,w,h = map(lambda x: DOWNSCALE*x, (x,y,w,h))
 					cv2.rectangle(ob, (x,y), (x+w,y+h), (hue,255,255),-1)
 			ob = cv2.cvtColor(ob, cv2.COLOR_HSV2BGR)
 			#Mix bounding image with raw image for transparency
@@ -160,7 +163,7 @@ class obstacle_detector:
 		from math import isnan, isinf
 		for y, x in c:
 			d = depth[y,x]
-			if d < 2 or isnan(d) or isinf(d): continue #TODO
+			if d < MIN_RANGE or isnan(d) or isinf(d): continue #TODO
 			if obs[y,x] > 0: continue
 
 			scale = self.depth_scale(d)
