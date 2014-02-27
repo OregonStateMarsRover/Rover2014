@@ -77,7 +77,10 @@ class obstacle_detector:
 	def print_length(self, s, dist, l):
 		print s,"\t",
 		for x in l:
-			print self.calc_length(dist, x),
+			_l = self.calc_length(dist, x)
+			_p = self.calc_pxl(dist, _l)
+			print _l, _p
+
 		print ""
 
 	def get_avg_dists(self, dist):
@@ -98,6 +101,11 @@ class obstacle_detector:
 		fl = 600.0 #TODO
 		length = dist * float(pl) / fl
 		return length
+
+	def calc_pxl(self, dist, l):
+		fl = 600.0 #TODO
+		pl = l * fl / dist
+		return pl
 
 if __name__ == '__main__':
 	try:
