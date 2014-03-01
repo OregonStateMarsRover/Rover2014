@@ -10,11 +10,6 @@ import cv2
 import pdb
 import math
 
-import sys
-print "MOVED TO ROSCV2"
-sys.exit()
-
-
 DOWNSCALE=1
 WIDTH=640/DOWNSCALE
 HEIGHT=480/DOWNSCALE
