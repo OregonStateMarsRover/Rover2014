@@ -5,6 +5,7 @@ project(roscv2)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED roscpp) #TODO: Add more dependencies??
+find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -157,5 +158,5 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 add_executable(obstacle_detect src/obstacle_detect.cpp)
-target_link_libraries(obstacle_detect ${catkin_LIBRARIES})
+target_link_libraries(obstacle_detect ${catkin_LIBRARIES} ${OpenCV_LIBS})
 add_dependencies(obstacle_detect ${catkin_EXPORTED_TARGETS})
