@@ -7,7 +7,10 @@
 #include <sensor_msgs/image_encodings.h>
 
 #define IMAGE_WINDOW "Image"
-#define DIST_WINDOW "Distance"
+#define DEPTH_WINDOW "Distance"
+
+#define RANGE_MIN (0)
+#define RANGE_MAX (40)
 
 void init_cv();
 void cleanup_cv();
