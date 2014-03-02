@@ -21,10 +21,11 @@
 #define IMG_WIDTH (640/DOWNSCALE)
 #define IMG_HEIGHT (480/DOWNSCALE)
 
-#define RANGE_MIN (0)
-#define RANGE_MAX (40)
+#define RANGE_MIN (2.0)
+#define RANGE_MAX (40.0)
 
-#define THETA (3.14159 / 6.0)
+#define PI (3.14159)
+#define THETA (PI / 6.0)
 #define MIN_H (0.10)
 #define MAX_H (0.15)
 

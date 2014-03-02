@@ -18,7 +18,6 @@ int main(int argc, char *argv[]) {
 
 	/* Spin */
 	while (ros::ok()) {
-		ROS_INFO("Loop!");
 		loop();
 		cv::waitKey(1);
 		ros::spinOnce();
@@ -47,8 +46,10 @@ void loop() {
 	float focal = disp_msg->f; float base = disp_msg->T;
 
 	/* Generate depth image */
+	/* Why are these so inaccurate? Calibration issue?
 	float min_depth = (focal * base) / disp_msg->min_disparity;
 	float max_depth = (focal * base) / disp_msg->max_disparity;
+	*/
 	cv::Mat full_depth = (focal * base) / disp->image;
 	cv::Mat depth;
 	cv::resize(full_depth, depth, cv::Size(IMG_WIDTH, IMG_HEIGHT));
@@ -61,19 +62,20 @@ void loop() {
 	cv::Mat obstacle(IMG_HEIGHT, IMG_WIDTH, CV_32FC1, 0.0);
 
 	/* Find and display obstacles */
-	find_obstacles(depth, obstacle, min_depth, max_depth);
-	cv::imshow(OBS_WINDOW, obstacle);
+	find_obstacles(depth, obstacle, 0.0, 100.0);
+	cv::Mat scaled_obs = obstacle / RANGE_MAX;
+	cv::imshow(OBS_WINDOW, scaled_obs);
 }
 
-void find_obstacles(const cv::Mat& depth, cv::Mat& obstacle, 
+void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
                     float min, float max) {
-	for (int row = 0; row < depth.rows; row++) {
-		const float *d = (const float*)depth.ptr(row);
-		float *o = (float*)obstacle.ptr(row);
-		for (int col = 0; col < depth.cols; col++) {
+	for (int row = depth_img.rows-1; row >= 0; row--) {
+		const float *d = (const float*)depth_img.ptr(row);
+		float *o = (float*)obstacle_img.ptr(row);
+		for (int col = 0; col < depth_img.cols; col++) {
 			float depth = d[col];
 			if (o[col] > 0) continue; /* Already an obstacle? Skip. */
-			if (depth < min || depth > max) continue; /* out of range */
+			if (depth <= min || depth >= max) continue; /* out of range */
 
 			/* Valid for examination */
 			float scale = get_depth_scale(depth);
@@ -84,15 +86,32 @@ void find_obstacles(const cv::Mat& depth, cv::Mat& obstacle,
 			min_row = std::max(min_row, 0);
 			max_row = std::max(max_row, 0);
 
+			if (min_row == 0) continue; /* Waaay off-- let's just skip */
+
 			/* TODO Trade accuracy for speedup?? */
-			max_row = std::max(max_row, min_row-5);
+			//max_row = std::max(max_row, min_row-5);
 
 			/* Loop over relevant image rows to search for obstacle */
+			/* TODO: Optimize cache stuff? */
 			bool obstacle = false;
-			for(int subrow = max_row; subrow >= min_row; subrow--) {
-				int dx = (int)(tan(THETA) * row-subrow);
-				 /* TODO TODO Finish */
+			for(int subrow = min_row; subrow > max_row; subrow--) {
+				int dx = (int)(tan(THETA) * (float)(row-subrow));
+				int min_col = std::max(col - dx, 0);
+				int max_col = std::min(col + dx, IMG_WIDTH);
+				
+				const float *sd = (const float*)depth_img.ptr(subrow);
+				float *so = (float*)obstacle_img.ptr(subrow);
+				for(int subcol = min_col; subcol < max_col; subcol++) {
+					float subdepth = sd[subcol];
+					if (subdepth <= min || subdepth >= max) continue;
+					float dz = (float)dx / scale; //dz is in meters
+					if (depth - dz < subdepth && depth + dz > subdepth) {
+						obstacle = true;
+						so[subcol] = depth; /* TODO or should it be subdepth */
+					}
+				}
 			}
+			if (obstacle) o[col] = depth;
 		}
 	}
 }
