@@ -8,14 +8,6 @@ int main(int argc, char *argv[]) {
 
 	init_cv();
 
-	/* Subscribe */
-	/*
-	ros::Subscriber disparity_sub = n.subscribe("/my_stereo/disparity",
-	                                1, disparity_callback);
-	ros::Subscriber image_sub = n.subscribe("/my_stereo/left/image_rect_color",
-	                            1, image_callback);
-	*/
-
 	/* Spin */
 	while (ros::ok()) {
 		loop();
@@ -69,6 +61,7 @@ void loop() {
 
 void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
                     float min, float max) {
+	ros::Time start = ros::Time::now();
 	for (int row = depth_img.rows-1; row >= 0; row--) {
 		const float *d = (const float*)depth_img.ptr(row);
 		float *o = (float*)obstacle_img.ptr(row);
@@ -112,6 +105,8 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 			if (obstacle) o[col] = depth;
 		}
 	}
+	ros::Duration duration = ros::Time::now() - start;
+	ROS_INFO("find_obstacles:\t%f", duration.toSec());
 }
 
 /* TODO???? */
