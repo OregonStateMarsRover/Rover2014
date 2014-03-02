@@ -16,7 +16,7 @@
 #define DEPTH_WINDOW "Distance"
 #define OBS_WINDOW "Obstacle"
 
-#define DOWNSCALE (2)
+#define DOWNSCALE (1)
 
 #define IMG_WIDTH (640/DOWNSCALE)
 #define IMG_HEIGHT (480/DOWNSCALE)
@@ -27,7 +27,7 @@
 #define PI (3.14159)
 #define THETA (PI / 6.0)
 #define MIN_H (0.10)
-#define MAX_H (0.15)
+#define MAX_H (0.20)
 
 
 /* Functions */

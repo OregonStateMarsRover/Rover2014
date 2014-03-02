@@ -12,7 +12,7 @@ import cv2
 import pdb
 import math
 
-DOWNSCALE=3
+DOWNSCALE=2
 WIDTH=640/DOWNSCALE
 HEIGHT=480/DOWNSCALE
 SLICES=20
@@ -100,7 +100,7 @@ class obstacle_detector:
 		cv2.waitKey(1)
 
 		#Create empty obstacle map
-		obs = np.zeros((HEIGHT,WIDTH), np.uint8)
+		obs = np.zeros((HEIGHT,WIDTH), np.float32)
 
 		with Timer("Find obstacles") as _:
 			self.find_obstacles(dist, obs)
@@ -180,7 +180,7 @@ class obstacle_detector:
 			min_row = max(min_row, 0)
 			max_row = max(max_row, 0)
 			#TODO Limit the number of vertical rows examined? Does this make sense?
-			max_row = max(max_row, min_row-5) #TODO TODO TODO
+			#max_row = max(max_row, min_row-5) #TODO TODO TODO
 
 			#px, py are the depth pixels in the 'cone' being
 			#examined
@@ -190,11 +190,11 @@ class obstacle_detector:
 				min_col = x - dx
 				max_col = x + dx
 				min_col = max(0, min_col)
-				max_col = min(WIDTH-1, max_col)
+				max_col = min(WIDTH, max_col)
 				for px in range(min_col, max_col):
 					pd = depth[py, px]
 					if pd < 0 or isnan(pd) or isinf(pd): continue
-					dz = dx / (scale * DEPTH_SCALE)
+					dz = dx / scale
 					if d - dz < pd < d + dz:
 						obstacle = True
 						obs[py, px] = d

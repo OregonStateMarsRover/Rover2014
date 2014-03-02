@@ -59,10 +59,10 @@ void loop() {
 	cv::imshow(DEPTH_WINDOW, scaled_depth);
 
 	/* Create empty obstacle map */
-	cv::Mat obstacle(IMG_HEIGHT, IMG_WIDTH, CV_32FC1, 0.0);
+	cv::Mat obstacle = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
 
 	/* Find and display obstacles */
-	find_obstacles(depth, obstacle, 0.0, 100.0);
+	find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
 	cv::Mat scaled_obs = obstacle / RANGE_MAX;
 	cv::imshow(OBS_WINDOW, scaled_obs);
 }
@@ -72,10 +72,10 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 	for (int row = depth_img.rows-1; row >= 0; row--) {
 		const float *d = (const float*)depth_img.ptr(row);
 		float *o = (float*)obstacle_img.ptr(row);
-		for (int col = 0; col < depth_img.cols; col++) {
+		for (int col = depth_img.cols-1; col >= 0; col--) {
 			float depth = d[col];
+			if (depth <= min /*|| depth >= max*/) continue; /* out of range */
 			if (o[col] > 0) continue; /* Already an obstacle? Skip. */
-			if (depth <= min || depth >= max) continue; /* out of range */
 
 			/* Valid for examination */
 			float scale = get_depth_scale(depth);
@@ -85,8 +85,6 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 			/* Make sure we don't fall off the image! */
 			min_row = std::max(min_row, 0);
 			max_row = std::max(max_row, 0);
-
-			if (min_row == 0) continue; /* Waaay off-- let's just skip */
 
 			/* TODO Trade accuracy for speedup?? */
 			//max_row = std::max(max_row, min_row-5);
@@ -103,11 +101,11 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 				float *so = (float*)obstacle_img.ptr(subrow);
 				for(int subcol = min_col; subcol < max_col; subcol++) {
 					float subdepth = sd[subcol];
-					if (subdepth <= min || subdepth >= max) continue;
-					float dz = (float)dx / scale; //dz is in meters
-					if (depth - dz < subdepth && depth + dz > subdepth) {
+					if (subdepth <= 0) continue;
+					float dz = ((float)dx) / scale; //dz is in meters
+					if (depth - dz < subdepth && subdepth < depth + dz) {
 						obstacle = true;
-						so[subcol] = depth; /* TODO or should it be subdepth */
+						so[subcol] = subdepth; /* TODO should it be subdepth */
 					}
 				}
 			}
