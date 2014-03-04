@@ -44,6 +44,7 @@ void loop() {
 	*/
 	cv::Mat full_depth = (focal * base) / disp->image;
 	cv::Mat depth;
+	/* Not be necessary if downscale = 1 */
 	cv::resize(full_depth, depth, cv::Size(IMG_WIDTH, IMG_HEIGHT));
 
 	/* Display value-scaled depth image */
@@ -57,6 +58,11 @@ void loop() {
 	find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
 	cv::Mat scaled_obs = obstacle / RANGE_MAX;
 	cv::imshow(OBS_WINDOW, scaled_obs);
+
+	/* Set up slices */
+	std::vector<cv::Mat> slices;
+	init_slices(slices);
+	fill_slices(obstacle, slices, RANGE_MAX);
 }
 
 void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
@@ -114,6 +120,35 @@ float get_depth_scale(float depth) {
 	float focal_length = 600.0;
 	float scale = focal_length / depth;
 	return scale;
+}
+
+void init_slices(std::vector<cv::Mat> &slices) {
+	for (int i = 0; i < NUM_SLICES; i++) {
+		cv::Mat m = cv::Mat::zeros(IMG_WIDTH, IMG_HEIGHT, CV_8UC1);
+		slices.push_back(m);
+	}
+}
+
+void fill_slices(const cv::Mat &obs, std::vector<cv::Mat> &slices, float max) {
+	int levels = slices.size();
+	float min = 0.0;
+	float range = max - min;
+	float step_dist = 1.0 / (float)levels;
+
+	for (int row = 0; row < obs.rows; row++) {
+		float *o = (float*)obs.ptr(row);
+		for (int col = 0; col < obs.cols; col++) {
+			float dist = o[col];
+			if (dist <= 0) continue;
+			float val = dist / range;
+			int sl = (int)(val / step_dist);
+			sl = std::min(sl, levels-1);
+
+			unsigned char *o_out = slices[sl].ptr(row);
+			o_out[col] = 255; /* Set to max */
+		}
+	}
+
 }
 
 void get_images(sensor_msgs::Image::ConstPtr& im,

@@ -27,7 +27,9 @@
 #define PI (3.14159)
 #define THETA (PI / 6.0)
 #define MIN_H (0.10)
-#define MAX_H (0.20)
+#define MAX_H (0.25)
+
+#define NUM_SLICES (20)
 
 
 /* Functions */
@@ -36,6 +38,9 @@ void get_images(sensor_msgs::Image::ConstPtr&,
                 stereo_msgs::DisparityImage::ConstPtr&);
 void find_obstacles(const cv::Mat&, cv::Mat&, float, float);
 float get_depth_scale(float);
+
+void init_slices(std::vector<cv::Mat>&);
+void fill_slices(const cv::Mat&, std::vector<cv::Mat>&, float);
 
 void init_cv();
 void cleanup_cv();
