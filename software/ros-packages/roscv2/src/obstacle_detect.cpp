@@ -63,6 +63,14 @@ void loop() {
 	std::vector<cv::Mat> slices;
 	init_slices(slices);
 	fill_slices(obstacle, slices, RANGE_MAX);
+
+#ifdef __SLICE_DEBUG
+	for (int i = 0; i < NUM_SLICES; i++) {
+		std::string s = "a";
+		s[0] = 'a'+i;
+		cv::imshow(s, slices[i]);
+	}
+#endif
 }
 
 void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
@@ -124,7 +132,7 @@ float get_depth_scale(float depth) {
 
 void init_slices(std::vector<cv::Mat> &slices) {
 	for (int i = 0; i < NUM_SLICES; i++) {
-		cv::Mat m = cv::Mat::zeros(IMG_WIDTH, IMG_HEIGHT, CV_8UC1);
+		cv::Mat m = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_8UC1);
 		slices.push_back(m);
 	}
 }
@@ -164,6 +172,14 @@ void init_cv() {
 	cv::namedWindow(IMAGE_WINDOW, CV_WINDOW_AUTOSIZE);
 	cv::namedWindow(DEPTH_WINDOW, CV_WINDOW_AUTOSIZE);
 	cv::namedWindow(OBS_WINDOW, CV_WINDOW_AUTOSIZE);
+#ifdef __SLICE_DEBUG
+	for (int i = 0; i < NUM_SLICES; i++) {
+		std::string s = "a";
+		s[0] = 'a'+i;
+		cv::namedWindow(s, CV_WINDOW_AUTOSIZE);
+	}
+
+#endif
 }
 
 void cleanup_cv() {

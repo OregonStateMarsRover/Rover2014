@@ -29,8 +29,7 @@
 #define MIN_H (0.10)
 #define MAX_H (0.25)
 
-#define NUM_SLICES (20)
-
+#define NUM_SLICES (4)
 
 /* Functions */
 void loop();
