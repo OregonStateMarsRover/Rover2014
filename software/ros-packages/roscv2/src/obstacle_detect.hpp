@@ -16,7 +16,7 @@
 #define DEPTH_WINDOW "Distance"
 #define OBS_WINDOW "Obstacle"
 
-#define DOWNSCALE (1)
+#define DOWNSCALE (2)
 
 #define IMG_WIDTH (640/DOWNSCALE)
 #define IMG_HEIGHT (480/DOWNSCALE)
@@ -30,6 +30,7 @@
 #define MAX_H (0.25)
 
 #define NUM_SLICES (4)
+#define __SLICE_DEBUG
 
 /* Functions */
 void loop();
@@ -40,6 +41,7 @@ float get_depth_scale(float);
 
 void init_slices(std::vector<cv::Mat>&);
 void fill_slices(const cv::Mat&, std::vector<cv::Mat>&, float);
+void remove_noise(cv::Mat&);
 
 void init_cv();
 void cleanup_cv();

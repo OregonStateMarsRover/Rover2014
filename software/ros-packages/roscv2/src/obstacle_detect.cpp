@@ -64,6 +64,10 @@ void loop() {
 	init_slices(slices);
 	fill_slices(obstacle, slices, RANGE_MAX);
 
+	for (int i = 0; i < slices.size(); i++) {
+		remove_noise(slices[i]);
+	}
+
 #ifdef __SLICE_DEBUG
 	for (int i = 0; i < NUM_SLICES; i++) {
 		std::string s = "a";
@@ -156,7 +160,15 @@ void fill_slices(const cv::Mat &obs, std::vector<cv::Mat> &slices, float max) {
 			o_out[col] = 255; /* Set to max */
 		}
 	}
+}
 
+void remove_noise(cv::Mat &mat) {
+	/* Median blur */
+	cv::medianBlur(mat, mat, 3);
+	/* Close kernel */
+	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(9,9));
+	/* Morphology */
+	cv::morphologyEx(mat, mat, cv::MORPH_CLOSE, kernel);
 }
 
 void get_images(sensor_msgs::Image::ConstPtr& im,
