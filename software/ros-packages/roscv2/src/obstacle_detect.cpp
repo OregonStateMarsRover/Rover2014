@@ -68,6 +68,11 @@ void loop() {
 		remove_noise(slices[i]);
 	}
 
+	std::vector<RectList> slice_bboxes;
+	for (int i = 0; i < slices.size(); i++) {
+		slice_bboxes.push_back(calc_bboxes(slices[i]));
+	}
+
 #ifdef __SLICE_DEBUG
 	for (int i = 0; i < NUM_SLICES; i++) {
 		std::string s = "a";
@@ -169,6 +174,21 @@ void remove_noise(cv::Mat &mat) {
 	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(9,9));
 	/* Morphology */
 	cv::morphologyEx(mat, mat, cv::MORPH_CLOSE, kernel);
+}
+
+RectList calc_bboxes(cv::Mat &mat) {
+	RectList boxes;
+	std::vector<std::vector<cv::Point> > contours;
+	/* Do edge detection?? */
+
+	/* Find contours */
+	cv::findContours(mat, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+
+	/* For each contour: */
+		/* Check area */
+		/* Get bounding box */
+		/* Add to list */
+	return boxes;
 }
 
 void get_images(sensor_msgs::Image::ConstPtr& im,

@@ -32,6 +32,10 @@
 #define NUM_SLICES (4)
 #define __SLICE_DEBUG
 
+/* Typedefs */
+
+typedef std::vector<cv::Rect> RectList;
+
 /* Functions */
 void loop();
 void get_images(sensor_msgs::Image::ConstPtr&,
@@ -42,6 +46,7 @@ float get_depth_scale(float);
 void init_slices(std::vector<cv::Mat>&);
 void fill_slices(const cv::Mat&, std::vector<cv::Mat>&, float);
 void remove_noise(cv::Mat&);
+RectList calc_bboxes(cv::Mat&);
 
 void init_cv();
 void cleanup_cv();
