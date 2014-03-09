@@ -7,7 +7,7 @@
 
 void Initialize_Sabertooth(void){
     SendByteUSART1(AUTOBAUD_BYTE);                          //This byte tells the controller to automatically determine the usart communication speed.
-    Sabertooth_WriteCommand(SABERTOOTHADDRESS, 14, 2);      //This setting enables the sabertooth watchdog, which will stop the motors after a certain period of no control packets.
+    Sabertooth_WriteCommand(SABERTOOTHADDRESS, 14, 20);      //This setting enables the sabertooth watchdog, which will stop the motors after a certain period of no control packets.
     Sabertooth_HardStop();
 }
 
@@ -107,18 +107,18 @@ void Sabertooth_DriveTest(void){
     int i;
     for(i = 0 ; i < 128 ; i++){
         Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_FORWARD, i, DRIVE_FORWARD, i);
-        Mega2560_delay_ms(20);
+            _delay_ms(20);
     }
     for( ; i > 0 ; i--){
         Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_FORWARD, i, DRIVE_FORWARD, i);
-        Mega2560_delay_ms(20);
+        _delay_ms(20);
     }
     for(i = 0 ; i < 128 ; i++){
         Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_BACKWARD, i, DRIVE_BACKWARD, i);
-        Mega2560_delay_ms(20);
+        _delay_ms(20);
     }
     for( ; i > 0 ; i--){
         Sabertooth_SetMotors(SABERTOOTHADDRESS, DRIVE_BACKWARD, i, DRIVE_BACKWARD, i);
-        Mega2560_delay_ms(20);
+        _delay_ms(20);
     }
 }
