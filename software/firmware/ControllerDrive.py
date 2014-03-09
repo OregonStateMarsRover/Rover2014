@@ -61,8 +61,9 @@ if __name__ == '__main__':
     print "Left Value: " + str(left)
     print "Right Value: " + str(right)
     print "E-Stop: " + str(estop)
-    SendPacket(DrvSer, left, right, estop)    
-    time.sleep(.01)
+    if(DrvSer.read(1) == 'r'):
+      SendPacket(DrvSer, left, right, estop)
+      time.sleep(.02);
  
  
  

@@ -39,14 +39,15 @@ int main(void)
                 if(GetByteUART() == 'D'){
                     SendStringUSART0((unsigned char *)"Master Found. Switching to Drive Mode.\r\n");
                     currentState = DRIVING;
+                    SendByteUSART0('r');
                     sei();
                     break;
                 }
-                Mega2560_delay_ms(500);
+                _delay_ms(500);
                 PORTB |= (1<<PB7);
-                Mega2560_delay_ms(100);
+                _delay_ms(100);
                 PORTB &= ~(1<<PB7);
-                Mega2560_delay_ms(100);
+                _delay_ms(100);
                 break;
 
             case DRIVING:

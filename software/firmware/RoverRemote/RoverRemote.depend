@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1393097278 source:/home/corwin/Rover2014/software/firmware/RoverRemote/main.c
+	<avr/io.h>
+	<util/delay.h>
+

@@ -106,6 +106,8 @@ ISR (USART0_RX_vect){
             }
             Sabertooth_SetMotors(SABERTOOTHADDRESS, leftDir, receive_buffer[2], rightDir, receive_buffer[3]);
         }
+        SendByteUSART0('r');
     }
+
     return;
 }
