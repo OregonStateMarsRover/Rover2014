@@ -66,5 +66,4 @@ def main():
         key = cv2.waitKey(1)
         if key ==  1048603:
             break;
-    #"""
 main()

@@ -26,7 +26,27 @@
       <file leaf-file-name="blob_detection.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/blob_detection.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="373">
+            <state line="54" column="0" selection-start="2096" selection-end="2096" vertical-scroll-proportion="0.4493007" vertical-offset="553" max-vertical-offset="1125">
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="openwebcam.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/openwebcam.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="90">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="colorfilter.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/colorfilter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="4" column="0" selection-start="111" selection-end="111" vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="975">
               <folding />
             </state>
           </provider>
@@ -35,7 +55,7 @@
       <file leaf-file-name="main.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/workspace/opencv/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="4" selection-start="406" selection-end="406" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="435">
+            <state line="13" column="4" selection-start="406" selection-end="406" vertical-scroll-proportion="0.0" vertical-offset="195" max-vertical-offset="465">
               <folding />
             </state>
           </provider>
@@ -44,7 +64,7 @@
       <file leaf-file-name="colorDetect.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/workspace/opencv/include/colorDetect.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="52" column="8" selection-start="1569" selection-end="1569" vertical-scroll-proportion="0.0" vertical-offset="735" max-vertical-offset="1485">
+            <state line="52" column="8" selection-start="1569" selection-end="1569" vertical-scroll-proportion="0.0" vertical-offset="780" max-vertical-offset="1515">
               <folding />
             </state>
           </provider>
@@ -53,7 +73,7 @@
       <file leaf-file-name="stereoCam.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/workspace/opencv/include/stereoCam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="44" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="197" max-vertical-offset="645">
+            <state line="25" column="44" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="375" max-vertical-offset="660">
               <folding />
             </state>
           </provider>
@@ -71,6 +91,8 @@
       <list>
         <option value="$USER_HOME$/workspace/opencv/include/stereoCam.py" />
         <option value="$PROJECT_DIR$/openwebcam.py" />
+        <option value="$PROJECT_DIR$/blob_detection.py" />
+        <option value="$PROJECT_DIR$/colorfilter.py" />
       </list>
     </option>
   </component>
@@ -106,7 +128,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -127,6 +148,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -138,7 +160,7 @@
       <PyConsoleSettings />
     </option>
   </component>
-  <component name="RunManager" selected="Python.openwebcam">
+  <component name="RunManager" selected="Python.colorfilter">
     <configuration default="false" name="openwebcam" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -152,6 +174,24 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="demos" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/openwebcam.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="colorfilter" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="demos" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/colorfilter.py" />
       <option name="PARAMETERS" value="" />
       <RunnerSettings RunnerId="PythonRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
@@ -278,12 +318,14 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
-    <list size="1">
+    <list size="2">
       <item index="0" class="java.lang.String" itemvalue="Python.openwebcam" />
+      <item index="1" class="java.lang.String" itemvalue="Python.colorfilter" />
     </list>
     <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="Python.openwebcam" />
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="Python.colorfilter" />
+        <item index="1" class="java.lang.String" itemvalue="Python.openwebcam" />
       </list>
     </recent_temporary>
   </component>
@@ -298,25 +340,25 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="27" width="1368" height="742" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24963397" sideWeight="0.6710744" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3289256" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -331,25 +373,72 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../ros-packages/roscv/scripts/detector.py">
+    <entry file="file://$PROJECT_DIR$/colorfilter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="58" column="0" selection-start="1858" selection-end="1858" vertical-scroll-proportion="0.94755244" vertical-offset="328" max-vertical-offset="1530">
+        <state line="4" column="0" selection-start="111" selection-end="111" vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="975">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/workspace/openCV/main.py">
+    <entry file="file://$USER_HOME$/workspace/opencv/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="572">
+        <state line="13" column="4" selection-start="406" selection-end="406" vertical-scroll-proportion="0.0" vertical-offset="195" max-vertical-offset="465">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/workspace/opencv/include/colorDetect.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="8" selection-start="1569" selection-end="1569" vertical-scroll-proportion="0.0" vertical-offset="780" max-vertical-offset="1515">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/workspace/opencv/include/stereoCam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="44" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="197" max-vertical-offset="645">
+        <state line="25" column="44" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="375" max-vertical-offset="660">
           <folding />
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/blob_detection.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="90">
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/workspace/opencv/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="4" selection-start="406" selection-end="406" vertical-scroll-proportion="0.0" vertical-offset="195" max-vertical-offset="465">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/workspace/opencv/include/colorDetect.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="8" selection-start="1569" selection-end="1569" vertical-scroll-proportion="0.0" vertical-offset="780" max-vertical-offset="1515">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/workspace/opencv/include/stereoCam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="44" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="375" max-vertical-offset="660">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../ros-packages/roscv/scripts/detector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="58" column="0" selection-start="1858" selection-end="1858" vertical-scroll-proportion="0.94755244" vertical-offset="328" max-vertical-offset="1530" />
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/workspace/openCV/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="572" />
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/workspace/opencv/main.py">
@@ -366,6 +455,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/workspace/opencv/include/stereoCam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="44" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0" vertical-offset="197" max-vertical-offset="645">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/openwebcam.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="373">
@@ -373,10 +469,19 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/colorfilter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="0" selection-start="111" selection-end="111" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="975">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/blob_detection.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="373">
-          <folding />
+        <state line="54" column="0" selection-start="2096" selection-end="2096" vertical-scroll-proportion="0.4493007" vertical-offset="553" max-vertical-offset="1125">
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
