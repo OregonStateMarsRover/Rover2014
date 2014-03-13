@@ -16,7 +16,7 @@
 #define DEPTH_WINDOW "Distance"
 #define OBS_WINDOW "Obstacle"
 
-#define DOWNSCALE (2)
+#define DOWNSCALE (1)
 
 #define IMG_WIDTH (640/DOWNSCALE)
 #define IMG_HEIGHT (480/DOWNSCALE)
@@ -29,8 +29,10 @@
 #define MIN_H (0.10)
 #define MAX_H (0.25)
 
-#define NUM_SLICES (4)
-#define __SLICE_DEBUG
+#define MIN_AREA (500)
+
+#define NUM_SLICES (20)
+//#define __SLICE_DEBUG
 
 /* Typedefs */
 

@@ -30,7 +30,7 @@ void loop() {
 	/* Display raw image */
 	cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(img_msg,
 	                            sensor_msgs::image_encodings::BGR8);
-	cv::imshow(IMAGE_WINDOW, img->image);
+	//cv::imshow(IMAGE_WINDOW, img->image);
 
 	/* Get disparity data */
 	cv_bridge::CvImagePtr disp = cv_bridge::toCvCopy(disp_msg->image,
@@ -53,6 +53,7 @@ void loop() {
 
 	/* Create empty obstacle map */
 	cv::Mat obstacle = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
+	cv::Mat clear = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
 
 	/* Find and display obstacles */
 	find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
@@ -68,10 +69,38 @@ void loop() {
 		remove_noise(slices[i]);
 	}
 
+	/* Calculate bounding box on each slice */
 	std::vector<RectList> slice_bboxes;
 	for (int i = 0; i < slices.size(); i++) {
 		slice_bboxes.push_back(calc_bboxes(slices[i]));
 	}
+
+	/* Display bounding boxes on image */
+	cv::Mat boxes_image = img->image.clone();
+	/* Convert box image to HSV */
+	cv::cvtColor(boxes_image, boxes_image, cv::COLOR_BGR2HSV);
+	/* Loop backwards-- farthest first, panter's algorithm */
+	for (int i = slice_bboxes.size()-1; i >= 0; i--) {
+		/* Calculate hue */
+		int hue = 120 - (int)(((float)i)/((float)slice_bboxes.size())*120.0);
+		cv::Scalar color = cv::Scalar(hue, 255, 255);
+		//TODO: calc color
+		for (int j = 0; j < slice_bboxes[i].size(); j++) { //TODO: Iterators???
+			/* Get / resize boxes */
+			cv::Rect bbox = slice_bboxes[i][j];
+			/* Draw boxes */
+			cv::rectangle(boxes_image, bbox, color, -1);
+		}
+
+	}
+	/* Convert back to RGB */
+	cv::cvtColor(boxes_image, boxes_image, cv::COLOR_HSV2BGR);
+
+	/* Combine with image */
+	cv::Mat final_image;
+	cv::addWeighted(boxes_image, 0.3, img->image, 0.7, 0.0, final_image);
+
+	cv::imshow(IMAGE_WINDOW, final_image);
 
 #ifdef __SLICE_DEBUG
 	for (int i = 0; i < NUM_SLICES; i++) {
@@ -171,7 +200,7 @@ void remove_noise(cv::Mat &mat) {
 	/* Median blur */
 	cv::medianBlur(mat, mat, 3);
 	/* Close kernel */
-	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(9,9));
+	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(17,17));
 	/* Morphology */
 	cv::morphologyEx(mat, mat, cv::MORPH_CLOSE, kernel);
 }
@@ -185,9 +214,17 @@ RectList calc_bboxes(cv::Mat &mat) {
 	cv::findContours(mat, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 
 	/* For each contour: */
+	for (int i = 0; i < contours.size(); i++) { //TODO: Iterator?
 		/* Check area */
+		if (cv::contourArea(contours[i]) < MIN_AREA) continue;
+
 		/* Get bounding box */
+		//TODO: Maybe poly approx first?
+		cv::Rect bbox = cv::boundingRect(contours[i]);
+
 		/* Add to list */
+		boxes.push_back(bbox);
+	}
 	return boxes;
 }
 
