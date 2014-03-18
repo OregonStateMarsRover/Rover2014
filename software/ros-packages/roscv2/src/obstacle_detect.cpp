@@ -61,18 +61,18 @@ void loop() {
 	cv::imshow(OBS_WINDOW, scaled_obs);
 
 	/* Set up slices */
-	std::vector<cv::Mat> slices;
+	std::vector<Slice> slices;
 	init_slices(slices);
 	fill_slices(obstacle, slices, RANGE_MAX);
 
 	for (int i = 0; i < slices.size(); i++) {
-		remove_noise(slices[i]);
+		remove_noise(slices[i].mat);
 	}
 
 	/* Calculate bounding box on each slice */
 	std::vector<RectList> slice_bboxes;
 	for (int i = 0; i < slices.size(); i++) {
-		slice_bboxes.push_back(calc_bboxes(slices[i]));
+		slice_bboxes.push_back(calc_bboxes(slices[i].mat));
 	}
 
 	/* Display bounding boxes on image */
@@ -84,10 +84,11 @@ void loop() {
 		/* Calculate hue */
 		int hue = 120 - (int)(((float)i)/((float)slice_bboxes.size())*120.0);
 		cv::Scalar color = cv::Scalar(hue, 255, 255);
-		//TODO: calc color
 		for (int j = 0; j < slice_bboxes[i].size(); j++) { //TODO: Iterators???
 			/* Get / resize boxes */
 			cv::Rect bbox = slice_bboxes[i][j];
+			bbox.x *= DOWNSCALE; bbox.y *= DOWNSCALE;
+			bbox.width *= DOWNSCALE; bbox.height *= DOWNSCALE;
 			/* Draw boxes */
 			cv::rectangle(boxes_image, bbox, color, -1);
 		}
@@ -99,6 +100,11 @@ void loop() {
 	/* Combine with image */
 	cv::Mat final_image;
 	cv::addWeighted(boxes_image, 0.3, img->image, 0.7, 0.0, final_image);
+
+	/* Generate top-down image */
+	cv::Mat top;
+	calc_topdown(top, slices, slice_bboxes, RANGE_MAX);
+	cv::imshow(TOP_WINDOW, top);
 
 	cv::imshow(IMAGE_WINDOW, final_image);
 
@@ -131,11 +137,7 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 			min_row = std::max(min_row, 0);
 			max_row = std::max(max_row, 0);
 
-			/* TODO Trade accuracy for speedup?? */
-			//max_row = std::max(max_row, min_row-5);
-
 			/* Loop over relevant image rows to search for obstacle */
-			/* TODO: Optimize cache stuff? */
 			bool obstacle = false;
 			for(int subrow = min_row; subrow > max_row; subrow--) {
 				int dx = (int)(tan(THETA) * (float)(row-subrow));
@@ -150,7 +152,7 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 					float dz = ((float)dx) / scale; //dz is in meters
 					if (depth - dz < subdepth && subdepth < depth + dz) {
 						obstacle = true;
-						so[subcol] = subdepth; /* TODO should it be subdepth */
+						so[subcol] = subdepth; 
 					}
 				}
 			}
@@ -162,24 +164,37 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 }
 
 /* TODO???? */
+/* multiply to convert REAL DISTANCE to PIXEL DISTANCE */
+/* divide for the opposite */
 float get_depth_scale(float depth) {
 	float focal_length = 600.0;
 	float scale = focal_length / depth;
-	return scale;
+	return scale / (float)DOWNSCALE;
 }
 
-void init_slices(std::vector<cv::Mat> &slices) {
+
+void init_slices(std::vector<Slice> &slices) {
 	for (int i = 0; i < NUM_SLICES; i++) {
-		cv::Mat m = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_8UC1);
-		slices.push_back(m);
+		Slice s;
+		s.mat = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_8UC1);
+		slices.push_back(s);
 	}
 }
 
-void fill_slices(const cv::Mat &obs, std::vector<cv::Mat> &slices, float max) {
+void fill_slices(const cv::Mat &obs, std::vector<Slice> &slices, float max) {
 	int levels = slices.size();
 	float min = 0.0;
 	float range = max - min;
 	float step_dist = 1.0 / (float)levels;
+
+	/* Fill min/max values for slices */
+	for (int i = 0; i < levels; i++) {
+		float step = step_dist*range;
+		float smin = min + step*i;
+		float smax = smin + step;
+		slices[i].min = smin;
+		slices[i].max = smax;
+	}
 
 	for (int row = 0; row < obs.rows; row++) {
 		float *o = (float*)obs.ptr(row);
@@ -190,7 +205,7 @@ void fill_slices(const cv::Mat &obs, std::vector<cv::Mat> &slices, float max) {
 			int sl = (int)(val / step_dist);
 			sl = std::min(sl, levels-1);
 
-			unsigned char *o_out = slices[sl].ptr(row);
+			unsigned char *o_out = slices[sl].mat.ptr(row);
 			o_out[col] = 255; /* Set to max */
 		}
 	}
@@ -205,7 +220,7 @@ void remove_noise(cv::Mat &mat) {
 	cv::morphologyEx(mat, mat, cv::MORPH_CLOSE, kernel);
 }
 
-RectList calc_bboxes(cv::Mat &mat) {
+RectList calc_bboxes(cv::Mat &mat ) {
 	RectList boxes;
 	std::vector<std::vector<cv::Point> > contours;
 	/* Do edge detection?? */
@@ -228,6 +243,45 @@ RectList calc_bboxes(cv::Mat &mat) {
 	return boxes;
 }
 
+void calc_topdown(cv::Mat &top, const std::vector<Slice> &slices, 
+                  const std::vector<RectList> &bboxes, float max_dist) {
+	/* Init top-down mat */
+	top = cv::Mat::zeros(TOP_SIZE, TOP_SIZE, CV_8UC1);
+
+	float ppm = (float)TOP_SIZE / max_dist; /* Pixels per meter */
+
+	for (int i = 0; i < slices.size(); i++) {
+		const RectList& boxes = bboxes[i];
+		/* Calculate Y position for this slice */
+		int max_y = TOP_SIZE - TOP_SIZE*(slices[i].min/max_dist);
+		int min_y = TOP_SIZE - TOP_SIZE*(slices[i].max/max_dist);
+		int y = min_y;
+		int height = max_y-min_y;
+
+		/* Get avg depth for this slice */
+		float depth = (slices[i].min + slices[i].max) / 2.0;
+		float scale = get_depth_scale(depth);
+
+		cv::Scalar color = cv::Scalar(255, 255, 255);
+		for (int j = 0; j < boxes.size(); j++) {
+			/* Get distance (IN METERS) of bbox from center */
+			int dx = boxes[j].x - (IMG_WIDTH/2);
+			float dx_m = dx / scale;
+
+			/* Get width (IN METERS) of bbox */
+			float width_m = boxes[j].width / scale;
+
+			/* Convert to pixels on top-down view */
+			int x = ppm * dx_m + (TOP_SIZE/2);
+			int width = ppm * width_m;
+
+			/* Draw */
+			cv::Rect r = cv::Rect(x, y, width, height);
+			cv::rectangle(top, r, color, -1);
+		}
+	}
+}
+
 void get_images(sensor_msgs::Image::ConstPtr& im,
                 stereo_msgs::DisparityImage::ConstPtr& dm) {
 	im = ros::topic::waitForMessage<sensor_msgs::Image>(
@@ -241,13 +295,13 @@ void init_cv() {
 	cv::namedWindow(IMAGE_WINDOW, CV_WINDOW_AUTOSIZE);
 	cv::namedWindow(DEPTH_WINDOW, CV_WINDOW_AUTOSIZE);
 	cv::namedWindow(OBS_WINDOW, CV_WINDOW_AUTOSIZE);
+	cv::namedWindow(TOP_WINDOW, CV_WINDOW_AUTOSIZE);
 #ifdef __SLICE_DEBUG
 	for (int i = 0; i < NUM_SLICES; i++) {
 		std::string s = "a";
 		s[0] = 'a'+i;
 		cv::namedWindow(s, CV_WINDOW_AUTOSIZE);
 	}
-
 #endif
 }
 
@@ -256,4 +310,12 @@ void cleanup_cv() {
 	cv::destroyWindow(IMAGE_WINDOW);
 	cv::destroyWindow(DEPTH_WINDOW);
 	cv::destroyWindow(OBS_WINDOW);
+	cv::destroyWindow(TOP_WINDOW);
+#ifdef __SLICE_DEBUG
+	for (int i = 0; i < NUM_SLICES; i++) {
+		std::string s = "a";
+		s[0] = 'a'+i;
+		cv::destroyWindow(s);
+	}
+#endif
 }

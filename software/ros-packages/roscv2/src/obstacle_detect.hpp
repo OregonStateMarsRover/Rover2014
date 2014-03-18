@@ -15,11 +15,13 @@
 #define IMAGE_WINDOW "Image"
 #define DEPTH_WINDOW "Distance"
 #define OBS_WINDOW "Obstacle"
+#define TOP_WINDOW "Top Down"
 
 #define DOWNSCALE (1)
 
 #define IMG_WIDTH (640/DOWNSCALE)
 #define IMG_HEIGHT (480/DOWNSCALE)
+#define TOP_SIZE (400)
 
 #define RANGE_MIN (2.0)
 #define RANGE_MAX (40.0)
@@ -29,14 +31,19 @@
 #define MIN_H (0.10)
 #define MAX_H (0.25)
 
-#define MIN_AREA (500)
+#define MIN_AREA (500/(DOWNSCALE*DOWNSCALE))
 
-#define NUM_SLICES (20)
+#define NUM_SLICES (40)
 //#define __SLICE_DEBUG
 
 /* Typedefs */
 
 typedef std::vector<cv::Rect> RectList;
+
+struct Slice {
+	float min, max;
+	cv::Mat mat;
+};
 
 /* Functions */
 void loop();
@@ -45,10 +52,11 @@ void get_images(sensor_msgs::Image::ConstPtr&,
 void find_obstacles(const cv::Mat&, cv::Mat&, float, float);
 float get_depth_scale(float);
 
-void init_slices(std::vector<cv::Mat>&);
-void fill_slices(const cv::Mat&, std::vector<cv::Mat>&, float);
+void init_slices(std::vector<Slice>&);
+void fill_slices(const cv::Mat&, std::vector<Slice>&, float);
 void remove_noise(cv::Mat&);
 RectList calc_bboxes(cv::Mat&);
+void calc_topdown(cv::Mat&, const std::vector<Slice>&, const std::vector<RectList>&, float);
 
 void init_cv();
 void cleanup_cv();
