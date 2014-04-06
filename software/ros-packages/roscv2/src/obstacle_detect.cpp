@@ -103,6 +103,11 @@ void loop() {
 
 	/* Generate top-down image */
 	cv::Mat top;
+	/* Init top-down image */
+	top = cv::Mat::zeros(TOP_SIZE, TOP_SIZE, CV_8UC1);
+	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
+	calc_topdown_grid(grid, slices, slice_bboxes, RANGE_MAX);
+	draw_grid(grid, top);
 	calc_topdown(top, slices, slice_bboxes, RANGE_MAX);
 	cv::imshow(TOP_WINDOW, top);
 
@@ -245,9 +250,6 @@ RectList calc_bboxes(cv::Mat &mat ) {
 
 void calc_topdown(cv::Mat &top, const std::vector<Slice> &slices, 
                   const std::vector<RectList> &bboxes, float max_dist) {
-	/* Init top-down mat */
-	top = cv::Mat::zeros(TOP_SIZE, TOP_SIZE, CV_8UC1);
-
 	float ppm = (float)TOP_SIZE / max_dist; /* Pixels per meter */
 
 	for (int i = 0; i < slices.size(); i++) {
@@ -277,6 +279,58 @@ void calc_topdown(cv::Mat &top, const std::vector<Slice> &slices,
 
 			/* Draw */
 			cv::Rect r = cv::Rect(x, y, width, height);
+			cv::rectangle(top, r, color, -1);
+		}
+	}
+}
+
+//TODO: mostly copied from above
+void calc_topdown_grid(Grid &grid, const std::vector<Slice> &slices, 
+                       const std::vector<RectList> &bboxes, float max_dist) {
+	for (int i = 0; i < slices.size(); i++) {
+		const RectList& boxes = bboxes[i];
+
+		/* Get avg depth and scale for this slice */
+		float depth = (slices[i].min + slices[i].max) / 2.0;
+		float scale = get_depth_scale(depth);
+
+		int y = (int)((depth/max_dist)*grid.height());
+
+		if (y < 0 || y >= grid.height()) continue;
+
+		cv::Scalar color = cv::Scalar(255, 255, 255);
+		for (int j = 0; j < boxes.size(); j++) {
+			/* Get distance (IN METERS) of bbox from center */
+			int dx = boxes[j].x - (IMG_WIDTH/2);
+			float dx_m = (dx / scale)+(max_dist/2);
+
+			/* Get width (IN METERS) of bbox */
+			float width_m = boxes[j].width / scale;
+
+			int min_x = (dx_m/max_dist)*grid.width();
+			int max_x = ((dx_m+width_m)/max_dist)*grid.width();
+
+			for (int i = min_x; i <= max_x; i++ ) {
+				if (i < 0 || i >= grid.width()) continue;
+				grid[i][y] = 1;
+			}
+		}
+	}
+}
+
+void draw_grid(const Grid& grid, cv::Mat& top) {
+	cv::Scalar color = cv::Scalar(127,0,0);
+	float step_x = TOP_SIZE/grid.width();
+	float step_y = TOP_SIZE/grid.height();
+
+	for (int y = 0; y < grid.height(); y++) {
+		for (int x = 0; x < grid.height(); x++) {
+			int _y = grid.height() - (y+1);
+			if (grid[x][y] == 0) continue;
+			int py = (int)(_y * step_y);
+			int px = (int)(x * step_x);
+
+			cv::Rect r = cv::Rect(px, py, step_x, step_y);
 			cv::rectangle(top, r, color, -1);
 		}
 	}
