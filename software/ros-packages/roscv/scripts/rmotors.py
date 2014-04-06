@@ -6,10 +6,21 @@ import itertools #Used to break apart string
 import collections #used for the command queue
 
 
+import signal
+import sys
+
 import os
 import serial
 from serial.tools import list_ports
 
+
+def handler(signum, frame):
+    print "Lethal signal received sending motor kill signal and exiting"
+    if con != None:
+        con.m.change(0, 0, 0)
+        con.q.clear()
+        con.m.maintain()
+    sys.exit(1)
 
 class SerialHandler(object):
     baud = 9600
@@ -156,22 +167,38 @@ class MotorController(RosController):
 
     def wait_distance(self, distance):
         start = time.time()
-        while (time.time() - start) < 5:
+        #the ratio between the actual and theoretical meters per second
+        a_mps = 1
+        if self.speed == 0:
+            length = 0
+        else:
+            length = distance/(self.speed*a_mps)
+
+        while (time.time() - start) < length:
             self.m.maintain()
 
     def wait_angle(self, angle):
         start = time.time()
-        while (time.time() - start) < 5:
+        if angle > 180:
+            angle = 360 - angle
+        #assume one degree a second
+        dps = 1
+        while (time.time() - start) < angle*dps:
             self.m.maintain()
 
 
 
 
-
+con = None
 if __name__ == '__main__':
     try:
         rospy.init_node("motor_controller", anonymous=True)
         con = MotorController("motor_control", "motor_command")
+        #handle lethal signals in order to stop the motors if the script quits
+        signal.signal(signal.SIGHUP, handler)
+        signal.signal(signal.SIGKILL, handler)
+        signal.signal(signal.SIGQUIT, handler)
+
         rospy.spin()
     except rospy.ROSInterruptException:
         pass

@@ -5,11 +5,11 @@ neural_network::neural_network(unsigned int numinputs, unsigned int numoutputs){
 	this->outputsize = numoutputs;
 	//start by setting up the hidden and output layers for the neural network
 	for(int i=0; i<HIDDEN; ++i){
-		node n(numinputs, .01);
+		node n(numinputs, 1);
 		this->hidden.push_back(n);
 	}
 	for(unsigned int i=0; i<numoutputs; ++i){
-		node n(numinputs, .01);
+		node n(numinputs, 1);
 		this->outputs.push_back(n);
 	}
 }
@@ -47,6 +47,7 @@ void neural_network::backpropagation(){
 		for(unsigned int x=0; x < this->hidden.size(); ++x){
 			float dw = N*this->error[i]*this->y2[i]*(1-this->y2[i])*this->y1[x];
 			w_ho[i].push_back(this->outputs[i].w[x] + dw);
+			//cout << "h2o:" << dw << endl;
 		}
 	}
 	//now the weights between input and hidden layer
@@ -63,6 +64,7 @@ void neural_network::backpropagation(){
 			float dv = d2*N*this->inputs[n];
 			cout << dv << endl;
 			w_ih[z].push_back(this->hidden[z].w[n] + dv);
+			//cout << "i2h:" << dv << endl;
 		}
 	}
 	//set the updated weigths
