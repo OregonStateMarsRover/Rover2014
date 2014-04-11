@@ -10,6 +10,7 @@
 #include <stereo_msgs/DisparityImage.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
+#include <roscv2/Grid.h>
 
 /* Constants */
 #define IMAGE_WINDOW "Image"
@@ -81,6 +82,15 @@ public:
 	}
 	int * operator[](int i) {
 		return ptr[i];
+	}
+	void populate_msg(roscv2::Grid &msg) {
+		msg.width = _width;
+		msg.height = _height;
+		for (int j = 0; j < _height; j++) {
+			for (int i = 0; i < _width; i++) {
+				msg.data.push_back(ptr[i][j]);
+			}
+		}
 	}
 };
 

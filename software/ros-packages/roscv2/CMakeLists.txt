@@ -160,3 +160,13 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 add_executable(obstacle_detect src/obstacle_detect.cpp)
 target_link_libraries(obstacle_detect ${catkin_LIBRARIES} ${OpenCV_LIBS})
 add_dependencies(obstacle_detect ${catkin_EXPORTED_TARGETS})
+
+include_directories(include ${catkin_INCLUDE_DIRS})
+add_executable(grid_pub src/grid_pub.cpp)
+target_link_libraries(grid_pub ${catkin_LIBRARIES} ${OpenCV_LIBS})
+add_dependencies(grid_pub ${catkin_EXPORTED_TARGETS})
+
+include_directories(include ${catkin_INCLUDE_DIRS})
+add_executable(grid_recv src/grid_recv.cpp)
+target_link_libraries(grid_recv ${catkin_LIBRARIES} ${OpenCV_LIBS})
+add_dependencies(grid_recv ${catkin_EXPORTED_TARGETS})
