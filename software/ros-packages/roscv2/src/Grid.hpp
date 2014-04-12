@@ -29,6 +29,8 @@ public:
 
 	int width() const { return _width; }
 	int height() const { return _height; }
+	int real_width() const { return _real_width; }
+	int real_height() const { return _real_height; }
 
 	int const * operator[](int i) const {
 		return (int const *)ptr[i];
