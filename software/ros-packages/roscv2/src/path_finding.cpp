@@ -1,5 +1,8 @@
 #include "path_finding.hpp"
 #include <cmath>
+#include <string>
+
+static ros::Publisher motor_pub;
 
 int main(int argc, char **argv) {
 
@@ -8,6 +11,7 @@ int main(int argc, char **argv) {
     ROS_INFO("Path finding node online");
 
     ros::Subscriber sub = pf.subscribe("/obstacle_grid", 10, grid_callback);
+	motor_pub = pf.advertise<std_msgs::String>("motor_command", 100);
 
 	while (1) {
 		ros::spinOnce();
@@ -19,6 +23,7 @@ void grid_callback(const roscv2::Grid& msg) {
 	print_grid(grid);
 
 	bool blocked = forward_obstacle(grid);
+	move(blocked);
 	ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
 }
 
@@ -50,4 +55,19 @@ void print_grid(const Grid& grid) {
 		printf("\n");
 	}
 	printf("\n\n\n");
+}
+
+void move(bool blocked) {
+	std::stringstream fss;
+	fss << "flush";
+	std_msgs::String flush_msg;
+	flush_msg.data = fss.str();
+	motor_pub.publish(flush_msg);
+	if (!blocked) {
+		std_msgs::String move_msg;
+		std::stringstream mss;
+		mss << "f1";
+		move_msg.data = mss.str();
+		motor_pub.publish(move_msg);
+	}
 }
