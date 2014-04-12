@@ -1,4 +1,5 @@
-#include "obstacle_detect.hpp"
+#include "Grid.hpp"
+#include <ros/ros.h>
 
 int main(int argc, char *argv[]) {
 	/* Init ROS */

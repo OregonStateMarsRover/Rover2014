@@ -1,11 +1,14 @@
 #include "obstacle_detect.hpp"
 
+ros::Publisher pub;
+
 int main(int argc, char *argv[]) {
 	/* Init ROS */
 	ros::init(argc, argv, "obstacle_detect");
-	ros::NodeHandle n;
 	ROS_INFO("obstacle_detect started");
 
+	ros::NodeHandle n;
+	pub = n.advertise<roscv2::Grid>("obstacle_grid", 10);
 	init_cv();
 
 	/* Spin */
@@ -107,6 +110,8 @@ void loop() {
 	top = cv::Mat::zeros(TOP_SIZE, TOP_SIZE, CV_8UC1);
 	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT, RANGE_MAX, RANGE_MAX);
 	calc_topdown_grid(grid, slices, slice_bboxes, RANGE_MAX);
+	publish_grid(grid);
+
 	draw_grid(grid, top);
 	calc_topdown(top, slices, slice_bboxes, RANGE_MAX);
 	cv::imshow(TOP_WINDOW, top);
@@ -316,6 +321,12 @@ void calc_topdown_grid(Grid &grid, const std::vector<Slice> &slices,
 			}
 		}
 	}
+}
+
+void publish_grid(const Grid &grid) {
+		roscv2::Grid msg;
+		grid.populate_msg(msg);
+		pub.publish(msg);
 }
 
 void draw_grid(const Grid& grid, cv::Mat& top) {
