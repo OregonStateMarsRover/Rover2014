@@ -105,7 +105,7 @@ void loop() {
 	cv::Mat top;
 	/* Init top-down image */
 	top = cv::Mat::zeros(TOP_SIZE, TOP_SIZE, CV_8UC1);
-	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
+	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT, RANGE_MAX, RANGE_MAX);
 	calc_topdown_grid(grid, slices, slice_bboxes, RANGE_MAX);
 	draw_grid(grid, top);
 	calc_topdown(top, slices, slice_bboxes, RANGE_MAX);

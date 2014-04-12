@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
 	ROS_INFO("grid_pub started");
 
-	Grid g = Grid(10,10);
+	Grid g = Grid(10,10,40.0,40.0);
 	for (int i = 0; i < 10; i++) {
 		for (int j = 0; j < 10; j++) {
 			g[i][j] = (i+j)%2;

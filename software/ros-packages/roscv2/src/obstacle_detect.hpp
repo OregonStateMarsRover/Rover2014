@@ -53,6 +53,7 @@ class Grid {
 private:
 	int **ptr;
 	int _width, _height;
+	float _real_width, _real_height;
 
 	void init() {
 		for (int i = 0; i < _width; i++) {
@@ -62,8 +63,9 @@ private:
 		}
 	}
 public:
-	Grid(int w, int h) {
+	Grid(int w, int h, float w_m, float h_m) {
 		_width = w; _height = h;
+		_real_width = w_m; _real_height = h_m;
 		ptr = new int*[_width];
 		for (int i = 0; i < _width; i++) ptr[i] = new int[_height];
 		init();
@@ -86,6 +88,8 @@ public:
 	void populate_msg(roscv2::Grid &msg) {
 		msg.width = _width;
 		msg.height = _height;
+		msg.width_m = _real_width;
+		msg.height_m = _real_width;
 		for (int j = 0; j < _height; j++) {
 			for (int i = 0; i < _width; i++) {
 				msg.data.push_back(ptr[i][j]);
