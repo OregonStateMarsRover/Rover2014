@@ -122,7 +122,7 @@ class RosController(object):
     q = None
     pub = None
     m = None
-    speed = 0.5
+    speed = 0.75
 
     def __init__(self, status_to, commands_from):
         self.q = collections.deque()
