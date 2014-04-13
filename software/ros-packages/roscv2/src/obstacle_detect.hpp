@@ -13,7 +13,12 @@
 
 #include "Grid.hpp"
 
+/* Options */
+#define CV_OUTPUT
+//#define __SLICE_DEBUG
+
 /* Constants */
+
 #define IMAGE_WINDOW "Image"
 #define DEPTH_WINDOW "Distance"
 #define OBS_WINDOW "Obstacle"
@@ -39,7 +44,6 @@
 #define MIN_AREA (500/(DOWNSCALE*DOWNSCALE))
 
 #define NUM_SLICES (40)
-//#define __SLICE_DEBUG
 
 /* Typedefs */
 

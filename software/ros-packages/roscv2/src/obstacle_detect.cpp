@@ -9,7 +9,9 @@ int main(int argc, char *argv[]) {
 
 	ros::NodeHandle n;
 	pub = n.advertise<roscv2::Grid>("obstacle_grid", 10);
+#ifdef CV_OUTPUT
 	init_cv();
+#endif
 
 	/* Spin */
 	while (ros::ok()) {
@@ -18,7 +20,9 @@ int main(int argc, char *argv[]) {
 		ros::spinOnce();
 	}
 
+#ifdef CV_OUTPUT
 	cleanup_cv();
+#endif
 
 	return 0;
 }
@@ -33,7 +37,6 @@ void loop() {
 	/* Display raw image */
 	cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(img_msg,
 	                            sensor_msgs::image_encodings::BGR8);
-	//cv::imshow(IMAGE_WINDOW, img->image);
 
 	/* Get disparity data */
 	cv_bridge::CvImagePtr disp = cv_bridge::toCvCopy(disp_msg->image,
@@ -51,8 +54,10 @@ void loop() {
 	cv::resize(full_depth, depth, cv::Size(IMG_WIDTH, IMG_HEIGHT));
 
 	/* Display value-scaled depth image */
+#ifdef CV_OUTPUT
 	cv::Mat scaled_depth = depth / RANGE_MAX;
 	cv::imshow(DEPTH_WINDOW, scaled_depth);
+#endif
 
 	/* Create empty obstacle map */
 	cv::Mat obstacle = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
@@ -60,8 +65,10 @@ void loop() {
 
 	/* Find and display obstacles */
 	find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
+#ifdef CV_OUTPUT
 	cv::Mat scaled_obs = obstacle / RANGE_MAX;
 	cv::imshow(OBS_WINDOW, scaled_obs);
+#endif
 
 	/* Set up slices */
 	std::vector<Slice> slices;
@@ -114,11 +121,13 @@ void loop() {
 
 	draw_grid(grid, top);
 	calc_topdown(top, slices, slice_bboxes, RANGE_MAX);
+#ifdef CV_OUTPUT
 	cv::imshow(TOP_WINDOW, top);
-
 	cv::imshow(IMAGE_WINDOW, final_image);
+#endif
 
-#ifdef __SLICE_DEBUG
+
+#if defined(__SLICE_DEBUG) && defined(CV_OUTPUT)
 	for (int i = 0; i < NUM_SLICES; i++) {
 		std::string s = "a";
 		s[0] = 'a'+i;
