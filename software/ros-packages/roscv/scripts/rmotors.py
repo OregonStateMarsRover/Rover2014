@@ -65,6 +65,9 @@ class Motor(object):
     left = None
     right = None
     estop = 0
+    right_speed = 0
+    left_speed = 0
+    ramp_rate = 1
 
     def __init__(self):
         self.serial = SerialHandler()
@@ -83,13 +86,31 @@ class Motor(object):
         self.estop = e
 
     def send_packet(self):
+        print self.left, self.left_speed
+        print self.right, self.right_speed
         if self.left == None or self.right == None:
                 return
+        if self.right_speed != self.right:
+            delta = self.right - self.right_speed
+            if abs(delta) > self.ramp_rate:
+                    self.ramp_rate += 1
+                    self.right_speed += self.ramp_rate if delta > 0 else -self.ramp_rate
+                    
+            else:
+                    self.right_speed = self.right
+                    self.ramp_rate = 1
+        
+        if self.left_speed != self.left:
+            delta = self.left - self.left_speed
+            if abs(delta) > self.ramp_rate:
+                    self.left_speed += self.ramp_rate if delta > 0 else -self.ramp_rate
+            else:
+                    self.left_speed = self.left
         self.serial.write(chr(255))
         self.serial.write(chr(self.estop))
-        self.serial.write(chr(self.left))
-        self.serial.write(chr(self.right))
-        self.serial.write(chr(0 ^ self.left ^ self.right))
+        self.serial.write(chr(self.left_speed))
+        self.serial.write(chr(self.right_speed))
+        self.serial.write(chr(0 ^ self.left_speed ^ self.right_speed))
         self.serial.write(chr(255))
         while not self.serial.read(1) == 'r':
             pass
@@ -101,9 +122,8 @@ class RosController(object):
     q = None
     pub = None
     m = None
-    speed = 1.0
-    run_speed = 0.0
-    ramp_rate = .1
+    speed = 0.5
+
     def __init__(self, status_to, commands_from):
         self.q = collections.deque()
         self.pub = rospy.Publisher(status_to, String)
@@ -112,7 +132,7 @@ class RosController(object):
 
         rospy.Subscriber(commands_from, String, self.read_commands)
 
-        rospy.Timer(rospy.Duration(.5), self.m.maintain)
+        rospy.Timer(rospy.Duration(.001), self.m.maintain)
 
     def read_commands(self, commands):
         length = len(self.q)
@@ -120,9 +140,7 @@ class RosController(object):
         command_list = ["".join(x) for _, x in itertools.groupby(commands, key=str.isdigit)]
         print commands, command_list
         #flush the queues
-        if command_list[0] == "flush":
-            self.q.clear()
-            self.m.change(0,0,0)
+        self.m.change(self.meters_to_char(0),self.meters_to_char(0),0)
 
         if command_list[0] in "fbsr":
             self.q.extend(command_list)
@@ -167,9 +185,9 @@ class MotorController(RosController):
         elif action == "r":
             value = int(value)
             if value < 180:
-                self.m.change(self.meters_to_char(-.25), self.meters_to_char(.25), 0)
+                self.m.change(self.meters_to_char(.5), self.meters_to_char(-.5), 0)
             else:
-                self.m.change(self.meters_to_char(.25), self.meters_to_char(-.25), 0)
+                self.m.change(self.meters_to_char(-.5), self.meters_to_char(.5), 0)
             self.wait_angle(value)
           
 
