@@ -17,7 +17,7 @@ from serial.tools import list_ports
 def handler(signum, frame):
     print "Lethal signal received sending motor kill signal and exiting"
     if con != None:
-        con.m.change(0, 0, 0)
+        con.m.change(0, 0, 1)
         con.q.clear()
         con.m.maintain()
     sys.exit(1)
@@ -74,7 +74,7 @@ class Motor(object):
         time.sleep(2)
         open(os.devnull, 'w')
 
-    def maintain(self):
+    def maintain(self, event=None):
         self.send_packet()
 
     def change(self, l, r, e):
@@ -83,6 +83,8 @@ class Motor(object):
         self.estop = e
 
     def send_packet(self):
+        if self.left == None or self.right == None:
+                return
         self.serial.write(chr(255))
         self.serial.write(chr(self.estop))
         self.serial.write(chr(self.left))
@@ -100,7 +102,8 @@ class RosController(object):
     pub = None
     m = None
     speed = 1.0
-
+    run_speed = 0.0
+    ramp_rate = .1
     def __init__(self, status_to, commands_from):
         self.q = collections.deque()
         self.pub = rospy.Publisher(status_to, String)
@@ -108,6 +111,8 @@ class RosController(object):
         self.m = Motor()
 
         rospy.Subscriber(commands_from, String, self.read_commands)
+
+        rospy.Timer(rospy.Duration(.5), self.m.maintain)
 
     def read_commands(self, commands):
         length = len(self.q)
@@ -117,6 +122,7 @@ class RosController(object):
         #flush the queues
         if command_list[0] == "flush":
             self.q.clear()
+            self.m.change(0,0,0)
 
         if command_list[0] in "fbsr":
             self.q.extend(command_list)
@@ -124,7 +130,7 @@ class RosController(object):
             #invalid commands, we will need to handle later
             pass
 
-        if length == 0:
+        if length == 0 and command_list[0] != "flush":
             self.update()
 
     def meters_to_char(self, speed):
@@ -138,15 +144,20 @@ class RosController(object):
 
 class MotorController(RosController):
 
-    def update(self):
+    def update(self, event=None):
         if len(self.q) == 0:
             return
         action = self.q[0]
         value = self.q[1]
+        
+        #pop to elements off the deque
+        self.q.popleft()
+        self.q.popleft()
+
         if action == "f" or action == "b":
             spd = self.meters_to_char(self.speed
                             if action == "f" else -self.speed)
-            self.m.change(spd, spd, 0)
+            self.m.change(spd, spd, 0) 
             self.wait_distance(value)
 
         elif action == "s":
@@ -160,31 +171,30 @@ class MotorController(RosController):
             else:
                 self.m.change(self.meters_to_char(.25), self.meters_to_char(-.25), 0)
             self.wait_angle(value)
-        #pop to elements off the deque
-        self.q.popleft()
-        self.q.popleft()
-        self.update()
+          
 
     def wait_distance(self, distance):
         start = time.time()
         #the ratio between the actual and theoretical meters per second
-        a_mps = 1
+        a_mps = .1
         if self.speed == 0:
             length = 0
         else:
-            length = distance/(self.speed*a_mps)
+            length = float(distance)/(self.speed*a_mps)
 
-        while (time.time() - start) < length:
-            self.m.maintain()
+        rospy.Timer(rospy.Duration(length), self.update, True)
+        
 
     def wait_angle(self, angle):
         start = time.time()
+        angle = float(angle)
         if angle > 180:
             angle = 360 - angle
         #assume one degree a second
         dps = 1
-        while (time.time() - start) < angle*dps:
-            self.m.maintain()
+        
+        rospy.Timer(rospy.Duration(angle*dps), self.update, True) 
+        
 
 
 
@@ -196,7 +206,6 @@ if __name__ == '__main__':
         con = MotorController("motor_control", "motor_command")
         #handle lethal signals in order to stop the motors if the script quits
         signal.signal(signal.SIGHUP, handler)
-        signal.signal(signal.SIGKILL, handler)
         signal.signal(signal.SIGQUIT, handler)
 
         rospy.spin()
