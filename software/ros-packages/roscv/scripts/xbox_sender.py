@@ -34,7 +34,8 @@ if __name__ == '__main__':
         pygame.event.pump()
         vert = int(joy.get_axis(1)*127)
         turn = int(joy.get_axis(0)*127)
-        if abs(abs(vert) - abs(turn)) < 10:
+        if abs(abs(vert) - abs(turn)) < 20:
+            send_string(sock, "flush")
             continue
         if abs(vert) > abs(turn):
             if vert < 0:
