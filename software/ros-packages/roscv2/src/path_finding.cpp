@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     ROS_INFO("Path finding node online");
 
     ros::Subscriber sub = pf.subscribe("/obstacle_grid", 10, grid_callback);
-	motor_pub = pf.advertise<std_msgs::String>("motor_command", 100);
+	motor_pub = pf.advertise<std_msgs::String>("/motor_command", 100);
 
 	while (1) {
 		ros::spinOnce();
