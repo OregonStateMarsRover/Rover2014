@@ -18,6 +18,13 @@ int main(int argc, char **argv) {
 	}
 }
 
+void print_scores(std::map<int, float>& scores) {
+	for (std::map<int,float>::iterator i = scores.begin(); 
+	     i != scores.end(); i++) {
+		printf("%d\t%f\n", i->first, i->second);
+	}
+}
+
 void grid_callback(const roscv2::Grid& msg) {
 	Grid grid = Grid::from_msg(msg);
 	print_grid(grid);
@@ -27,6 +34,7 @@ void grid_callback(const roscv2::Grid& msg) {
 	score_directions(grid, scores);
 	move(blocked, scores);
 	ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
+	print_scores(scores);
 }
 
 bool forward_obstacle(const Grid& grid) {
@@ -64,7 +72,13 @@ void score_directions(const Grid& grid, std::map<int, float>& scores) {
 			float dist = sqrt(x_dist*x_dist + y_dist*y_dist);
 			float angle = atan2(dx, dy);
 
-			int b = (int)ceil(angle / ARC_RAD);
+			int b;
+			float b_f = angle/ARC_RAD;
+			if (b_f < 0) {
+				b = (int)floor(b_f);
+			} else {
+				b = (int)ceil(b_f);
+			}
 
 			float score = 1.0 / (dist*dist); //TODO
 			if (scores.count(b) > 0) {
@@ -85,6 +99,7 @@ void print_grid(const Grid& grid) {
 	}
 	printf("\n\n\n");
 }
+
 
 void move(bool blocked, std::map<int, float>& scores) {
 #ifndef MOVE
