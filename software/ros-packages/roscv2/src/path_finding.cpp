@@ -1,8 +1,22 @@
 #include "path_finding.hpp"
 #include <std_msgs/String.h>
 #include <cmath>
+#include <signal.h>
 
 static ros::Publisher motor_pub;
+
+static void catch_sig(int sig) {
+    ROS_INFO("Caught signal-- hanging up");
+	if (sig == SIGINT || sig == SIGQUIT || sig == SIGHUP) {
+		std::stringstream fss;
+		fss << "flush";
+		std_msgs::String flush_msg;
+		flush_msg.data = fss.str();
+		motor_pub.publish(flush_msg);
+	}
+
+	exit(0);
+}
 
 int main(int argc, char **argv) {
 
@@ -79,7 +93,7 @@ void score_directions(const Grid& grid, std::map<int, float>& scores) {
 				b = (int)ceil(b_f);
 			}
 
-			float score = 1.0 / (dist*dist); //TODO
+			float score = 1.0 / (dist*dist*dist); //TODO
 			if (scores.count(b) > 0) {
 				scores[b] += score;
 			} else {
@@ -101,9 +115,6 @@ void print_grid(const Grid& grid) {
 
 
 void move(bool blocked, std::map<int, float>& scores) {
-#ifndef MOVE
-	return;
-#endif
 	std::stringstream fss;
 	fss << "flush";
 	std_msgs::String flush_msg;
@@ -116,7 +127,6 @@ void move(bool blocked, std::map<int, float>& scores) {
 	if (!blocked) {
 		mss << "f1";
 		move_msg.data = mss.str();
-		motor_pub.publish(move_msg);
 	} else {
 		float left_score, right_score;
 		std::map<int, float>::iterator it;
@@ -132,12 +142,13 @@ void move(bool blocked, std::map<int, float>& scores) {
 			ROS_INFO("Moving left");
 			mss << "l1";
 			move_msg.data = mss.str();
-			motor_pub.publish(move_msg);
 		} else {
 			ROS_INFO("Moving right");
 			mss << "r1";
 			move_msg.data = mss.str();
-			motor_pub.publish(move_msg);
 		}
 	}
+#ifndef MOVE
+		motor_pub.publish(move_msg);
+#endif
 }

@@ -18,3 +18,4 @@ bool forward_obstacle(const Grid& grid);
 void score_directions(const Grid& grid, std::map<int, float>& scores);
 void print_grid(const Grid& grid);
 void move(bool blocked, std::map<int, float>& scores);
+static void catch_sig(int sig);
