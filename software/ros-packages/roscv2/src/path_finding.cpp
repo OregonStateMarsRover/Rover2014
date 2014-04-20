@@ -13,9 +13,7 @@ int main(int argc, char **argv) {
     ros::Subscriber sub = pf.subscribe("/obstacle_grid", 10, grid_callback);
 	motor_pub = pf.advertise<std_msgs::String>("/motor_command", 100);
 
-	while (1) {
-		ros::spinOnce();
-	}
+	ros::spin();
 }
 
 void print_scores(std::map<int, float>& scores) {
@@ -26,14 +24,15 @@ void print_scores(std::map<int, float>& scores) {
 }
 
 void grid_callback(const roscv2::Grid& msg) {
+	return;
 	Grid grid = Grid::from_msg(msg);
 	print_grid(grid);
 
 	std::map<int, float> scores;
 	bool blocked = forward_obstacle(grid);
 	score_directions(grid, scores);
-	move(blocked, scores);
 	ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
+	move(blocked, scores);
 	print_scores(scores);
 }
 
@@ -110,11 +109,35 @@ void move(bool blocked, std::map<int, float>& scores) {
 	std_msgs::String flush_msg;
 	flush_msg.data = fss.str();
 	motor_pub.publish(flush_msg);
+
+	std_msgs::String move_msg;
+	std::stringstream mss;
+
 	if (!blocked) {
-		std_msgs::String move_msg;
-		std::stringstream mss;
 		mss << "f1";
 		move_msg.data = mss.str();
 		motor_pub.publish(move_msg);
+	} else {
+		float left_score, right_score;
+		std::map<int, float>::iterator it;
+		for (it = scores.begin(); it != scores.end(); ++it) {
+			if (it->first < 0) {
+				left_score += it->second;
+			} else {
+				right_score += it->second;
+			}
+		}
+
+		if (left_score < right_score) {
+			ROS_INFO("Moving left");
+			mss << "l1";
+			move_msg.data = mss.str();
+			motor_pub.publish(move_msg);
+		} else {
+			ROS_INFO("Moving right");
+			mss << "r1";
+			move_msg.data = mss.str();
+			motor_pub.publish(move_msg);
+		}
 	}
 }
