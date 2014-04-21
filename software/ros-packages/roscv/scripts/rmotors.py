@@ -185,16 +185,16 @@ class MotorController(RosController):
         elif action == "r":
             value = int(value)
             if value < 180:
-                self.m.change(self.meters_to_char(.5), self.meters_to_char(-.5), 0)
+                self.m.change(self.meters_to_char(.3), self.meters_to_char(-.3), 0)
             else:
-                self.m.change(self.meters_to_char(-.5), self.meters_to_char(.5), 0)
+                self.m.change(self.meters_to_char(-.3), self.meters_to_char(.3), 0)
             self.wait_angle(value)
           
 
     def wait_distance(self, distance):
         start = time.time()
         #the ratio between the actual and theoretical meters per second
-        a_mps = .1
+        a_mps = .3
         if self.speed == 0:
             length = 0
         else:
