@@ -4,6 +4,7 @@
 #include <signal.h>
 
 static ros::Publisher motor_pub;
+static float g_distance = MAX_OBS_DIST;
 
 static void catch_sig(int sig) {
     ROS_INFO("Caught signal-- hanging up");
@@ -19,6 +20,24 @@ static void catch_sig(int sig) {
 }
 
 int main(int argc, char **argv) {
+	char *dval;
+	int c;
+	while ((c = getopt(argc, argv, "d:")) != -1) {
+		switch (c) {
+		case 'd':
+			dval = optarg;
+			g_distance = atof(dval);
+			ROS_INFO("d is %f.", g_distance);
+			break;
+		case '?':
+			if (optopt = 'd') {
+				ROS_ERROR("d must have a value.");
+			} else {
+				ROS_ERROR("Unknown option %c.", optopt);
+			}
+			exit(0);
+		}
+	}
 
     ros::init(argc, argv, "path_finding");
     ros::NodeHandle pf;
@@ -54,7 +73,7 @@ bool forward_obstacle(const Grid& grid) {
 	float square_height = grid.real_height() / (float)grid.height();
 
 	int rover_w_sq = (int)ceil((ROVER_WIDTH/2.0) / square_width);
-	int max_dist_sq = (int)ceil(MAX_OBS_DIST / square_height);
+	int max_dist_sq = (int)ceil(g_distance / square_height);
 
 	int bound_l = (int)floor(((float)grid.width()-1.0)/2.0)-rover_w_sq;
 	int bound_r = (int)ceil(((float)grid.width()-1.0)/2.0)+rover_w_sq;
