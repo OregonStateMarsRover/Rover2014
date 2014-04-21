@@ -14,7 +14,7 @@
 #include "Grid.hpp"
 
 /* Options */
-#define CV_OUTPUT
+//#define CV_OUTPUT
 //#define __SLICE_DEBUG
 
 /* Constants */
