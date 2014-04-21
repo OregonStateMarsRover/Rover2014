@@ -2,7 +2,7 @@
     <node name="uvc_cam_left" pkg="uvc_camera" type="uvc_stereo_node" output="screen" ns="my_stereo">
 		<param name="left/device" value="/dev/video1" />
 		<param name="right/device" value="/dev/video2" />
-		<param name="fps" value="10.0" />	
+		<param name="fps" value="20.0" />	
 		<param name="width" value="640" />
 		<param name="height" value="480" />
 		<param name="frame_id" value="frame" />
