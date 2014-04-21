@@ -10,7 +10,7 @@
 #endif
 
 #define ROVER_WIDTH (1.25)
-#define MAX_OBS_DIST (3.0)
+#define MAX_OBS_DIST (6.0)
 #define ARC_RAD (PI/8)
 
 void grid_callback(const roscv2::Grid& msg);

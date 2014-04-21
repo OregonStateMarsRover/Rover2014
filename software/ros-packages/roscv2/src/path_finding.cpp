@@ -38,7 +38,6 @@ void print_scores(std::map<int, float>& scores) {
 }
 
 void grid_callback(const roscv2::Grid& msg) {
-	return;
 	Grid grid = Grid::from_msg(msg);
 	print_grid(grid);
 
@@ -140,7 +139,7 @@ void move(bool blocked, std::map<int, float>& scores) {
 
 		if (left_score < right_score) {
 			ROS_INFO("Moving left");
-			mss << "l1";
+			mss << "r359";
 			move_msg.data = mss.str();
 		} else {
 			ROS_INFO("Moving right");
@@ -148,7 +147,7 @@ void move(bool blocked, std::map<int, float>& scores) {
 			move_msg.data = mss.str();
 		}
 	}
-#ifndef MOVE
+#ifdef MOVE
 		motor_pub.publish(move_msg);
 #endif
 }
