@@ -14,12 +14,20 @@
 
 /*! Define that selects the Usart used in example. */
 #define USART USARTC0
+#define XBEEDIO0 PIN5_bm //PORTA
+#define SabertoothTx PIN3_bm //PORTD
+#define StatusLight PIN3_bm //PORTE
 
 /*! Success variable, used to test driver. */
 bool success;
 
 int main(void)
 {
+	 CCP = CCP_IOREG_gc;              // disable register security for oscillator update
+	 OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
+	 while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
+	 CCP = CCP_IOREG_gc;              // disable register security for clock update
+	 CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
 	/* Variable used to send and receive data. */
 	uint8_t sendData[] = "This is a string\r\n";
 	uint8_t receivedData;
@@ -31,7 +39,7 @@ int main(void)
 
 	/* PC2 (RXD0) as input. */
 	PORTC.DIRCLR = PIN2_bm;
-
+	PORTA.DIRCLR = XBEEDIO0;
 	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
 	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
 
@@ -42,7 +50,7 @@ int main(void)
 	 * Baudrate select = (1/(16*(((I/O clock frequency)/Baudrate)-1)
 	 *                 = 12
 	 */
-	USART_Baudrate_Set(&USART, 12 , 0);
+	USART_Baudrate_Set(&USART, 207 , 0);
 
 	/* Enable both RX and TX. */
 	USART_Rx_Enable(&USART);
@@ -54,37 +62,17 @@ int main(void)
 	/* Send data from 255 down to 0*/
 	
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
-	while(1)
-		    {
+	while(1){
 		int i = 0;
 		while(sendData[i] != '\0') {
-	    /* Send one char. */
-		do{
-		/* Wait until it is possible to put data into TX data register.
-		 * NOTE: If TXDataRegister never becomes empty this will be a DEADLOCK. */
-		}while(!USART_IsTXDataRegisterEmpty(&USART));
-		USART_PutChar(&USART, sendData[i]);
-		i++;
-		uint16_t timeout = 1000;
-		/* Receive one char. */
-		do{
-		/* Wait until data received or a timeout.*/
-		timeout--;
-		}while(!USART_IsRXComplete(&USART) && timeout!=0);
-		receivedData = USART_GetChar(&USART);
-		//if(receivedData != 0){
-		//USART_PutChar(&USART, receivedData);
-		//receivedData = 0;
-		//}
-		/* Check the received data. */
-	}
-
-	/* Disable both RX and TX. */
-
-
-        PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
-		_delay_ms(500);
-		PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);   
-		_delay_ms(500);
+			while(!USART_IsTXDataRegisterEmpty(&USART));
+			USART_PutChar(&USART, sendData[i]);
+			i++;
+		}
+		if((PORTA.IN & XBEEDIO0)){
+			PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+		}else if((!(PORTA.IN & XBEEDIO0))){
+			PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);
+		}
 	}
 }

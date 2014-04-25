@@ -1,0 +1,400 @@
+
+DriveControl.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000028a  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000014  00802000  0000028a  0000031e  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000001  00802014  00802014  00000332  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  00000332  2**0
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000088  00000000  00000000  00000362  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   00000a03  00000000  00000000  000003ea  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 00000333  00000000  00000000  00000ded  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   0000035c  00000000  00000000  00001120  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  000000f8  00000000  00000000  0000147c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000783  00000000  00000000  00001574  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    0000045e  00000000  00000000  00001cf7  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000068  00000000  00000000  00002155  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+ *
+ *  \param usart_data The USART_data_t struct instance.
+ *  \param data       The data to send.
+ */
+bool USART_TXBuffer_PutByte(USART_data_t * usart_data, uint8_t data)
+{
+   0:	0c 94 b6 00 	jmp	0x16c	; 0x16c <__ctors_end>
+   4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+   8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+	uint8_t tempTX_Head;
+	bool TXBuffer_FreeSpace;
+	USART_Buffer_t * TXbufPtr;
+
+	TXbufPtr = &usart_data->buffer;
+	TXBuffer_FreeSpace = USART_TXBuffer_FreeSpace(usart_data);
+   c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+
+
+	if(TXBuffer_FreeSpace)
+  10:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+	{
+	  	tempTX_Head = TXbufPtr->TX_Head;
+	  	TXbufPtr->TX[tempTX_Head]= data;
+  14:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  18:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+		/* Advance buffer head. */
+		TXbufPtr->TX_Head = (tempTX_Head + 1) & USART_TX_BUFFER_MASK;
+  1c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  20:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+
+		/* Enable DRE interrupt. */
+		tempCTRLA = usart_data->usart->CTRLA;
+  24:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+		tempCTRLA = (tempCTRLA & ~USART_DREINTLVL_gm) | usart_data->dreIntLevel;
+  28:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  2c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+		usart_data->usart->CTRLA = tempCTRLA;
+	}
+	return TXBuffer_FreeSpace;
+}
+  30:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  34:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  38:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  3c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  40:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  44:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  48:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  4c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  50:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  54:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  58:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  5c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  60:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  64:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  68:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  6c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  70:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  74:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  78:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  7c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  80:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  84:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  88:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  8c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  90:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  94:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  98:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  9c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  a0:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  a4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  a8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  ac:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  b0:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  b4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  b8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  bc:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  c0:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  c4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  c8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  cc:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  d0:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  d4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  d8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  dc:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  e0:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  e4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  e8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  ec:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  f0:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  f4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  f8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  fc:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 100:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 104:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 108:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 10c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 110:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 114:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 118:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 11c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 120:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 124:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 128:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 12c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 130:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 134:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 138:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 13c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 140:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 144:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 148:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 14c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 150:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 154:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 158:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 15c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 160:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 164:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+ 168:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+
+0000016c <__ctors_end>:
+ 16c:	11 24       	eor	r1, r1
+ 16e:	1f be       	out	0x3f, r1	; 63
+ 170:	cf ef       	ldi	r28, 0xFF	; 255
+ 172:	cd bf       	out	0x3d, r28	; 61
+ 174:	df e2       	ldi	r29, 0x2F	; 47
+ 176:	de bf       	out	0x3e, r29	; 62
+
+00000178 <__do_copy_data>:
+ 178:	10 e2       	ldi	r17, 0x20	; 32
+ 17a:	a0 e0       	ldi	r26, 0x00	; 0
+ 17c:	b0 e2       	ldi	r27, 0x20	; 32
+ 17e:	ea e8       	ldi	r30, 0x8A	; 138
+ 180:	f2 e0       	ldi	r31, 0x02	; 2
+ 182:	02 c0       	rjmp	.+4      	; 0x188 <__do_copy_data+0x10>
+ 184:	05 90       	lpm	r0, Z+
+ 186:	0d 92       	st	X+, r0
+ 188:	a4 31       	cpi	r26, 0x14	; 20
+ 18a:	b1 07       	cpc	r27, r17
+ 18c:	d9 f7       	brne	.-10     	; 0x184 <__do_copy_data+0xc>
+
+0000018e <__do_clear_bss>:
+ 18e:	20 e2       	ldi	r18, 0x20	; 32
+ 190:	a4 e1       	ldi	r26, 0x14	; 20
+ 192:	b0 e2       	ldi	r27, 0x20	; 32
+ 194:	01 c0       	rjmp	.+2      	; 0x198 <.do_clear_bss_start>
+
+00000196 <.do_clear_bss_loop>:
+ 196:	1d 92       	st	X+, r1
+
+00000198 <.do_clear_bss_start>:
+ 198:	a5 31       	cpi	r26, 0x15	; 21
+ 19a:	b2 07       	cpc	r27, r18
+ 19c:	e1 f7       	brne	.-8      	; 0x196 <.do_clear_bss_loop>
+ 19e:	0e 94 d5 00 	call	0x1aa	; 0x1aa <main>
+ 1a2:	0c 94 43 01 	jmp	0x286	; 0x286 <_exit>
+
+000001a6 <__bad_interrupt>:
+ 1a6:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+000001aa <main>:
+#define XBEEDIO0 PIN5_bm
+/*! Success variable, used to test driver. */
+bool success;
+
+int main(void)
+{
+ 1aa:	cf 93       	push	r28
+ 1ac:	df 93       	push	r29
+ 1ae:	cd b7       	in	r28, 0x3d	; 61
+ 1b0:	de b7       	in	r29, 0x3e	; 62
+ 1b2:	63 97       	sbiw	r28, 0x13	; 19
+ 1b4:	cd bf       	out	0x3d, r28	; 61
+ 1b6:	de bf       	out	0x3e, r29	; 62
+	 CCP = CCP_IOREG_gc;              // disable register security for oscillator update
+ 1b8:	88 ed       	ldi	r24, 0xD8	; 216
+ 1ba:	84 bf       	out	0x34, r24	; 52
+	 OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
+ 1bc:	82 e0       	ldi	r24, 0x02	; 2
+ 1be:	80 93 50 00 	sts	0x0050, r24
+	 while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
+ 1c2:	e0 e5       	ldi	r30, 0x50	; 80
+ 1c4:	f0 e0       	ldi	r31, 0x00	; 0
+ 1c6:	81 81       	ldd	r24, Z+1	; 0x01
+ 1c8:	81 ff       	sbrs	r24, 1
+ 1ca:	fd cf       	rjmp	.-6      	; 0x1c6 <main+0x1c>
+	 CCP = CCP_IOREG_gc;              // disable register security for clock update
+ 1cc:	88 ed       	ldi	r24, 0xD8	; 216
+ 1ce:	84 bf       	out	0x34, r24	; 52
+	 CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
+ 1d0:	81 e0       	ldi	r24, 0x01	; 1
+ 1d2:	80 93 40 00 	sts	0x0040, r24
+	/* Variable used to send and receive data. */
+	uint8_t sendData[] = "This is a string\r\n";
+ 1d6:	93 e1       	ldi	r25, 0x13	; 19
+ 1d8:	e0 e0       	ldi	r30, 0x00	; 0
+ 1da:	f0 e2       	ldi	r31, 0x20	; 32
+ 1dc:	de 01       	movw	r26, r28
+ 1de:	11 96       	adiw	r26, 0x01	; 1
+ 1e0:	01 90       	ld	r0, Z+
+ 1e2:	0d 92       	st	X+, r0
+ 1e4:	9a 95       	dec	r25
+ 1e6:	e1 f7       	brne	.-8      	; 0x1e0 <main+0x36>
+	uint8_t receivedData;
+
+	/* This PORT setting is only valid to USARTC0 if other USARTs is used a
+	 * different PORT and/or pins is used. */
+	/* PIN3 (TXD0) as output. */
+	PORTC.DIRSET = PIN3_bm;
+ 1e8:	a0 e4       	ldi	r26, 0x40	; 64
+ 1ea:	b6 e0       	ldi	r27, 0x06	; 6
+ 1ec:	98 e0       	ldi	r25, 0x08	; 8
+ 1ee:	11 96       	adiw	r26, 0x01	; 1
+ 1f0:	9c 93       	st	X, r25
+ 1f2:	11 97       	sbiw	r26, 0x01	; 1
+
+	/* PC2 (RXD0) as input. */
+	PORTC.DIRCLR = PIN2_bm;
+ 1f4:	94 e0       	ldi	r25, 0x04	; 4
+ 1f6:	12 96       	adiw	r26, 0x02	; 2
+ 1f8:	9c 93       	st	X, r25
+ 1fa:	12 97       	sbiw	r26, 0x02	; 2
+	PORTA.DIRCLR = XBEEDIO0;
+ 1fc:	90 e2       	ldi	r25, 0x20	; 32
+ 1fe:	e0 e0       	ldi	r30, 0x00	; 0
+ 200:	f6 e0       	ldi	r31, 0x06	; 6
+ 202:	92 83       	std	Z+2, r25	; 0x02
+	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
+	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
+ 204:	e0 ea       	ldi	r30, 0xA0	; 160
+ 206:	f8 e0       	ldi	r31, 0x08	; 8
+ 208:	93 e0       	ldi	r25, 0x03	; 3
+ 20a:	95 83       	std	Z+5, r25	; 0x05
+	 * Do not use the baudrate scale factor
+	 *
+	 * Baudrate select = (1/(16*(((I/O clock frequency)/Baudrate)-1)
+	 *                 = 12
+	 */
+	USART_Baudrate_Set(&USART, 207 , 0);
+ 20c:	9f ec       	ldi	r25, 0xCF	; 207
+ 20e:	96 83       	std	Z+6, r25	; 0x06
+ 210:	17 82       	std	Z+7, r1	; 0x07
+
+	/* Enable both RX and TX. */
+	USART_Rx_Enable(&USART);
+ 212:	94 81       	ldd	r25, Z+4	; 0x04
+ 214:	90 61       	ori	r25, 0x10	; 16
+ 216:	94 83       	std	Z+4, r25	; 0x04
+	USART_Tx_Enable(&USART);
+ 218:	94 81       	ldd	r25, Z+4	; 0x04
+ 21a:	98 60       	ori	r25, 0x08	; 8
+ 21c:	94 83       	std	Z+4, r25	; 0x04
+
+
+	/* Assume that everything is OK. */
+	success = true;
+ 21e:	80 93 14 20 	sts	0x2014, r24
+	/* Send data from 255 down to 0*/
+	
+	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+ 222:	80 ee       	ldi	r24, 0xE0	; 224
+ 224:	11 96       	adiw	r26, 0x01	; 1
+ 226:	8c 93       	st	X, r24
+	while(1){
+		int i = 0;
+ 228:	80 e0       	ldi	r24, 0x00	; 0
+ 22a:	90 e0       	ldi	r25, 0x00	; 0
+		while(sendData[i] != '\0') {
+			while(!USART_IsTXDataRegisterEmpty(&USART));
+			USART_PutChar(&USART, sendData[i]);
+			i++;
+		}
+		if((PORTA.IN & XBEEDIO0)){
+ 22c:	20 e0       	ldi	r18, 0x00	; 0
+ 22e:	36 e0       	ldi	r19, 0x06	; 6
+			PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+		}else if((!(PORTA.IN & XBEEDIO0))){
+			PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);
+ 230:	40 e4       	ldi	r20, 0x40	; 64
+ 232:	56 e0       	ldi	r21, 0x06	; 6
+ 234:	10 ee       	ldi	r17, 0xE0	; 224
+ 236:	08 c0       	rjmp	.+16     	; 0x248 <main+0x9e>
+	
+	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+	while(1){
+		int i = 0;
+		while(sendData[i] != '\0') {
+			while(!USART_IsTXDataRegisterEmpty(&USART));
+ 238:	61 81       	ldd	r22, Z+1	; 0x01
+ 23a:	65 ff       	sbrs	r22, 5
+ 23c:	fd cf       	rjmp	.-6      	; 0x238 <main+0x8e>
+			USART_PutChar(&USART, sendData[i]);
+ 23e:	70 83       	st	Z, r23
+			i++;
+ 240:	01 96       	adiw	r24, 0x01	; 1
+ 242:	02 c0       	rjmp	.+4      	; 0x248 <main+0x9e>
+	success = true;
+	/* Send data from 255 down to 0*/
+	
+	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+	while(1){
+		int i = 0;
+ 244:	80 e0       	ldi	r24, 0x00	; 0
+ 246:	90 e0       	ldi	r25, 0x00	; 0
+		while(sendData[i] != '\0') {
+ 248:	a1 e0       	ldi	r26, 0x01	; 1
+ 24a:	b0 e0       	ldi	r27, 0x00	; 0
+ 24c:	ac 0f       	add	r26, r28
+ 24e:	bd 1f       	adc	r27, r29
+ 250:	a8 0f       	add	r26, r24
+ 252:	b9 1f       	adc	r27, r25
+ 254:	7c 91       	ld	r23, X
+ 256:	71 11       	cpse	r23, r1
+ 258:	ef cf       	rjmp	.-34     	; 0x238 <main+0x8e>
+			while(!USART_IsTXDataRegisterEmpty(&USART));
+			USART_PutChar(&USART, sendData[i]);
+			i++;
+		}
+		if((PORTA.IN & XBEEDIO0)){
+ 25a:	d9 01       	movw	r26, r18
+ 25c:	18 96       	adiw	r26, 0x08	; 8
+ 25e:	8c 91       	ld	r24, X
+ 260:	85 ff       	sbrs	r24, 5
+ 262:	06 c0       	rjmp	.+12     	; 0x270 <main+0xc6>
+			PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+ 264:	da 01       	movw	r26, r20
+ 266:	15 96       	adiw	r26, 0x05	; 5
+ 268:	1c 93       	st	X, r17
+	success = true;
+	/* Send data from 255 down to 0*/
+	
+	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+	while(1){
+		int i = 0;
+ 26a:	80 e0       	ldi	r24, 0x00	; 0
+ 26c:	90 e0       	ldi	r25, 0x00	; 0
+ 26e:	ec cf       	rjmp	.-40     	; 0x248 <main+0x9e>
+			USART_PutChar(&USART, sendData[i]);
+			i++;
+		}
+		if((PORTA.IN & XBEEDIO0)){
+			PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+		}else if((!(PORTA.IN & XBEEDIO0))){
+ 270:	d9 01       	movw	r26, r18
+ 272:	18 96       	adiw	r26, 0x08	; 8
+ 274:	8c 91       	ld	r24, X
+ 276:	85 fd       	sbrc	r24, 5
+ 278:	e5 cf       	rjmp	.-54     	; 0x244 <main+0x9a>
+			PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);
+ 27a:	da 01       	movw	r26, r20
+ 27c:	16 96       	adiw	r26, 0x06	; 6
+ 27e:	1c 93       	st	X, r17
+	success = true;
+	/* Send data from 255 down to 0*/
+	
+	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+	while(1){
+		int i = 0;
+ 280:	80 e0       	ldi	r24, 0x00	; 0
+ 282:	90 e0       	ldi	r25, 0x00	; 0
+ 284:	e1 cf       	rjmp	.-62     	; 0x248 <main+0x9e>
+
+00000286 <_exit>:
+ 286:	f8 94       	cli
+
+00000288 <__stop_program>:
+ 288:	ff cf       	rjmp	.-2      	; 0x288 <__stop_program>
