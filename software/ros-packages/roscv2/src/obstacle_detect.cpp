@@ -1,4 +1,5 @@
 #include "obstacle_detect.hpp"
+#include "Timer.hpp"
 
 ros::Publisher pub;
 
@@ -28,99 +29,128 @@ int main(int argc, char *argv[]) {
 }
 
 void loop() { 
-	/* Grab a pair of images */
-	sensor_msgs::Image::ConstPtr img_msg;
-	stereo_msgs::DisparityImage::ConstPtr disp_msg;
+	ROS_INFO("------------------");
+	Timer loop_t = Timer("TOTAL");
+	cv::Mat depth, obstacle, clear;
+	cv_bridge::CvImagePtr img;
+	{
+		Timer setup_t = Timer("setup");
+		/* Grab a pair of images */
+		sensor_msgs::Image::ConstPtr img_msg;
+		stereo_msgs::DisparityImage::ConstPtr disp_msg;
 
-	get_images(img_msg, disp_msg);
+		get_images(img_msg, disp_msg);
 
-	/* Display raw image */
-	cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(img_msg,
-	                            sensor_msgs::image_encodings::BGR8);
+		/* Display raw image */
+		img = cv_bridge::toCvCopy(img_msg,
+									sensor_msgs::image_encodings::BGR8);
 
-	/* Get disparity data */
-	cv_bridge::CvImagePtr disp = cv_bridge::toCvCopy(disp_msg->image,
-	                             "32FC1");
-	float focal = disp_msg->f; float base = disp_msg->T;
+		/* Get disparity data */
+		cv_bridge::CvImagePtr disp = cv_bridge::toCvCopy(disp_msg->image,
+									 "32FC1");
+		float focal = disp_msg->f; float base = disp_msg->T;
 
-	/* Generate depth image */
-	/* Why are these so inaccurate? Calibration issue?
-	float min_depth = (focal * base) / disp_msg->min_disparity;
-	float max_depth = (focal * base) / disp_msg->max_disparity;
-	*/
-	cv::Mat full_depth = (focal * base) / disp->image;
-	cv::Mat depth;
-	/* Not be necessary if downscale = 1 */
-	cv::resize(full_depth, depth, cv::Size(IMG_WIDTH, IMG_HEIGHT));
+		/* Generate depth image */
+		/* Why are these so inaccurate? Calibration issue?
+		float min_depth = (focal * base) / disp_msg->min_disparity;
+		float max_depth = (focal * base) / disp_msg->max_disparity;
+		*/
+		cv::Mat full_depth = (focal * base) / disp->image;
+		/* Not be necessary if downscale = 1 */
+		cv::resize(full_depth, depth, cv::Size(IMG_WIDTH, IMG_HEIGHT));
 
-	/* Display value-scaled depth image */
+		/* Display value-scaled depth image */
 #ifdef CV_OUTPUT
-	cv::Mat scaled_depth = depth / RANGE_MAX;
-	cv::imshow(DEPTH_WINDOW, scaled_depth);
+		cv::Mat scaled_depth = depth / RANGE_MAX;
+		cv::imshow(DEPTH_WINDOW, scaled_depth);
 #endif
 
-	/* Create empty obstacle map */
-	cv::Mat obstacle = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
-	cv::Mat clear = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
+		/* Create empty obstacle map */
+		obstacle = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
+		clear = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
+	}
 
 	/* Find and display obstacles */
-	find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
+	{
+		Timer obs_t = Timer("find_obstacles");
+		find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
+	}
 #ifdef CV_OUTPUT
 	cv::Mat scaled_obs = obstacle / RANGE_MAX;
 	cv::imshow(OBS_WINDOW, scaled_obs);
 #endif
 
-	/* Set up slices */
 	std::vector<Slice> slices;
-	init_slices(slices);
-	fill_slices(obstacle, slices, RANGE_MAX);
-
-	for (int i = 0; i < slices.size(); i++) {
-		remove_noise(slices[i].mat);
-	}
-
-	/* Calculate bounding box on each slice */
 	std::vector<RectList> slice_bboxes;
-	for (int i = 0; i < slices.size(); i++) {
-		slice_bboxes.push_back(calc_bboxes(slices[i].mat));
-	}
-
-	/* Display bounding boxes on image */
-	cv::Mat boxes_image = img->image.clone();
-	/* Convert box image to HSV */
-	cv::cvtColor(boxes_image, boxes_image, cv::COLOR_BGR2HSV);
-	/* Loop backwards-- farthest first, panter's algorithm */
-	for (int i = slice_bboxes.size()-1; i >= 0; i--) {
-		/* Calculate hue */
-		int hue = 120 - (int)(((float)i)/((float)slice_bboxes.size())*120.0);
-		cv::Scalar color = cv::Scalar(hue, 255, 255);
-		for (int j = 0; j < slice_bboxes[i].size(); j++) { //TODO: Iterators???
-			/* Get / resize boxes */
-			cv::Rect bbox = slice_bboxes[i][j];
-			bbox.x *= DOWNSCALE; bbox.y *= DOWNSCALE;
-			bbox.width *= DOWNSCALE; bbox.height *= DOWNSCALE;
-			/* Draw boxes */
-			cv::rectangle(boxes_image, bbox, color, -1);
+	{
+		Timer slice_t = Timer("calc slicing");
+		/* Set up slices */
+		{
+			Timer init_t = Timer("init", 1);
+			init_slices(slices);
+		}
+		{
+			Timer fill_t = Timer("fill", 1);
+			fill_slices(obstacle, slices, RANGE_MAX);
 		}
 
+		{
+			Timer noise_t = Timer("noise", 1);
+			for (int i = 0; i < slices.size(); i++) {
+				remove_noise(slices[i].mat);
+			}
+		}
+		{
+			Timer bbox_t = Timer("bbox", 1);
+			/* Calculate bounding box on each slice */
+			for (int i = 0; i < slices.size(); i++) {
+				slice_bboxes.push_back(calc_bboxes(slices[i].mat));
+			}
+		}
 	}
-	/* Convert back to RGB */
-	cv::cvtColor(boxes_image, boxes_image, cv::COLOR_HSV2BGR);
 
-	/* Combine with image */
-	cv::Mat final_image;
-	cv::addWeighted(boxes_image, 0.3, img->image, 0.7, 0.0, final_image);
+	cv::Mat boxes_image, final_image;
+	{
+		Timer disp_t = Timer("disp slicing");
+		/* Display bounding boxes on image */
+		boxes_image = img->image.clone();
+		/* Convert box image to HSV */
+		cv::cvtColor(boxes_image, boxes_image, cv::COLOR_BGR2HSV);
+		/* Loop backwards-- farthest first, panter's algorithm */
+		for (int i = slice_bboxes.size()-1; i >= 0; i--) {
+			/* Calculate hue */
+			int hue = 120 - (int)(((float)i)/((float)slice_bboxes.size())*120.0);
+			cv::Scalar color = cv::Scalar(hue, 255, 255);
+			for (int j = 0; j < slice_bboxes[i].size(); j++) { //TODO: Iterators???
+				/* Get / resize boxes */
+				cv::Rect bbox = slice_bboxes[i][j];
+				bbox.x *= DOWNSCALE; bbox.y *= DOWNSCALE;
+				bbox.width *= DOWNSCALE; bbox.height *= DOWNSCALE;
+				/* Draw boxes */
+				cv::rectangle(boxes_image, bbox, color, -1);
+			}
+
+		}
+		/* Convert back to RGB */
+		cv::cvtColor(boxes_image, boxes_image, cv::COLOR_HSV2BGR);
+
+		/* Combine with image */
+		cv::addWeighted(boxes_image, 0.3, img->image, 0.7, 0.0, final_image);
+	}
 
 	/* Generate top-down image */
 	cv::Mat top;
-	/* Init top-down image */
 	top = cv::Mat::zeros(TOP_SIZE, TOP_SIZE, CV_8UC1);
 	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT, RANGE_MAX, RANGE_MAX);
-	calc_topdown_grid(grid, slices, slice_bboxes, RANGE_MAX);
-	publish_grid(grid);
+	{
+		Timer top_t = Timer("topdown");
+		/* Init top-down image */
+		calc_topdown_grid(grid, slices, slice_bboxes, RANGE_MAX);
+		publish_grid(grid);
 
-	draw_grid(grid, top);
-	calc_topdown(top, slices, slice_bboxes, RANGE_MAX);
+		draw_grid(grid, top);
+		calc_topdown(top, slices, slice_bboxes, RANGE_MAX);
+	}
 #ifdef CV_OUTPUT
 	cv::imshow(TOP_WINDOW, top);
 	cv::imshow(IMAGE_WINDOW, final_image);
@@ -138,7 +168,6 @@ void loop() {
 
 void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
                     float min, float max) {
-	ros::Time start = ros::Time::now();
 	for (int row = depth_img.rows-1; row >= 0; row--) {
 		const float *d = (const float*)depth_img.ptr(row);
 		float *o = (float*)obstacle_img.ptr(row);
@@ -178,8 +207,6 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 			if (obstacle) o[col] = depth;
 		}
 	}
-	ros::Duration duration = ros::Time::now() - start;
-	ROS_INFO("find_obstacles:\t%f", duration.toSec());
 }
 
 /* TODO???? */

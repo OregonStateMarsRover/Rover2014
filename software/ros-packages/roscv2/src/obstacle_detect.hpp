@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <omp.h>
+
 #include <ros/ros.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -14,7 +16,7 @@
 #include "Grid.hpp"
 
 /* Options */
-//#define CV_OUTPUT
+#define CV_OUTPUT
 //#define __SLICE_DEBUG
 
 /* Constants */
@@ -43,7 +45,7 @@
 
 #define MIN_AREA (500/(DOWNSCALE*DOWNSCALE))
 
-#define NUM_SLICES (40)
+#define NUM_SLICES (10)
 
 /* Typedefs */
 
