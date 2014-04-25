@@ -64,6 +64,9 @@ void get_images(sensor_msgs::Image::ConstPtr&,
 void find_obstacles(const cv::Mat&, cv::Mat&, float, float);
 float get_depth_scale(float);
 
+void img_callback(const sensor_msgs::Image::ConstPtr&);
+void disp_callback(const stereo_msgs::DisparityImage::ConstPtr&);
+
 void init_slices(std::vector<Slice>&);
 void fill_slices(const cv::Mat&, std::vector<Slice>&, float);
 void remove_noise(cv::Mat&);

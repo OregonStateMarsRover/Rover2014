@@ -10,18 +10,25 @@ public:
 
 	Timer(std::string name, int tabs) : name(name), tabs(tabs) {
 		start = ros::Time::now();
+		disabled = false;
 	}
 
 	~Timer() {
-		ros::Duration duration = ros::Time::now() - start;
-		std::string ts = "";
-		for (int i = 0; i < tabs; i++) ts += "\t";
-		ROS_INFO("%s%-16s\t%f", ts.c_str(), name.c_str(), duration.toSec());
+		if (!disabled) {
+			ros::Duration duration = ros::Time::now() - start;
+			std::string ts = "";
+			for (int i = 0; i < tabs; i++) ts += "\t";
+			ROS_INFO("%s%-16s\t%f", ts.c_str(), name.c_str(), duration.toSec());
+		}
 	}
+
+	void disable() { disabled = true; }
+
 
 private:
 	ros::Time start;
 	std::string name;
 	int tabs;
+	bool disabled;
 };
 #endif

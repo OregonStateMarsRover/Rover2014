@@ -1,7 +1,12 @@
 #include "obstacle_detect.hpp"
 #include "Timer.hpp"
+#include <boost/thread/mutex.hpp>
 
-ros::Publisher pub;
+static ros::Publisher pub;
+static boost::mutex img_lock;
+static sensor_msgs::Image::ConstPtr last_img;
+static stereo_msgs::DisparityImage::ConstPtr last_disp;
+static unsigned int last_seq = 0;
 
 int main(int argc, char *argv[]) {
 	/* Init ROS */
@@ -10,6 +15,10 @@ int main(int argc, char *argv[]) {
 
 	ros::NodeHandle n;
 	pub = n.advertise<roscv2::Grid>("obstacle_grid", 10);
+	ros::Subscriber img_sub = n.subscribe("/my_stereo/left/image_rect_color",
+	                                      1, img_callback);
+	ros::Subscriber disp_sub = n.subscribe("/my_stereo/disparity",
+	                                       1, disp_callback);
 #ifdef CV_OUTPUT
 	init_cv();
 #endif
@@ -28,8 +37,19 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+void img_callback(const sensor_msgs::Image::ConstPtr &msg) {
+		img_lock.lock();
+		last_img = msg;
+		img_lock.unlock();
+}
+
+void disp_callback(const stereo_msgs::DisparityImage::ConstPtr &msg) {
+		img_lock.lock();
+		last_disp = msg;
+		img_lock.unlock();
+}
+
 void loop() { 
-	ROS_INFO("------------------");
 	Timer loop_t = Timer("TOTAL");
 	cv::Mat depth, obstacle, clear;
 	cv_bridge::CvImagePtr img;
@@ -40,6 +60,25 @@ void loop() {
 		stereo_msgs::DisparityImage::ConstPtr disp_msg;
 
 		get_images(img_msg, disp_msg);
+
+		if (img_msg == NULL || disp_msg == NULL) {
+			loop_t.disable();
+			setup_t.disable();
+			//ROS_INFO("No images");
+			return;
+		}
+
+		/* We don't want to waste time calculating the
+		   same image twice.
+		*/
+		unsigned int seq = disp_msg->image.header.seq;
+		if (last_seq == seq) {
+			//ROS_INFO("Old message");
+			loop_t.disable();
+			setup_t.disable();
+			return;
+		}
+		last_seq = seq;
 
 		/* Display raw image */
 		img = cv_bridge::toCvCopy(img_msg,
@@ -385,10 +424,16 @@ void draw_grid(const Grid& grid, cv::Mat& top) {
 
 void get_images(sensor_msgs::Image::ConstPtr& im,
                 stereo_msgs::DisparityImage::ConstPtr& dm) {
-	im = ros::topic::waitForMessage<sensor_msgs::Image>(
-	     "/my_stereo/left/image_rect_color");
-	dm = ros::topic::waitForMessage<stereo_msgs::DisparityImage>(
-	     "/my_stereo/disparity");
+	img_lock.lock();
+	im = last_img;
+	dm = last_disp;
+
+	//Reset pointers to null
+	/*
+	last_img.reset();
+	last_disp.reset();
+	*/
+	img_lock.unlock();
 }
 
 void init_cv() {
