@@ -3,29 +3,29 @@ DriveControl.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         0000028a  00000000  00000000  00000094  2**1
+  0 .text         000002b2  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000014  00802000  0000028a  0000031e  2**0
+  1 .data         00000014  00802000  000002b2  00000346  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          00000001  00802014  00802014  00000332  2**0
+  2 .bss          00000001  00802014  00802014  0000035a  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  00000332  2**0
+  3 .comment      00000030  00000000  00000000  0000035a  2**0
                   CONTENTS, READONLY
-  4 .debug_aranges 00000088  00000000  00000000  00000362  2**0
+  4 .debug_aranges 00000088  00000000  00000000  0000038a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000a03  00000000  00000000  000003ea  2**0
+  5 .debug_info   00000a95  00000000  00000000  00000412  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000333  00000000  00000000  00000ded  2**0
+  6 .debug_abbrev 00000333  00000000  00000000  00000ea7  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000035c  00000000  00000000  00001120  2**0
+  7 .debug_line   00000365  00000000  00000000  000011da  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000000f8  00000000  00000000  0000147c  2**2
+  8 .debug_frame  000000f8  00000000  00000000  00001540  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000783  00000000  00000000  00001574  2**0
+  9 .debug_str    0000083e  00000000  00000000  00001638  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000045e  00000000  00000000  00001cf7  2**0
+ 10 .debug_loc    0000045e  00000000  00000000  00001e76  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000068  00000000  00000000  00002155  2**0
+ 11 .debug_ranges 00000068  00000000  00000000  000022d4  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -163,7 +163,7 @@ bool USART_TXBuffer_PutByte(USART_data_t * usart_data, uint8_t data)
  178:	10 e2       	ldi	r17, 0x20	; 32
  17a:	a0 e0       	ldi	r26, 0x00	; 0
  17c:	b0 e2       	ldi	r27, 0x20	; 32
- 17e:	ea e8       	ldi	r30, 0x8A	; 138
+ 17e:	e2 eb       	ldi	r30, 0xB2	; 178
  180:	f2 e0       	ldi	r31, 0x02	; 2
  182:	02 c0       	rjmp	.+4      	; 0x188 <__do_copy_data+0x10>
  184:	05 90       	lpm	r0, Z+
@@ -186,13 +186,13 @@ bool USART_TXBuffer_PutByte(USART_data_t * usart_data, uint8_t data)
  19a:	b2 07       	cpc	r27, r18
  19c:	e1 f7       	brne	.-8      	; 0x196 <.do_clear_bss_loop>
  19e:	0e 94 d5 00 	call	0x1aa	; 0x1aa <main>
- 1a2:	0c 94 43 01 	jmp	0x286	; 0x286 <_exit>
+ 1a2:	0c 94 57 01 	jmp	0x2ae	; 0x2ae <_exit>
 
 000001a6 <__bad_interrupt>:
  1a6:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000001aa <main>:
-#define XBEEDIO0 PIN5_bm
+
 /*! Success variable, used to test driver. */
 bool success;
 
@@ -205,196 +205,227 @@ int main(void)
  1b2:	63 97       	sbiw	r28, 0x13	; 19
  1b4:	cd bf       	out	0x3d, r28	; 61
  1b6:	de bf       	out	0x3e, r29	; 62
-	 CCP = CCP_IOREG_gc;              // disable register security for oscillator update
+	CCP = CCP_IOREG_gc;              // disable register security for oscillator update
  1b8:	88 ed       	ldi	r24, 0xD8	; 216
  1ba:	84 bf       	out	0x34, r24	; 52
-	 OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
+	OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
  1bc:	82 e0       	ldi	r24, 0x02	; 2
  1be:	80 93 50 00 	sts	0x0050, r24
-	 while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
+	while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
  1c2:	e0 e5       	ldi	r30, 0x50	; 80
  1c4:	f0 e0       	ldi	r31, 0x00	; 0
  1c6:	81 81       	ldd	r24, Z+1	; 0x01
  1c8:	81 ff       	sbrs	r24, 1
  1ca:	fd cf       	rjmp	.-6      	; 0x1c6 <main+0x1c>
-	 CCP = CCP_IOREG_gc;              // disable register security for clock update
+	CCP = CCP_IOREG_gc;              // disable register security for clock update
  1cc:	88 ed       	ldi	r24, 0xD8	; 216
  1ce:	84 bf       	out	0x34, r24	; 52
-	 CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
- 1d0:	81 e0       	ldi	r24, 0x01	; 1
- 1d2:	80 93 40 00 	sts	0x0040, r24
+	CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
+ 1d0:	91 e0       	ldi	r25, 0x01	; 1
+ 1d2:	90 93 40 00 	sts	0x0040, r25
+
+	 
+	CCP = CCP_IOREG_gc;
+ 1d6:	84 bf       	out	0x34, r24	; 52
+	OSC.CTRL |= OSC_RC32KEN_bm;
+ 1d8:	e0 e5       	ldi	r30, 0x50	; 80
+ 1da:	f0 e0       	ldi	r31, 0x00	; 0
+ 1dc:	80 81       	ld	r24, Z
+ 1de:	84 60       	ori	r24, 0x04	; 4
+ 1e0:	80 83       	st	Z, r24
+	while(!(OSC.STATUS & OSC_RC32KRDY_bm)); // wait for oscillator to be ready
+ 1e2:	81 81       	ldd	r24, Z+1	; 0x01
+ 1e4:	82 ff       	sbrs	r24, 2
+ 1e6:	fd cf       	rjmp	.-6      	; 0x1e2 <main+0x38>
+	OSC.DFLLCTRL &= ~OSC_RC32MCREF_bm;
+ 1e8:	e0 e5       	ldi	r30, 0x50	; 80
+ 1ea:	f0 e0       	ldi	r31, 0x00	; 0
+ 1ec:	86 81       	ldd	r24, Z+6	; 0x06
+ 1ee:	8d 7f       	andi	r24, 0xFD	; 253
+ 1f0:	86 83       	std	Z+6, r24	; 0x06
+	DFLLRC32M.CTRL |= DFLL_ENABLE_bm;  
+ 1f2:	e0 e6       	ldi	r30, 0x60	; 96
+ 1f4:	f0 e0       	ldi	r31, 0x00	; 0
+ 1f6:	80 81       	ld	r24, Z
+ 1f8:	81 60       	ori	r24, 0x01	; 1
+ 1fa:	80 83       	st	Z, r24
+	 
+	 
+	 
+	 
 	/* Variable used to send and receive data. */
 	uint8_t sendData[] = "This is a string\r\n";
- 1d6:	93 e1       	ldi	r25, 0x13	; 19
- 1d8:	e0 e0       	ldi	r30, 0x00	; 0
- 1da:	f0 e2       	ldi	r31, 0x20	; 32
- 1dc:	de 01       	movw	r26, r28
- 1de:	11 96       	adiw	r26, 0x01	; 1
- 1e0:	01 90       	ld	r0, Z+
- 1e2:	0d 92       	st	X+, r0
- 1e4:	9a 95       	dec	r25
- 1e6:	e1 f7       	brne	.-8      	; 0x1e0 <main+0x36>
+ 1fc:	83 e1       	ldi	r24, 0x13	; 19
+ 1fe:	e0 e0       	ldi	r30, 0x00	; 0
+ 200:	f0 e2       	ldi	r31, 0x20	; 32
+ 202:	de 01       	movw	r26, r28
+ 204:	11 96       	adiw	r26, 0x01	; 1
+ 206:	01 90       	ld	r0, Z+
+ 208:	0d 92       	st	X+, r0
+ 20a:	8a 95       	dec	r24
+ 20c:	e1 f7       	brne	.-8      	; 0x206 <main+0x5c>
 	uint8_t receivedData;
 
 	/* This PORT setting is only valid to USARTC0 if other USARTs is used a
 	 * different PORT and/or pins is used. */
 	/* PIN3 (TXD0) as output. */
 	PORTC.DIRSET = PIN3_bm;
- 1e8:	a0 e4       	ldi	r26, 0x40	; 64
- 1ea:	b6 e0       	ldi	r27, 0x06	; 6
- 1ec:	98 e0       	ldi	r25, 0x08	; 8
- 1ee:	11 96       	adiw	r26, 0x01	; 1
- 1f0:	9c 93       	st	X, r25
- 1f2:	11 97       	sbiw	r26, 0x01	; 1
+ 20e:	a0 e4       	ldi	r26, 0x40	; 64
+ 210:	b6 e0       	ldi	r27, 0x06	; 6
+ 212:	88 e0       	ldi	r24, 0x08	; 8
+ 214:	11 96       	adiw	r26, 0x01	; 1
+ 216:	8c 93       	st	X, r24
+ 218:	11 97       	sbiw	r26, 0x01	; 1
 
 	/* PC2 (RXD0) as input. */
 	PORTC.DIRCLR = PIN2_bm;
- 1f4:	94 e0       	ldi	r25, 0x04	; 4
- 1f6:	12 96       	adiw	r26, 0x02	; 2
- 1f8:	9c 93       	st	X, r25
- 1fa:	12 97       	sbiw	r26, 0x02	; 2
+ 21a:	84 e0       	ldi	r24, 0x04	; 4
+ 21c:	12 96       	adiw	r26, 0x02	; 2
+ 21e:	8c 93       	st	X, r24
+ 220:	12 97       	sbiw	r26, 0x02	; 2
 	PORTA.DIRCLR = XBEEDIO0;
- 1fc:	90 e2       	ldi	r25, 0x20	; 32
- 1fe:	e0 e0       	ldi	r30, 0x00	; 0
- 200:	f6 e0       	ldi	r31, 0x06	; 6
- 202:	92 83       	std	Z+2, r25	; 0x02
+ 222:	80 e2       	ldi	r24, 0x20	; 32
+ 224:	e0 e0       	ldi	r30, 0x00	; 0
+ 226:	f6 e0       	ldi	r31, 0x06	; 6
+ 228:	82 83       	std	Z+2, r24	; 0x02
 	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
 	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
- 204:	e0 ea       	ldi	r30, 0xA0	; 160
- 206:	f8 e0       	ldi	r31, 0x08	; 8
- 208:	93 e0       	ldi	r25, 0x03	; 3
- 20a:	95 83       	std	Z+5, r25	; 0x05
+ 22a:	e0 ea       	ldi	r30, 0xA0	; 160
+ 22c:	f8 e0       	ldi	r31, 0x08	; 8
+ 22e:	83 e0       	ldi	r24, 0x03	; 3
+ 230:	85 83       	std	Z+5, r24	; 0x05
 	 * Do not use the baudrate scale factor
 	 *
 	 * Baudrate select = (1/(16*(((I/O clock frequency)/Baudrate)-1)
 	 *                 = 12
 	 */
 	USART_Baudrate_Set(&USART, 207 , 0);
- 20c:	9f ec       	ldi	r25, 0xCF	; 207
- 20e:	96 83       	std	Z+6, r25	; 0x06
- 210:	17 82       	std	Z+7, r1	; 0x07
+ 232:	8f ec       	ldi	r24, 0xCF	; 207
+ 234:	86 83       	std	Z+6, r24	; 0x06
+ 236:	17 82       	std	Z+7, r1	; 0x07
 
 	/* Enable both RX and TX. */
 	USART_Rx_Enable(&USART);
- 212:	94 81       	ldd	r25, Z+4	; 0x04
- 214:	90 61       	ori	r25, 0x10	; 16
- 216:	94 83       	std	Z+4, r25	; 0x04
+ 238:	84 81       	ldd	r24, Z+4	; 0x04
+ 23a:	80 61       	ori	r24, 0x10	; 16
+ 23c:	84 83       	std	Z+4, r24	; 0x04
 	USART_Tx_Enable(&USART);
- 218:	94 81       	ldd	r25, Z+4	; 0x04
- 21a:	98 60       	ori	r25, 0x08	; 8
- 21c:	94 83       	std	Z+4, r25	; 0x04
+ 23e:	84 81       	ldd	r24, Z+4	; 0x04
+ 240:	88 60       	ori	r24, 0x08	; 8
+ 242:	84 83       	std	Z+4, r24	; 0x04
 
 
 	/* Assume that everything is OK. */
 	success = true;
- 21e:	80 93 14 20 	sts	0x2014, r24
+ 244:	81 e0       	ldi	r24, 0x01	; 1
+ 246:	80 93 14 20 	sts	0x2014, r24
 	/* Send data from 255 down to 0*/
 	
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
- 222:	80 ee       	ldi	r24, 0xE0	; 224
- 224:	11 96       	adiw	r26, 0x01	; 1
- 226:	8c 93       	st	X, r24
+ 24a:	80 ee       	ldi	r24, 0xE0	; 224
+ 24c:	11 96       	adiw	r26, 0x01	; 1
+ 24e:	8c 93       	st	X, r24
 	while(1){
 		int i = 0;
- 228:	80 e0       	ldi	r24, 0x00	; 0
- 22a:	90 e0       	ldi	r25, 0x00	; 0
+ 250:	80 e0       	ldi	r24, 0x00	; 0
+ 252:	90 e0       	ldi	r25, 0x00	; 0
 		while(sendData[i] != '\0') {
 			while(!USART_IsTXDataRegisterEmpty(&USART));
 			USART_PutChar(&USART, sendData[i]);
 			i++;
 		}
 		if((PORTA.IN & XBEEDIO0)){
- 22c:	20 e0       	ldi	r18, 0x00	; 0
- 22e:	36 e0       	ldi	r19, 0x06	; 6
+ 254:	20 e0       	ldi	r18, 0x00	; 0
+ 256:	36 e0       	ldi	r19, 0x06	; 6
 			PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
 		}else if((!(PORTA.IN & XBEEDIO0))){
 			PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);
- 230:	40 e4       	ldi	r20, 0x40	; 64
- 232:	56 e0       	ldi	r21, 0x06	; 6
- 234:	10 ee       	ldi	r17, 0xE0	; 224
- 236:	08 c0       	rjmp	.+16     	; 0x248 <main+0x9e>
+ 258:	40 e4       	ldi	r20, 0x40	; 64
+ 25a:	56 e0       	ldi	r21, 0x06	; 6
+ 25c:	10 ee       	ldi	r17, 0xE0	; 224
+ 25e:	08 c0       	rjmp	.+16     	; 0x270 <main+0xc6>
 	
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
 	while(1){
 		int i = 0;
 		while(sendData[i] != '\0') {
 			while(!USART_IsTXDataRegisterEmpty(&USART));
- 238:	61 81       	ldd	r22, Z+1	; 0x01
- 23a:	65 ff       	sbrs	r22, 5
- 23c:	fd cf       	rjmp	.-6      	; 0x238 <main+0x8e>
+ 260:	61 81       	ldd	r22, Z+1	; 0x01
+ 262:	65 ff       	sbrs	r22, 5
+ 264:	fd cf       	rjmp	.-6      	; 0x260 <main+0xb6>
 			USART_PutChar(&USART, sendData[i]);
- 23e:	70 83       	st	Z, r23
+ 266:	70 83       	st	Z, r23
 			i++;
- 240:	01 96       	adiw	r24, 0x01	; 1
- 242:	02 c0       	rjmp	.+4      	; 0x248 <main+0x9e>
+ 268:	01 96       	adiw	r24, 0x01	; 1
+ 26a:	02 c0       	rjmp	.+4      	; 0x270 <main+0xc6>
 	success = true;
 	/* Send data from 255 down to 0*/
 	
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
 	while(1){
 		int i = 0;
- 244:	80 e0       	ldi	r24, 0x00	; 0
- 246:	90 e0       	ldi	r25, 0x00	; 0
+ 26c:	80 e0       	ldi	r24, 0x00	; 0
+ 26e:	90 e0       	ldi	r25, 0x00	; 0
 		while(sendData[i] != '\0') {
- 248:	a1 e0       	ldi	r26, 0x01	; 1
- 24a:	b0 e0       	ldi	r27, 0x00	; 0
- 24c:	ac 0f       	add	r26, r28
- 24e:	bd 1f       	adc	r27, r29
- 250:	a8 0f       	add	r26, r24
- 252:	b9 1f       	adc	r27, r25
- 254:	7c 91       	ld	r23, X
- 256:	71 11       	cpse	r23, r1
- 258:	ef cf       	rjmp	.-34     	; 0x238 <main+0x8e>
+ 270:	a1 e0       	ldi	r26, 0x01	; 1
+ 272:	b0 e0       	ldi	r27, 0x00	; 0
+ 274:	ac 0f       	add	r26, r28
+ 276:	bd 1f       	adc	r27, r29
+ 278:	a8 0f       	add	r26, r24
+ 27a:	b9 1f       	adc	r27, r25
+ 27c:	7c 91       	ld	r23, X
+ 27e:	71 11       	cpse	r23, r1
+ 280:	ef cf       	rjmp	.-34     	; 0x260 <main+0xb6>
 			while(!USART_IsTXDataRegisterEmpty(&USART));
 			USART_PutChar(&USART, sendData[i]);
 			i++;
 		}
 		if((PORTA.IN & XBEEDIO0)){
- 25a:	d9 01       	movw	r26, r18
- 25c:	18 96       	adiw	r26, 0x08	; 8
- 25e:	8c 91       	ld	r24, X
- 260:	85 ff       	sbrs	r24, 5
- 262:	06 c0       	rjmp	.+12     	; 0x270 <main+0xc6>
+ 282:	d9 01       	movw	r26, r18
+ 284:	18 96       	adiw	r26, 0x08	; 8
+ 286:	8c 91       	ld	r24, X
+ 288:	85 ff       	sbrs	r24, 5
+ 28a:	06 c0       	rjmp	.+12     	; 0x298 <main+0xee>
 			PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
- 264:	da 01       	movw	r26, r20
- 266:	15 96       	adiw	r26, 0x05	; 5
- 268:	1c 93       	st	X, r17
+ 28c:	da 01       	movw	r26, r20
+ 28e:	15 96       	adiw	r26, 0x05	; 5
+ 290:	1c 93       	st	X, r17
 	success = true;
 	/* Send data from 255 down to 0*/
 	
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
 	while(1){
 		int i = 0;
- 26a:	80 e0       	ldi	r24, 0x00	; 0
- 26c:	90 e0       	ldi	r25, 0x00	; 0
- 26e:	ec cf       	rjmp	.-40     	; 0x248 <main+0x9e>
+ 292:	80 e0       	ldi	r24, 0x00	; 0
+ 294:	90 e0       	ldi	r25, 0x00	; 0
+ 296:	ec cf       	rjmp	.-40     	; 0x270 <main+0xc6>
 			USART_PutChar(&USART, sendData[i]);
 			i++;
 		}
 		if((PORTA.IN & XBEEDIO0)){
 			PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
 		}else if((!(PORTA.IN & XBEEDIO0))){
- 270:	d9 01       	movw	r26, r18
- 272:	18 96       	adiw	r26, 0x08	; 8
- 274:	8c 91       	ld	r24, X
- 276:	85 fd       	sbrc	r24, 5
- 278:	e5 cf       	rjmp	.-54     	; 0x244 <main+0x9a>
+ 298:	d9 01       	movw	r26, r18
+ 29a:	18 96       	adiw	r26, 0x08	; 8
+ 29c:	8c 91       	ld	r24, X
+ 29e:	85 fd       	sbrc	r24, 5
+ 2a0:	e5 cf       	rjmp	.-54     	; 0x26c <main+0xc2>
 			PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);
- 27a:	da 01       	movw	r26, r20
- 27c:	16 96       	adiw	r26, 0x06	; 6
- 27e:	1c 93       	st	X, r17
+ 2a2:	da 01       	movw	r26, r20
+ 2a4:	16 96       	adiw	r26, 0x06	; 6
+ 2a6:	1c 93       	st	X, r17
 	success = true;
 	/* Send data from 255 down to 0*/
 	
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
 	while(1){
 		int i = 0;
- 280:	80 e0       	ldi	r24, 0x00	; 0
- 282:	90 e0       	ldi	r25, 0x00	; 0
- 284:	e1 cf       	rjmp	.-62     	; 0x248 <main+0x9e>
+ 2a8:	80 e0       	ldi	r24, 0x00	; 0
+ 2aa:	90 e0       	ldi	r25, 0x00	; 0
+ 2ac:	e1 cf       	rjmp	.-62     	; 0x270 <main+0xc6>
 
-00000286 <_exit>:
- 286:	f8 94       	cli
+000002ae <_exit>:
+ 2ae:	f8 94       	cli
 
-00000288 <__stop_program>:
- 288:	ff cf       	rjmp	.-2      	; 0x288 <__stop_program>
+000002b0 <__stop_program>:
+ 2b0:	ff cf       	rjmp	.-2      	; 0x2b0 <__stop_program>

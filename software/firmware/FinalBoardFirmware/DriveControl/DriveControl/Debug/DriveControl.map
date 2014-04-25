@@ -198,7 +198,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x28a
+.text           0x00000000      0x2b2
  *(.vectors)
  .vectors       0x00000000      0x16c c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avrxmega2/crtx32d4.o
                 0x00000000                __vector_default
@@ -348,13 +348,13 @@ END GROUP
                 0x000001a6                __vector_65
                 0x000001aa                . = ALIGN (0x2)
  *(.text.*)
- .text.main     0x000001aa       0xdc DriveControl.o
+ .text.main     0x000001aa      0x104 DriveControl.o
                 0x000001aa                main
-                0x00000286                . = ALIGN (0x2)
+                0x000002ae                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000286        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avrxmega2\libgcc.a(_exit.o)
-                0x00000286                _exit
-                0x00000286                exit
+ .fini9         0x000002ae        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avrxmega2\libgcc.a(_exit.o)
+                0x000002ae                _exit
+                0x000002ae                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -373,11 +373,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000286        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avrxmega2\libgcc.a(_exit.o)
+ .fini0         0x000002ae        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avrxmega2\libgcc.a(_exit.o)
  *(.fini0)
-                0x0000028a                _etext = .
+                0x000002b2                _etext = .
 
-.data           0x00802000       0x14 load address 0x0000028a
+.data           0x00802000       0x14 load address 0x000002b2
                 0x00802000                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00802000        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avrxmega2/crtx32d4.o
@@ -405,8 +405,8 @@ END GROUP
                 0x00802014                success
  *(COMMON)
                 0x00802015                PROVIDE (__bss_end, .)
-                0x0000028a                __data_load_start = LOADADDR (.data)
-                0x0000029e                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000002b2                __data_load_start = LOADADDR (.data)
+                0x000002c6                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00802015        0x0
                 0x00802015                PROVIDE (__noinit_start, .)
@@ -483,31 +483,31 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0xa03
+.debug_info     0x00000000      0xa95
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000      0x47d DriveControl.o
- .debug_info    0x0000047d      0x586 usart_driver.o
+ .debug_info    0x00000000      0x50f DriveControl.o
+ .debug_info    0x0000050f      0x586 usart_driver.o
 
 .debug_abbrev   0x00000000      0x333
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x130 DriveControl.o
  .debug_abbrev  0x00000130      0x203 usart_driver.o
 
-.debug_line     0x00000000      0x35c
+.debug_line     0x00000000      0x365
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x00000000      0x15d DriveControl.o
- .debug_line    0x0000015d      0x1ff usart_driver.o
+ .debug_line    0x00000000      0x166 DriveControl.o
+ .debug_line    0x00000166      0x1ff usart_driver.o
 
 .debug_frame    0x00000000       0xf8
  *(.debug_frame)
  .debug_frame   0x00000000       0x34 DriveControl.o
  .debug_frame   0x00000034       0xc4 usart_driver.o
 
-.debug_str      0x00000000      0x783
+.debug_str      0x00000000      0x83e
  *(.debug_str)
- .debug_str     0x00000000      0x49a DriveControl.o
-                                0x4df (size before relaxing)
- .debug_str     0x0000049a      0x2e9 usart_driver.o
+ .debug_str     0x00000000      0x4e5 DriveControl.o
+                                0x52a (size before relaxing)
+ .debug_str     0x000004e5      0x359 usart_driver.o
                                 0x478 (size before relaxing)
 
 .debug_loc      0x00000000      0x45e

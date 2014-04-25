@@ -5,7 +5,7 @@
  *  Author: corwin
  */ 
 
-#define F_CPU 2000000UL
+#define F_CPU 32000000UL
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -23,11 +23,23 @@ bool success;
 
 int main(void)
 {
-	 CCP = CCP_IOREG_gc;              // disable register security for oscillator update
-	 OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
-	 while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
-	 CCP = CCP_IOREG_gc;              // disable register security for clock update
-	 CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
+	CCP = CCP_IOREG_gc;              // disable register security for oscillator update
+	OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
+	while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
+	CCP = CCP_IOREG_gc;              // disable register security for clock update
+	CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
+
+	 
+	CCP = CCP_IOREG_gc;
+	OSC.CTRL |= OSC_RC32KEN_bm;
+	while(!(OSC.STATUS & OSC_RC32KRDY_bm)); // wait for oscillator to be ready
+	OSC.DFLLCTRL &= ~OSC_RC32MCREF_bm;
+	DFLLRC32M.CTRL |= DFLL_ENABLE_bm;  
+	 
+	 
+	 
+	 
+	 
 	/* Variable used to send and receive data. */
 	uint8_t sendData[] = "This is a string\r\n";
 	uint8_t receivedData;
