@@ -7,8 +7,8 @@
 
 #define F_CPU 32000000UL
 
-#include <avr/io.h>
 #include <util/delay.h>
+#include <avr/io.h>
 #include "usart_driver.h"
 #include "avr_compiler.h"
 

@@ -12,6 +12,10 @@ Discarded input sections
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avrxmega2/crtx32d4.o
  .text          0x00000000        0x0 DriveControl.o
  .bss           0x00000000        0x0 DriveControl.o
+ .text          0x00000000        0x0 Sabertooth.o
+ .bss           0x00000000        0x0 Sabertooth.o
+ .text._Z14SabertoothInitv
+                0x00000000       0x1e Sabertooth.o
  .text          0x00000000        0x0 usart_driver.o
  .bss           0x00000000        0x0 usart_driver.o
  .text.USART_InterruptDriver_Initialize
@@ -96,6 +100,7 @@ Linker script and memory map
 
 LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avrxmega2/crtx32d4.o
 LOAD DriveControl.o
+LOAD Sabertooth.o
 LOAD usart_driver.o
 START GROUP
 LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avrxmega2\libm.a
@@ -382,6 +387,7 @@ END GROUP
  *(.data)
  .data          0x00802000        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avrxmega2/crtx32d4.o
  .data          0x00802000        0x0 DriveControl.o
+ .data          0x00802000        0x0 Sabertooth.o
  .data          0x00802000        0x0 usart_driver.o
  .data          0x00802000        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avrxmega2\libgcc.a(_exit.o)
  .data          0x00802000        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avrxmega2\libgcc.a(_copy_data.o)
@@ -456,6 +462,7 @@ END GROUP
  *(.comment)
  .comment       0x00000000       0x30 DriveControl.o
                                  0x31 (size before relaxing)
+ .comment       0x00000000       0x31 Sabertooth.o
  .comment       0x00000000       0x31 usart_driver.o
 
 .note.gnu.build-id
@@ -473,41 +480,49 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000       0x88
+.debug_aranges  0x00000000       0xa8
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x20 DriveControl.o
  .debug_aranges
-                0x00000020       0x68 usart_driver.o
+                0x00000020       0x20 Sabertooth.o
+ .debug_aranges
+                0x00000040       0x68 usart_driver.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0xa95
+.debug_info     0x00000000      0xd91
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x50f DriveControl.o
- .debug_info    0x0000050f      0x586 usart_driver.o
+ .debug_info    0x0000050f      0x2fc Sabertooth.o
+ .debug_info    0x0000080b      0x586 usart_driver.o
 
-.debug_abbrev   0x00000000      0x333
+.debug_abbrev   0x00000000      0x3de
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x130 DriveControl.o
- .debug_abbrev  0x00000130      0x203 usart_driver.o
+ .debug_abbrev  0x00000130       0xab Sabertooth.o
+ .debug_abbrev  0x000001db      0x203 usart_driver.o
 
-.debug_line     0x00000000      0x365
+.debug_line     0x00000000      0x490
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x166 DriveControl.o
- .debug_line    0x00000166      0x1ff usart_driver.o
+ .debug_line    0x00000166      0x12b Sabertooth.o
+ .debug_line    0x00000291      0x1ff usart_driver.o
 
-.debug_frame    0x00000000       0xf8
+.debug_frame    0x00000000      0x11c
  *(.debug_frame)
  .debug_frame   0x00000000       0x34 DriveControl.o
- .debug_frame   0x00000034       0xc4 usart_driver.o
+ .debug_frame   0x00000034       0x24 Sabertooth.o
+ .debug_frame   0x00000058       0xc4 usart_driver.o
 
-.debug_str      0x00000000      0x83e
+.debug_str      0x00000000      0x875
  *(.debug_str)
  .debug_str     0x00000000      0x4e5 DriveControl.o
                                 0x52a (size before relaxing)
- .debug_str     0x000004e5      0x359 usart_driver.o
+ .debug_str     0x000004e5       0x37 Sabertooth.o
+                                0x3da (size before relaxing)
+ .debug_str     0x0000051c      0x359 usart_driver.o
                                 0x478 (size before relaxing)
 
 .debug_loc      0x00000000      0x45e
@@ -533,10 +548,11 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0x68
+.debug_ranges   0x00000000       0x78
  *(.debug_ranges)
  .debug_ranges  0x00000000       0x10 DriveControl.o
- .debug_ranges  0x00000010       0x58 usart_driver.o
+ .debug_ranges  0x00000010       0x10 Sabertooth.o
+ .debug_ranges  0x00000020       0x58 usart_driver.o
 
 .debug_macro
  *(.debug_macro)

@@ -11,54 +11,49 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
   3 .comment      00000030  00000000  00000000  0000035a  2**0
                   CONTENTS, READONLY
-  4 .debug_aranges 00000088  00000000  00000000  0000038a  2**0
+  4 .debug_aranges 000000a8  00000000  00000000  0000038a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000a95  00000000  00000000  00000412  2**0
+  5 .debug_info   00000d91  00000000  00000000  00000432  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000333  00000000  00000000  00000ea7  2**0
+  6 .debug_abbrev 000003de  00000000  00000000  000011c3  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000365  00000000  00000000  000011da  2**0
+  7 .debug_line   00000490  00000000  00000000  000015a1  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000000f8  00000000  00000000  00001540  2**2
+  8 .debug_frame  0000011c  00000000  00000000  00001a34  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    0000083e  00000000  00000000  00001638  2**0
+  9 .debug_str    00000875  00000000  00000000  00001b50  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000045e  00000000  00000000  00001e76  2**0
+ 10 .debug_loc    0000045e  00000000  00000000  000023c5  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000068  00000000  00000000  000022d4  2**0
+ 11 .debug_ranges 00000078  00000000  00000000  00002823  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
 
 00000000 <__vectors>:
- *
- *  \param usart_data The USART_data_t struct instance.
- *  \param data       The data to send.
- */
-bool USART_TXBuffer_PutByte(USART_data_t * usart_data, uint8_t data)
-{
+#include <avr/io.h>
+#include "usart_driver.h"
+#include "avr_compiler.h"
+
+void SabertoothInit(void){
+	PORTD.OUTSET = PIN3_bm;																//Set TX to output
    0:	0c 94 b6 00 	jmp	0x16c	; 0x16c <__ctors_end>
    4:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+	USART_Format_Set(&USARTD0, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);	//USARTD0, 8 Data bits, No Parity, 1 Stop bit.
    8:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
-	uint8_t tempTX_Head;
-	bool TXBuffer_FreeSpace;
-	USART_Buffer_t * TXbufPtr;
-
-	TXbufPtr = &usart_data->buffer;
-	TXBuffer_FreeSpace = USART_TXBuffer_FreeSpace(usart_data);
    c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
-
-
-	if(TXBuffer_FreeSpace)
+	USART_Baudrate_Set(&USARTD0, 207 , 0);												//Set USART to 9600 baud for 32MHz core system clock
   10:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  14:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+	USART_Tx_Enable(&USARTD0);															//Enable transmission
+  18:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+  1c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
+	if(TXBuffer_FreeSpace)
 	{
 	  	tempTX_Head = TXbufPtr->TX_Head;
 	  	TXbufPtr->TX[tempTX_Head]= data;
-  14:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
-  18:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
 		/* Advance buffer head. */
 		TXbufPtr->TX_Head = (tempTX_Head + 1) & USART_TX_BUFFER_MASK;
-  1c:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
   20:	0c 94 d3 00 	jmp	0x1a6	; 0x1a6 <__bad_interrupt>
 
 		/* Enable DRE interrupt. */

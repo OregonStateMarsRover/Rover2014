@@ -1,4 +1,4 @@
-DriveControl.d DriveControl.o: .././DriveControl.cpp \
+Sabertooth.d Sabertooth.o: .././Sabertooth.cpp .././Sabertooth.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\util\delay.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\inttypes.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdint.h \
@@ -20,6 +20,8 @@ DriveControl.d DriveControl.o: .././DriveControl.cpp \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stddef.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\interrupt.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\pgmspace.h
+
+.././Sabertooth.h:
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\util\delay.h:
 
