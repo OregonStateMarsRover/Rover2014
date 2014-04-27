@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
 
     #set up socket
-    HOST = '192.168.0.50'# The remote host
+    HOST = '192.168.0.64'# The remote host
     PORT = 35800 # The same port as used by the server
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((HOST, PORT))
