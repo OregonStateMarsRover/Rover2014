@@ -133,6 +133,7 @@ void print_grid(const Grid& grid) {
 
 
 void move(bool blocked, std::map<int, float>& scores) {
+	static int turn_direction = FORWARD;
 	std::stringstream fss;
 	fss << "flush";
 	std_msgs::String flush_msg;
@@ -143,28 +144,41 @@ void move(bool blocked, std::map<int, float>& scores) {
 	std::stringstream mss;
 
 	if (!blocked) {
+		turn_direction = FORWARD;
 		mss << "f1";
 		move_msg.data = mss.str();
 	} else {
-		float left_score, right_score;
-		std::map<int, float>::iterator it;
-		for (it = scores.begin(); it != scores.end(); ++it) {
-			if (it->first < 0) {
-				left_score += it->second;
+		if (turn_direction == FORWARD) {
+			float left_score, right_score;
+			std::map<int, float>::iterator it;
+			for (it = scores.begin(); it != scores.end(); ++it) {
+				if (it->first < 0) {
+					left_score += it->second;
+				} else {
+					right_score += it->second;
+				}
+			}
+
+			if (left_score < right_score) {
+				turn_direction = LEFT;
 			} else {
-				right_score += it->second;
+				turn_direction = RIGHT;
 			}
 		}
 
-		if (left_score < right_score) {
-			ROS_INFO("Moving left");
-			mss << "r359";
-			move_msg.data = mss.str();
-		} else {
-			ROS_INFO("Moving right");
-			mss << "r1";
-			move_msg.data = mss.str();
+		switch (turn_direction) {
+			case LEFT:
+				ROS_INFO("Moving left");
+				mss << "r359";
+				move_msg.data = mss.str();
+				break;
+			case RIGHT:
+				ROS_INFO("Moving right");
+				mss << "r1";
+				move_msg.data = mss.str();
+				break;
 		}
+
 	}
 #ifdef MOVE
 		motor_pub.publish(move_msg);
