@@ -199,9 +199,9 @@ class MotorController(RosController):
         elif action == "r":
             value = int(value)
             if value < 180:
-                self.m.change(self.meters_to_char(.3), self.meters_to_char(-.3), 0)
+                self.m.change(self.meters_to_char(.5), self.meters_to_char(-.5), 0)
             else:
-                self.m.change(self.meters_to_char(-.3), self.meters_to_char(.3), 0)
+                self.m.change(self.meters_to_char(-.5), self.meters_to_char(.5), 0)
             self.wait_angle(value)
           
 
