@@ -46,6 +46,13 @@ int main(int argc, char **argv) {
     ros::Subscriber sub = pf.subscribe("/obstacle_grid", 10, grid_callback);
 	motor_pub = pf.advertise<std_msgs::String>("/motor_command", 100);
 
+	//TODO: FUNCTION ME
+	std::stringstream fss;
+	fss << "rover";
+	std_msgs::String flush_msg;
+	flush_msg.data = fss.str();
+	motor_pub.publish(flush_msg);
+
 	ros::spin();
 }
 
