@@ -32,22 +32,19 @@ if __name__ == '__main__':
     print "Initalizing the controler:", joy.get_name(), "which has", joy.get_numaxes(),"axis"
     while not rospy.is_shutdown():
         pygame.event.pump()
-        vert = int(joy.get_axis(1)*127)
-        turn = int(joy.get_axis(0)*127)
-        if abs(abs(vert) - abs(turn)) < 20:
-            send_string(sock, "flush")
-            continue
-        if abs(vert) > abs(turn):
-            if vert < 0:
-                send_string(sock, "f01")
-            else:
-                send_string(sock, "b01")
-        elif abs(vert) < abs(turn):
-            if turn > 0:
-                send_string(sock, "r01")
-            else:
-                send_string(sock, "r359")
+        left = int(joy.get_axis(1)*127)
+        left = int((left/float(-127))*20)
 
+        right = int(joy.get_axis(4)*127)
+        right = int((right/float(-127))*20)
+        if left < 5:
+            send_string(sock, "left0")
+        else:
+            send_string(sock, "left"+str(left))
+        if right < 5:
+            send_string(sock, "right0")
+        else:
+            send_string(sock, "right"+str(right))
         clock.tick(10)
 
 
