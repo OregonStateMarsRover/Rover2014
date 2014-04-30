@@ -32,11 +32,9 @@ if __name__ == '__main__':
     print "Initalizing the controler:", joy.get_name(), "which has", joy.get_numaxes(),"axis"
     while not rospy.is_shutdown():
         pygame.event.pump()
-        left = int(joy.get_axis(1)*127)
-        left = int((left/float(-127))*20)
+        left = int(joy.get_axis(1)*(-20))
 
-        right = int(joy.get_axis(4)*127)
-        right = int((right/float(-127))*20)
+        right = int(joy.get_axis(4)*(-20))
         if left < 5:
             send_string(sock, "left0")
         else:

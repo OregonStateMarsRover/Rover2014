@@ -23,10 +23,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="rmotors.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="rmotors.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/rmotors.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="185" column="24" selection-start="5441" selection-end="5441" vertical-scroll-proportion="-25.407408" vertical-offset="2644" max-vertical-offset="4518">
+            <state line="155" column="97" selection-start="4667" selection-end="4667" vertical-scroll-proportion="0.5469613" vertical-offset="2592" max-vertical-offset="4518">
               <folding>
                 <element signature="e#22#34#0" expanded="true" />
               </folding>
@@ -45,10 +45,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="better_sender.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="better_sender.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/better_sender.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="43" selection-start="949" selection-end="949" vertical-scroll-proportion="0.44473007" vertical-offset="511" max-vertical-offset="1026">
+            <state line="37" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="0.0" vertical-offset="493" max-vertical-offset="990">
               <folding>
                 <element signature="e#23#32#0" expanded="true" />
               </folding>
@@ -68,9 +68,9 @@
       <list>
         <option value="$PROJECT_DIR$/pyramid_match.py" />
         <option value="$PROJECT_DIR$/brute_match.py" />
-        <option value="$PROJECT_DIR$/rmotors.py" />
         <option value="$PROJECT_DIR$/xbox_sender.py" />
         <option value="$PROJECT_DIR$/better_sender.py" />
+        <option value="$PROJECT_DIR$/rmotors.py" />
       </list>
     </option>
   </component>
@@ -380,11 +380,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/rmotors.py">
+    <entry file="file://$PROJECT_DIR$/better_sender.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="185" column="24" selection-start="5441" selection-end="5441" vertical-scroll-proportion="-25.407408" vertical-offset="2644" max-vertical-offset="4518">
+        <state line="37" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="0.0" vertical-offset="493" max-vertical-offset="990">
           <folding>
-            <element signature="e#22#34#0" expanded="true" />
+            <element signature="e#23#32#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -398,11 +398,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/better_sender.py">
+    <entry file="file://$PROJECT_DIR$/rmotors.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="43" selection-start="949" selection-end="949" vertical-scroll-proportion="0.44473007" vertical-offset="511" max-vertical-offset="1026">
+        <state line="155" column="97" selection-start="4667" selection-end="4667" vertical-scroll-proportion="0.5469613" vertical-offset="2592" max-vertical-offset="4518">
           <folding>
-            <element signature="e#23#32#0" expanded="true" />
+            <element signature="e#22#34#0" expanded="true" />
           </folding>
         </state>
       </provider>
