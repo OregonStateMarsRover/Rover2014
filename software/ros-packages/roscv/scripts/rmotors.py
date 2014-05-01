@@ -65,8 +65,8 @@ class Motor(object):
     left = None
     right = None
     estop = 0
-    right_speed = 0
-    left_speed = 0
+    right_speed = 127
+    left_speed = 127
     ramp_rate = 1
 
     def __init__(self):
