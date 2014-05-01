@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     print "Initalizing the controler:", joy.get_name(), "which has", joy.get_numaxes(),"axis"
 
-	send_string(sock, "controller")
+    send_string(sock, "controller")
     while not rospy.is_shutdown():
         pygame.event.pump()
         left = int(joy.get_axis(1)*(-20))
