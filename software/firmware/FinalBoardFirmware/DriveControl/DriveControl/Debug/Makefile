@@ -37,6 +37,10 @@ SUBDIRS :=
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../DriveControl.cpp \
+<<<<<<< HEAD
+../Misc.cpp \
+=======
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 ../Sabertooth.cpp \
 ../usart_driver.c
 
@@ -49,21 +53,37 @@ ASM_SRCS +=
 
 OBJS +=  \
 DriveControl.o \
+<<<<<<< HEAD
+Misc.o \
+=======
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 Sabertooth.o \
 usart_driver.o
 
 OBJS_AS_ARGS +=  \
 DriveControl.o \
+<<<<<<< HEAD
+Misc.o \
+=======
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 Sabertooth.o \
 usart_driver.o
 
 C_DEPS +=  \
 DriveControl.d \
+<<<<<<< HEAD
+Misc.d \
+=======
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 Sabertooth.d \
 usart_driver.d
 
 C_DEPS_AS_ARGS +=  \
 DriveControl.d \
+<<<<<<< HEAD
+Misc.d \
+=======
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 Sabertooth.d \
 usart_driver.d
 
@@ -85,6 +105,11 @@ LIB_DEP+=
 
 
 
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 ./%.o: .././%.c
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler : 4.8.1

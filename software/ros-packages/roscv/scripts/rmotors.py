@@ -13,6 +13,13 @@ import os
 import serial
 from serial.tools import list_ports
 
+"""
+" TODO to fix this code:
+" Switch the rospy.Timer to a threading.Timer like what is used here https://docs.python.org/2/library/threading.html#timer-objects
+" Add a send stop byte in the update function when the q is empty
+" Store threading timers in an array that you cancel when ever a flush is sent so that timers can't build up.
+"""
+
 
 def handler(signum, frame):
     print "Lethal signal received sending motor kill signal and exiting"
