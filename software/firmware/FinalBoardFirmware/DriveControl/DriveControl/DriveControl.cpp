@@ -7,8 +7,8 @@
 
 #define F_CPU 32000000UL
 
-#include <avr/io.h>
 #include <util/delay.h>
+<<<<<<< HEAD
 #include "Sabertooth.h"
 #include "Misc.h"
 
@@ -17,14 +17,58 @@ extern "C"{
 	#include "avr_compiler.h"
 };
 
+=======
+#include <avr/io.h>
+#include "usart_driver.h"
+#include "avr_compiler.h"
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 
 /*! Define that selects the Usart used in example. */
 #define XBEEDIO0 PIN5_bm //PORTA
 #define SabertoothTx PIN3_bm //PORTD
 #define StatusLight PIN3_bm //PORTE
 
+<<<<<<< HEAD
 #define RECEIVE_PACKET_SIZE  6
 #define	SEND_PACKET_SIZE  4
+=======
+/*! Success variable, used to test driver. */
+bool success;
+
+int main(void)
+{
+	CCP = CCP_IOREG_gc;              // disable register security for oscillator update
+	OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
+	while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
+	CCP = CCP_IOREG_gc;              // disable register security for clock update
+	CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
+
+	 
+	CCP = CCP_IOREG_gc;
+	OSC.CTRL |= OSC_RC32KEN_bm;
+	while(!(OSC.STATUS & OSC_RC32KRDY_bm)); // wait for oscillator to be ready
+	OSC.DFLLCTRL &= ~OSC_RC32MCREF_bm;
+	DFLLRC32M.CTRL |= DFLL_ENABLE_bm;  
+	 
+	 
+	 
+	 
+	 
+	/* Variable used to send and receive data. */
+	uint8_t sendData[] = "This is a string\r\n";
+	uint8_t receivedData;
+
+	/* This PORT setting is only valid to USARTC0 if other USARTs is used a
+	 * different PORT and/or pins is used. */
+	/* PIN3 (TXD0) as output. */
+	PORTC.DIRSET = PIN3_bm;
+
+	/* PC2 (RXD0) as input. */
+	PORTC.DIRCLR = PIN2_bm;
+	PORTA.DIRCLR = XBEEDIO0;
+	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
+	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
 
 uint8_t sendArray[SEND_PACKET_SIZE] = {0x55, 0xaa, 0xf0};
 uint8_t receiveArray[RECEIVE_PACKET_SIZE];

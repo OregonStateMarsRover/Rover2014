@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* 
 * Sabertooth.h
 *
@@ -52,3 +53,21 @@ private:
 }; //Sabertooth
 
 #endif //__SABERTOOTH_H__
+=======
+/*
+ * Sabertooth.h
+ *
+ * Created: 4/25/2014 3:58:54 PM
+ *  Author: corwin
+ */ 
+
+
+#ifndef SABERTOOTH_H_
+#define SABERTOOTH_H_
+
+
+
+
+
+#endif /* SABERTOOTH_H_ */
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05

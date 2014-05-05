@@ -137,12 +137,15 @@
     <Compile Include="DriveControl.cpp">
       <SubType>compile</SubType>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="Misc.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Misc.h">
       <SubType>compile</SubType>
     </Compile>
+=======
+>>>>>>> 938f67737ee788cf3e5ee03b44ec65d67da05f05
     <Compile Include="Sabertooth.cpp">
       <SubType>compile</SubType>
     </Compile>

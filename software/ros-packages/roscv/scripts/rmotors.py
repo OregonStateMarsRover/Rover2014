@@ -13,6 +13,13 @@ import os
 import serial
 from serial.tools import list_ports
 
+"""
+" TODO to fix this code:
+" Switch the rospy.Timer to a threading.Timer like what is used here https://docs.python.org/2/library/threading.html#timer-objects
+" Add a send stop byte in the update function when the q is empty
+" Store threading timers in an array that you cancel when ever a flush is sent so that timers can't build up.
+"""
+
 
 def handler(signum, frame):
     print "Lethal signal received sending motor kill signal and exiting"
@@ -65,8 +72,8 @@ class Motor(object):
     left = None
     right = None
     estop = 0
-    right_speed = 0
-    left_speed = 0
+    right_speed = 127
+    left_speed = 127
     ramp_rate = 1
 
     def __init__(self):
@@ -122,6 +129,7 @@ class RosController(object):
     q = None
     pub = None
     m = None
+    mode = "rover"
     speed = 0.75
 
     def __init__(self, status_to, commands_from):
@@ -141,12 +149,25 @@ class RosController(object):
         print commands, command_list
         #flush the queues
         self.m.change(self.meters_to_char(0),self.meters_to_char(0),0)
-
-        if command_list[0] in "fbsr":
-            self.q.extend(command_list)
+        if self.mode == "rover":
+            if command_list[0] in "fbsr":
+                self.q.extend(command_list)
+            else:
+                #invalid commands, we will need to handle later
+                pass
         else:
-            #invalid commands, we will need to handle later
-            pass
+            for i in range(0, len(command_list), 2):
+                if command_list[i] == "left":
+                    self.m.change(self.meters_to_char(float(command_list[i+1])/10.0), self.m.right, 0)
+                elif command_list[i] == "right":
+                    self.m.change(self.m.left, self.meters_to_char(float(command_list[i+1])/10.0), 0)
+                elif command_list[i] == "rover":
+                    self.mode = "rover"
+
+        if command_list[0] == "rover":
+            self.mode = "rover"
+        elif command_list[0] == "controller":
+            self.mode = "controller"
 
         if length == 0 and command_list[0] != "flush":
             self.update()
@@ -185,9 +206,9 @@ class MotorController(RosController):
         elif action == "r":
             value = int(value)
             if value < 180:
-                self.m.change(self.meters_to_char(.3), self.meters_to_char(-.3), 0)
+                self.m.change(self.meters_to_char(.5), self.meters_to_char(-.5), 0)
             else:
-                self.m.change(self.meters_to_char(-.3), self.meters_to_char(.3), 0)
+                self.m.change(self.meters_to_char(-.5), self.meters_to_char(.5), 0)
             self.wait_angle(value)
           
 

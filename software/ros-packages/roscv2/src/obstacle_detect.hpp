@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <omp.h>
+
 #include <ros/ros.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -43,7 +45,7 @@
 
 #define MIN_AREA (500/(DOWNSCALE*DOWNSCALE))
 
-#define NUM_SLICES (40)
+#define NUM_SLICES (10)
 
 /* Typedefs */
 
@@ -61,6 +63,9 @@ void get_images(sensor_msgs::Image::ConstPtr&,
                 stereo_msgs::DisparityImage::ConstPtr&);
 void find_obstacles(const cv::Mat&, cv::Mat&, float, float);
 float get_depth_scale(float);
+
+void img_callback(const sensor_msgs::Image::ConstPtr&);
+void disp_callback(const stereo_msgs::DisparityImage::ConstPtr&);
 
 void init_slices(std::vector<Slice>&);
 void fill_slices(const cv::Mat&, std::vector<Slice>&, float);
