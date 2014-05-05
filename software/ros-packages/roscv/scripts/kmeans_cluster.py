@@ -1,7 +1,13 @@
+#!/usr/bin/env python
+import roslib
+roslib.load_manifest('roscv')
 import numpy as np
+from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import time
 import random
+import rospy
+
 """
 " See the comments in the color filter code since it is exactly the same code
 """
@@ -104,6 +110,27 @@ def get_skel(img):
     return skel
 
 
+def match_object(img, hook_skel, puck_skel):
+    skel = get_skel(img)
+    #temp_clustering = thick_cluster(temp_skel)
+    #clustering = thick_cluster(skel)
+    rect = shape_matches(puck_skel, skel, 10000, 1000)
+    rect2 = shape_matches(hook_skel, skel, 20000, 4000)
+    if rect != 0 and rect2 != 0:
+        rect = rect if rect[4] < rect2[4] else rect2
+    elif rect == 0:
+        rect = rect2
+    return rect, skel
+
+
+def draw_bounding_box(original, rect):
+    x, y, w, h, m = rect
+    #cv2.imshow("test_kmean", clustering)
+    #x, y, w, h = contour_detect(clustering)
+    cv2.rectangle(original, (x, y), (x + w, y + h), 255, 5)
+    return m
+
+
 def test_matching(hook_skel, puck_skel, lower_bound, upper_bound, test_count):
     right = 0
     m_right = 0.0
@@ -117,25 +144,12 @@ def test_matching(hook_skel, puck_skel, lower_bound, upper_bound, test_count):
             original = img.copy()
         except AttributeError:
             continue
-        skel = get_skel(img)
-        #temp_clustering = thick_cluster(temp_skel)
-        #clustering = thick_cluster(skel)
-        rect = shape_matches(puck_skel, skel, 10000, 1000)
-        rect2 = shape_matches(hook_skel, skel, 20000, 4000)
-        if rect !=0 and rect2 != 0:
-            rect = rect if rect[4] < rect2[4] else rect2
-        elif rect == 0:
-            rect = rect2
+        rect, skel = match_object(img, hook_skel, puck_skel)
         if rect == 0:
             print "none found"
             skip_count += 1
             continue
-        x, y, w, h, m = rect
-        #cv2.imshow("test_kmean", clustering)
-
-
-        #x, y, w, h = contour_detect(clustering)
-        cv2.rectangle(original, (x, y), (x + w, y + h), 255, 5)
+        m = draw_bounding_box(original, rect)
         cv2.imshow("skel", skel)
         cv2.imshow("original", original)
         key = cv2.waitKey(0) & 0xFF
@@ -154,7 +168,7 @@ def test_matching(hook_skel, puck_skel, lower_bound, upper_bound, test_count):
     print "when wrong your average match value is:", m_wrong / (wrong+.001)
 
 
-def main():
+def skel_templates():
     img = cv2.imread('test_images/image002.png')
     template = [cv2.imread('test_images/template/hockey/template1.png'),
                 cv2.imread('test_images/template/hockey/template2.png'),
@@ -166,14 +180,39 @@ def main():
                 cv2.imread('test_images/template/hook/template5.png'),
                 cv2.imread('test_images/template/hook/template6.png'),
                 cv2.imread('test_images/template/hook/template7.png')]
-
     temp_skel = []
     for x, temp in enumerate(template):
         temp_skel.append(get_skel(temp))
-        cv2.imshow("template"+str(x), temp_skel[-1])
+    return temp_skel
+
+
+def main():
+    temp_skel = skel_templates()
     #1-124: hockey puck, 125-742 is hook
-    test_matching(temp_skel[3:], temp_skel[:3], 1, 742, 100)
-main()
+    test_matching(temp_skel[3:], temp_skel[:3], 125, 742, 100)
+    cv2.destroyAllWindows()
 
 
-cv2.destroyAllWindows()
+class RosDetect():
+
+    def __init__(self):
+        self.bridge = CvBridge()
+        self.template_skeletons = skel_templates()
+        self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_raw", rospy.msg.Image, self.detect_objects)
+        rospy.init_node("object_recognition", anonymous=True)
+
+    def detect_objects(self, data):
+        try:
+                image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+                rect, skel = match_object(image, self.template_skeletons[3:], self.template_skeletons[:3])
+                if rect == 0:
+                    print "none found"
+                    return
+                draw_bounding_box(image, rect)
+                cv2.imshow("skel", skel)
+                cv2.imshow("original", image)
+        except CvBridgeError, e:
+            print e
+
+if __name__ == "__main__":
+    rospy.spin()

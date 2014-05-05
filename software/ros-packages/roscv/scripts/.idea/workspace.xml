@@ -26,10 +26,17 @@
       <file leaf-file-name="kmeans_cluster.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="123" column="49" selection-start="4126" selection-end="4126" vertical-scroll-proportion="0.4" vertical-offset="2058" max-vertical-offset="3312">
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
+            <state line="212" column="25" selection-start="7354" selection-end="7354" vertical-scroll-proportion="0.63076925" vertical-offset="3570" max-vertical-offset="4014">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="watcher.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/old/watcher.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="11" column="0" selection-start="220" selection-end="265" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1980">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -116,6 +123,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="test_images" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="old" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -483,12 +504,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/old/watcher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="0" selection-start="220" selection-end="265" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1980">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="123" column="49" selection-start="4126" selection-end="4126" vertical-scroll-proportion="0.4" vertical-offset="2058" max-vertical-offset="3312">
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state line="212" column="25" selection-start="7354" selection-end="7354" vertical-scroll-proportion="0.63076925" vertical-offset="3570" max-vertical-offset="4014">
+          <folding />
         </state>
       </provider>
     </entry>
