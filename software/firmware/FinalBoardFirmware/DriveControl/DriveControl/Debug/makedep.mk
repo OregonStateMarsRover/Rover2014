@@ -4,5 +4,9 @@
 
 DriveControl.cpp
 
+Misc.cpp
+
+Sabertooth.cpp
+
 usart_driver.c
 

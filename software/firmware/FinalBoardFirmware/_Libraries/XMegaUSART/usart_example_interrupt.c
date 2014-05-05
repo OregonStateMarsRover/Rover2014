@@ -141,12 +141,10 @@ int main(void)
 
 	/* Test to see if sent data equals received data. */
 	/* Assume success first.*/
-	success = true;
+
 	for(i = 0; i < NUM_BYTES; i++) {
 		/* Check that each element is received correctly. */
-		if (receiveArray[i] != sendArray[i]) {
-			success = false;
-		}
+		USART_TXBuffer_PutByte(&USART_data, receiveArray[i]);
 	}
 
 	/* If success the program ends up inside the if statement.*/
