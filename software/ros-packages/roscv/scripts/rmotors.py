@@ -4,7 +4,7 @@ import time
 from std_msgs.msg import String
 import itertools #Used to break apart string
 import collections #used for the command queue
-
+import threading
 
 import signal
 import sys
@@ -77,10 +77,11 @@ class Motor(object):
     ramp_rate = 1
 
     def __init__(self):
+        self.stopped = False
         self.serial = SerialHandler()
         self.serial.get_control_port("ID: MainDrive")
         time.sleep(2)
-        self.serial.write(chr(68))
+        self.serial.write('r')
         time.sleep(2)
         open(os.devnull, 'w')
 
@@ -119,9 +120,22 @@ class Motor(object):
         self.serial.write(chr(self.right_speed))
         self.serial.write(chr(0 ^ self.left_speed ^ self.right_speed))
         self.serial.write(chr(255))
-        while not self.serial.read(1) == 'r':
+        while not self.read_packet:
             pass
         time.sleep(.02)
+
+    def read_packet(self):
+        read = self.serial.read(3)
+        if ord(read[0]) == 255 and ord(read[2]) == 255:
+            if (ord(read[1]) & 1) == 1:
+                self.stopped = False
+                self.estop = 0
+            elif ord(read[1]) == 0:
+                self.stopped = True
+                self.estop = 1
+            if (ord(read[1]) & 11) > 10:
+                time.sleep(5)
+        return False
 
 
 class RosController(object):
@@ -135,7 +149,7 @@ class RosController(object):
     def __init__(self, status_to, commands_from):
         self.q = collections.deque()
         self.pub = rospy.Publisher(status_to, String)
-
+        self.distance = 0
         self.m = Motor()
 
         rospy.Subscriber(commands_from, String, self.read_commands)
@@ -220,9 +234,8 @@ class MotorController(RosController):
             length = 0
         else:
             length = float(distance)/(self.speed*a_mps)
+        self.distance = length
 
-        rospy.Timer(rospy.Duration(length), self.update, True)
-        
 
     def wait_angle(self, angle):
         start = time.time()
@@ -231,9 +244,20 @@ class MotorController(RosController):
             angle = 360 - angle
         #assume one degree a second
         dps = 1
-        
-        rospy.Timer(rospy.Duration(angle*dps), self.update, True) 
-        
+        self.distance = angle*dps
+
+
+class MotorStopperForward(threading.Thread):
+    def __init__(self, update, distance):
+        threading.Thread.__init__(self)
+        self.update = update
+        self.event = threading.Event()
+
+    def run(self):
+        while not self.event.is_set():
+            self.event.wait(.25)
+
+
 
 
 

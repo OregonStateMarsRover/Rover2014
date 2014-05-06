@@ -23,20 +23,22 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="kmeans_cluster.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="kmeans_cluster.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="212" column="25" selection-start="7354" selection-end="7354" vertical-scroll-proportion="0.63076925" vertical-offset="3570" max-vertical-offset="4014">
+            <state line="9" column="0" selection-start="181" selection-end="181" vertical-scroll-proportion="0.0" vertical-offset="108" max-vertical-offset="4014">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="watcher.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/old/watcher.py">
+      <file leaf-file-name="rmotors.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/rmotors.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="0" selection-start="220" selection-end="265" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1980">
-              <folding />
+            <state line="247" column="0" selection-start="7633" selection-end="7633" vertical-scroll-proportion="-0.6710875" vertical-offset="4699" max-vertical-offset="5076">
+              <folding>
+                <element signature="e#22#34#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -56,9 +58,9 @@
         <option value="$PROJECT_DIR$/xbox_sender.py" />
         <option value="$PROJECT_DIR$/better_sender.py" />
         <option value="$PROJECT_DIR$/kmeans-clustering.py" />
-        <option value="$PROJECT_DIR$/rmotors.py" />
         <option value="$PROJECT_DIR$/haralick.py" />
         <option value="$PROJECT_DIR$/kmeans_cluster.py" />
+        <option value="$PROJECT_DIR$/rmotors.py" />
       </list>
     </option>
   </component>
@@ -486,15 +488,6 @@
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="630" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/rmotors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="2" selection-start="1409" selection-end="1409" vertical-scroll-proportion="0.18461539" vertical-offset="900" max-vertical-offset="4518">
-          <folding>
-            <element signature="e#22#34#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/haralick.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="176" column="17" selection-start="7179" selection-end="7179" vertical-scroll-proportion="-3.6611571" vertical-offset="4497" max-vertical-offset="4968">
@@ -513,8 +506,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="212" column="25" selection-start="7354" selection-end="7354" vertical-scroll-proportion="0.63076925" vertical-offset="3570" max-vertical-offset="4014">
+        <state line="9" column="0" selection-start="181" selection-end="181" vertical-scroll-proportion="0.0" vertical-offset="108" max-vertical-offset="4014">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rmotors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="247" column="0" selection-start="7633" selection-end="7633" vertical-scroll-proportion="-0.6710875" vertical-offset="4699" max-vertical-offset="5076">
+          <folding>
+            <element signature="e#22#34#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
