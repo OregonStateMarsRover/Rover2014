@@ -2,7 +2,7 @@
  * ArmControl.cpp
  *
  * Created: 4/22/2014 8:54:20 PM
- *  Author: NICK!
+ *  Author: Nick
  */ 
 
 #define F_CPU 32000000UL
