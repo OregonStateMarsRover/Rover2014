@@ -13,13 +13,6 @@ import os
 import serial
 from serial.tools import list_ports
 
-"""
-" TODO to fix this code:
-" Switch the rospy.Timer to a threading.Timer like what is used here https://docs.python.org/2/library/threading.html#timer-objects
-" Add a send stop byte in the update function when the q is empty
-" Store threading timers in an array that you cancel when ever a flush is sent so that timers can't build up.
-"""
-
 
 def handler(signum, frame):
     print "Lethal signal received sending motor kill signal and exiting"
@@ -149,6 +142,7 @@ class RosController(object):
     def __init__(self, status_to, commands_from):
         self.q = collections.deque()
         self.pub = rospy.Publisher(status_to, String)
+        self.thread = None
         self.distance = 0
         self.m = Motor()
 
@@ -199,6 +193,7 @@ class MotorController(RosController):
 
     def update(self, event=None):
         if len(self.q) == 0:
+            self.m.change(self.meters_to_char(0), self.meters_to_char(0), self.m.estop)
             return
         action = self.q[0]
         value = self.q[1]
@@ -208,8 +203,7 @@ class MotorController(RosController):
         self.q.popleft()
 
         if action == "f" or action == "b":
-            spd = self.meters_to_char(self.speed
-                            if action == "f" else -self.speed)
+            spd = self.meters_to_char(self.speed if action == "f" else -self.speed)
             self.m.change(spd, spd, 0) 
             self.wait_distance(value)
 
@@ -235,6 +229,8 @@ class MotorController(RosController):
         else:
             length = float(distance)/(self.speed*a_mps)
         self.distance = length
+        self.thread = MotorStopperTimer(self.update, self.distance)
+        self.thread.start()
 
 
     def wait_angle(self, angle):
@@ -245,17 +241,24 @@ class MotorController(RosController):
         #assume one degree a second
         dps = 1
         self.distance = angle*dps
+        if self.thread is not None:
+            self.thread.cancel()
+        self.thread = MotorStopperTimer(self.update, self.distance)
+        self.thread.start()
 
 
-class MotorStopperForward(threading.Thread):
-    def __init__(self, update, distance):
+class MotorStopperTimer(threading.Thread):
+    def __init__(self, update, duration):
         threading.Thread.__init__(self)
         self.update = update
+        self.time = time.time()+duration
         self.event = threading.Event()
 
     def run(self):
         while not self.event.is_set():
-            self.event.wait(.25)
+            if time.time() > self.time:
+                break
+            self.event.wait(.05)
 
 
 

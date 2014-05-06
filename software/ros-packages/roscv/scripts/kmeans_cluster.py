@@ -6,7 +6,9 @@ from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import time
 import random
+
 import rospy
+import sensor_msgs
 
 """
 " See the comments in the color filter code since it is exactly the same code
@@ -198,7 +200,7 @@ class RosDetect():
     def __init__(self):
         self.bridge = CvBridge()
         self.template_skeletons = skel_templates()
-        self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_raw", rospy.msg.Image, self.detect_objects)
+        self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_raw", sensor_msgs.msg.Image, self.detect_objects)
         rospy.init_node("object_recognition", anonymous=True)
 
     def detect_objects(self, data):
@@ -215,4 +217,5 @@ class RosDetect():
             print e
 
 if __name__ == "__main__":
+    detect = RosDetect()
     rospy.spin()

@@ -26,7 +26,22 @@
       <file leaf-file-name="kmeans_cluster.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="0" selection-start="181" selection-end="181" vertical-scroll-proportion="0.0" vertical-offset="108" max-vertical-offset="4014">
+            <state line="203" column="61" selection-start="6776" selection-end="6949" vertical-scroll-proportion="0.0" vertical-offset="2989" max-vertical-offset="4068">
+              <folding>
+                <marker date="1399340306133" expanded="true" signature="3014:3610" placeholder="..." />
+                <marker date="1399340306133" expanded="true" signature="4335:5548" placeholder="..." />
+                <marker date="1399340306133" expanded="true" signature="6472:6637" placeholder="..." />
+                <marker date="1399340306133" expanded="true" signature="6658:7453" placeholder="..." />
+                <marker date="1399340306133" expanded="true" signature="6683:6949" placeholder="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="encoder.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/encoder.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="8" column="23" selection-start="161" selection-end="161" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="396">
               <folding />
             </state>
           </provider>
@@ -35,10 +50,19 @@
       <file leaf-file-name="rmotors.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/rmotors.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="247" column="0" selection-start="7633" selection-end="7633" vertical-scroll-proportion="-0.6710875" vertical-offset="4699" max-vertical-offset="5076">
+            <state line="13" column="35" selection-start="274" selection-end="274" vertical-scroll-proportion="0.32051283" vertical-offset="109" max-vertical-offset="5130">
               <folding>
                 <element signature="e#22#34#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="detector.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/old/detector.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="11" column="5" selection-start="215" selection-end="230" vertical-scroll-proportion="0.0" vertical-offset="204" max-vertical-offset="1836">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -60,6 +84,8 @@
         <option value="$PROJECT_DIR$/kmeans-clustering.py" />
         <option value="$PROJECT_DIR$/haralick.py" />
         <option value="$PROJECT_DIR$/kmeans_cluster.py" />
+        <option value="$PROJECT_DIR$/socket2ros.py" />
+        <option value="$PROJECT_DIR$/encoder.py" />
         <option value="$PROJECT_DIR$/rmotors.py" />
       </list>
     </option>
@@ -114,34 +140,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test_images" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="old" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="Scope" />
@@ -156,7 +154,7 @@
       <PyConsoleSettings />
     </option>
   </component>
-  <component name="RunManager" selected="Python.kmeans_cluster">
+  <component name="RunManager" selected="Python.encoder">
     <configuration default="false" name="pyramid_match" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -224,6 +222,24 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="scripts" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/haralick.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="encoder" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="scripts" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/encoder.py" />
       <option name="PARAMETERS" value="" />
       <RunnerSettings RunnerId="PythonRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
@@ -370,19 +386,21 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <list size="5">
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Python.kmeans_cluster" />
       <item index="1" class="java.lang.String" itemvalue="Python.pyramid_match" />
       <item index="2" class="java.lang.String" itemvalue="Python.brute_match" />
       <item index="3" class="java.lang.String" itemvalue="Python.xbox_sender" />
       <item index="4" class="java.lang.String" itemvalue="Python.haralick" />
+      <item index="5" class="java.lang.String" itemvalue="Python.encoder" />
     </list>
     <recent_temporary>
-      <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.haralick" />
-        <item index="1" class="java.lang.String" itemvalue="Python.xbox_sender" />
-        <item index="2" class="java.lang.String" itemvalue="Python.brute_match" />
-        <item index="3" class="java.lang.String" itemvalue="Python.pyramid_match" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.encoder" />
+        <item index="1" class="java.lang.String" itemvalue="Python.haralick" />
+        <item index="2" class="java.lang.String" itemvalue="Python.xbox_sender" />
+        <item index="3" class="java.lang.String" itemvalue="Python.brute_match" />
+        <item index="4" class="java.lang.String" itemvalue="Python.pyramid_match" />
       </list>
     </recent_temporary>
   </component>
@@ -483,11 +501,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/socket2ros.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="630" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/haralick.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="176" column="17" selection-start="7179" selection-end="7179" vertical-scroll-proportion="-3.6611571" vertical-offset="4497" max-vertical-offset="4968">
@@ -506,14 +519,41 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="0" selection-start="181" selection-end="181" vertical-scroll-proportion="0.0" vertical-offset="108" max-vertical-offset="4014">
+        <state line="203" column="61" selection-start="6776" selection-end="6949" vertical-scroll-proportion="0.0" vertical-offset="2989" max-vertical-offset="4068">
+          <folding>
+            <marker date="1399340306133" expanded="true" signature="3014:3610" placeholder="..." />
+            <marker date="1399340306133" expanded="true" signature="4335:5548" placeholder="..." />
+            <marker date="1399340306133" expanded="true" signature="6472:6637" placeholder="..." />
+            <marker date="1399340306133" expanded="true" signature="6658:7453" placeholder="..." />
+            <marker date="1399340306133" expanded="true" signature="6683:6949" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/socket2ros.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="49" selection-start="508" selection-end="610" vertical-scroll-proportion="0.41538462" vertical-offset="162" max-vertical-offset="630">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/encoder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="23" selection-start="161" selection-end="161" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="396">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/old/detector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="5" selection-start="215" selection-end="230" vertical-scroll-proportion="0.0" vertical-offset="204" max-vertical-offset="1836">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/rmotors.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="247" column="0" selection-start="7633" selection-end="7633" vertical-scroll-proportion="-0.6710875" vertical-offset="4699" max-vertical-offset="5076">
+        <state line="13" column="35" selection-start="274" selection-end="274" vertical-scroll-proportion="0.32051283" vertical-offset="109" max-vertical-offset="5130">
           <folding>
             <element signature="e#22#34#0" expanded="true" />
           </folding>
