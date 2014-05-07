@@ -57,6 +57,12 @@
 #define MD2_STEP_SET(void) (PORTD.OUTSET = PIN1_bm)
 #define MD2_STEP_CLR(void) (PORTD.OUTCLR = PIN1_bm)
 
+//Limit switch macros
+#define CHECK_GRIP_CLOSE(void) (!(PORTA.IN & PIN3_bm))  //Returns true if grip close
+#define CHECK_GRIP_LIMIT(void) (PORTB.IN & PIN3_bm)     //Returns true if a limit switch has been pressed
+#define CHECK_CAL(void) (PORTA.IN & PIN2_bm)            //Returns true if cal limit switch has been pressed
+
+
 //#define BASE_ROT_LIMIT
 
 

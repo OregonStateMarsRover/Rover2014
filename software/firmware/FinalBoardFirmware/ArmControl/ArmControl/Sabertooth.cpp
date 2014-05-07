@@ -30,30 +30,33 @@ Sabertooth::Sabertooth(USART_t *USART_SaberUsart, PORT_t * SaberPORT)
 void Sabertooth::DriveTest(){
 	
 	int i;
-	for(i = 0; i < 128 ; i++){
+	for(i = 0; i < 64 ; i++){
 		SendDriveCmd(LEFT_FORWARD, i);
 		SendDriveCmd(RIGHT_FORWARD, i);
-		_delay_ms(30);
+		_delay_ms(10);
 	}
 	for( ; i > 0 ; i--){
 		SendDriveCmd(LEFT_FORWARD, i);
 		SendDriveCmd(RIGHT_FORWARD, i);
-		_delay_ms(30);
+		_delay_ms(10);
 	}
 	
-		for(i = 0; i < 128 ; i++){
+		for(i = 0; i < 64 ; i++){
 			SendDriveCmd(LEFT_BACK, i);
 			SendDriveCmd(RIGHT_BACK, i);
-			_delay_ms(30);
+			_delay_ms(10);
 		}
 		for( ; i > 0 ; i--){
 			SendDriveCmd(LEFT_BACK, i);
 			SendDriveCmd(RIGHT_BACK, i);
-			_delay_ms(30);
+			_delay_ms(10);
 		}
 		
 }
 
+
+//Left = lower act
+//Right = upper act
 void Sabertooth::ParsePacket(unsigned char left, unsigned char right){
 	unsigned char command_left = LEFT_FORWARD;
 	unsigned char value_left = 0;

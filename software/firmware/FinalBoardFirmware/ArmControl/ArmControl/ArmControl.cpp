@@ -7,6 +7,12 @@
  * PA0 is Step2POT
  * PA1 is Step1POT
 =======
+
+PB3 = Limit 1 = Grip Limit
+PA3 = Limit 2 = Grip Close
+PA2 = Limit 3 = Rotation Calibration
+
+
  *  Author: Nick
 >>>>>>> 034fb4b9ec9e5b3ad4812938ac8725fedd57e6b0
  */ 
@@ -24,9 +30,19 @@ extern "C" {
 
 #include "Sabertooth.h"
 #include "XMegaMacros.h"
+#include "adc.h"  //Include the ADC functions
+#include "motorInfo.h"  //Include the motor information
 
 int swap = 0;
 USART_data_t USART_PC_Data;
+
+motorInfo lowerAct;
+motorInfo upperAct;
+
+
+#define LOWER 0
+#define UPPER 1
+
 
 void SetXMEGA32MhzCalibrated(){
 	CCP = CCP_IOREG_gc;						//Disable register security for oscillator update
@@ -56,13 +72,77 @@ void SetupPCComms(){
 	PMIC.CTRL |= PMIC_LOLVLEX_bm;																	//Enable PMIC interrupt level low (No idea what this does, but is necessary)
 }
 
-void DemStuffYouBeenDoingBefore(){
+
+//Motor 1 is Gripper
+//Motor 2 is Base Stepper
+void DemInitThingsYouBeenDoing(){
+	SetXMEGA32MhzCalibrated();
+	SetupPCComms();
 	
+	//Setup Status and Error LEDS
+	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
+	
+	//Setup Outputs
+	PORTD.DIRSET = (PIN0_bm | PIN1_bm | PIN2_bm | PIN3_bm | PIN4_bm | PIN5_bm | PIN6_bm | PIN7_bm);
+	PORTA.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);  //First set of M settings
+	PORTB.DIRSET = (PIN0_bm | PIN1_bm | PIN2_bm);  //Second set of M settings
+
+	//Setup Inputs
+	PORTA.DIRCLR = (PIN2_bm); //Rotation Calibration
+	PORTA.DIRCLR = (PIN3_bm); //Grip Close
+	PORTB.DIRCLR = (PIN3_bm); //Grip Limit	
+		
+
+	//SETUP "UPPER" DRIVER
+	MD1_DISABLE();
+	
+	//Setup Microstepping
+	MD1_M0_SET();
+	MD1_M1_CLR();
+	MD1_M2_CLR();
+	
+	MD1_DIR_CLR();
+	MD1_STEP_CLR();
+	
+	//Motor Driver 2 setup
+	MD2_DISABLE();
+	
+	//Setup Microstepping
+	MD2_M0_CLR();
+	MD2_M1_CLR();
+	MD2_M2_CLR();
+	
+	MD2_DIR_CLR();
+	MD2_STEP_CLR();
+}
+
+void SendStringPC(char *stufftosend){
+	for(int i = 0 ; stufftosend[i] != '\0' ; i++){
+		while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+		USART_PutChar(&USARTC0, stufftosend[i]);	
+	}
+}
+
+
+//DOCUMENTATION NEEDED :D
+
+double abs(double input){
+	if(input > 0)
+		return input;
+	else
+		return input * -1;
+}
+
+
+
+void DemStuffYouBeenDoingBefore(){
+
+	/*	
 	MD2_STEP_SET();
-	_delay_us(60);
+	_delay_ms(60);
 	MD2_STEP_CLR();
 
-	_delay_us(60);
+	_delay_ms(60);
 	
 	++swap;
 	
@@ -86,102 +166,155 @@ void DemStuffYouBeenDoingBefore(){
 	else {
 		ERROR_CLR();
 	}
+	*/
 }
 
-void DemInitThingsYouBeenDoing(){
-	SetXMEGA32MhzCalibrated();
-	SetupPCComms();
-	
-	//Setup Status and Error LEDS
-	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
-	
-	//Setup Outputs
-	PORTD.DIRSET = (PIN0_bm | PIN1_bm | PIN2_bm | PIN3_bm | PIN4_bm | PIN5_bm | PIN6_bm | PIN7_bm);
-	PORTA.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);  //First set of M settings
-	PORTB.DIRSET = (PIN0_bm | PIN1_bm | PIN2_bm);  //Second set of M settings
 
-	//Setup Inputs
-	PORTA.DIRCLR = (PIN2_bm);
+//PA1 is lower act
 
-	//SETUP "UPPER" DRIVER
-	//Set the enable pin low (disable high)
-	MD1_DISABLE();
-	
-	//Setup Microstepping
-	MD1_M0_CLR();
-	MD1_M1_CLR();
-	MD1_M2_CLR();
-	
-	MD1_DIR_CLR();
-	MD1_STEP_CLR();
-	
-	//Motor Driver 2 setup
-	MD2_ENABLE();
-	
-	//Setup Microstepping
-	MD2_M0_CLR();
-	MD2_M1_CLR();
-	MD2_M2_CLR();
-	
-	MD2_DIR_CLR();
-	MD2_STEP_CLR();
-}
-
-void SendStringPC(char *stufftosend){
-	for(int i = 0 ; stufftosend[i] != '\0' ; i++){
-		while(!USART_IsTXDataRegisterEmpty(&USARTC0));
-		USART_PutChar(&USARTC0, stufftosend[i]);	
+//If a 0 is passed in, then the lower act is read
+//0 = LOWER ACT
+//1 = UPPER ACT
+int smoothADC(int act){
+	const int smoothFactor = 7;
+	int count = 0;
+	for(int i = 0; i < smoothFactor; ++i){
+		if(act == LOWER){ 
+			count += ReadADC(1,1);	
+		}
+		else if(act == UPPER) {
+			count += ReadADC(0,1);
+		}
+		_delay_ms(1);
 	}
+	return count/smoothFactor;
 }
 
-uint8_t ReadSignatureByte(uint16_t Address)
-{
-	NVM_CMD = NVM_CMD_READ_CALIB_ROW_gc;
-	uint8_t Result;
-	__asm__ ("lpm %0, Z\n" : "=r" (Result) : "z" (Address));
-	NVM_CMD = NVM_CMD_NO_OPERATION_gc;
-	return Result;
+//lowerAct   upperAct
+void checkActPosition(){
+	
+	if (abs(lowerAct.currentPos - lowerAct.desiredPos) < lowerAct.acceptableError){
+		++lowerAct.acceptableCount;
+	}
+	else{
+		lowerAct.acceptableCount = 0;
+	}
+	if (abs(upperAct.currentPos - upperAct.desiredPos) < upperAct.acceptableError){
+		++upperAct.acceptableCount;
+	}
+	else{
+		upperAct.acceptableCount = 0;
+	}
+	
+	if(upperAct.acceptableCount >= upperAct.acceptableCountMax)
+		upperAct.disable();
+	if(lowerAct.acceptableCount >= upperAct.acceptableCountMax)
+		lowerAct.disable();
+	
+	
+	lowerAct.currentPos = smoothADC(LOWER)/58.13 -.41;
+	upperAct.currentPos = smoothADC(UPPER)/58.13 -.41;
 }
 
-uint16_t ReadADC(uint8_t Channel, uint8_t ADCMode) // Mode = 1 for single ended, 0 for internal
-{
-	if ((ADCA.CTRLA & ADC_ENABLE_bm) == 0)
-	{
-		ADCA.CTRLA = ADC_ENABLE_bm ; // Enable the ADC
-		ADCA.CTRLB = ADC_RESOLUTION_12BIT_gc; // Signed Mode
-		ADCA.REFCTRL = ADC_REFSEL_VCC_gc; // Internal 1v ref
-		ADCA.EVCTRL = 0 ; // no events
-		ADCA.PRESCALER = ADC_PRESCALER_DIV256_gc ;
-		ADCA.CALL = ReadSignatureByte(0x20) ; //ADC Calibration Byte 0
-		ADCA.CALH = ReadSignatureByte(0x21) ; //ADC Calibration Byte 1
-		_delay_us(400); // Wait at least 25 clocks
+int getMotorSpeed(int act){
+		
+	if(act == LOWER){
+		if(abs(lowerAct.currentPos - lowerAct.desiredPos) < lowerAct.slowRange/2)
+			return lowerAct.speed / 3;
+		else if(abs(lowerAct.currentPos - lowerAct.desiredPos) < lowerAct.slowRange)
+			return lowerAct.speed / 2;
+		else
+			return lowerAct.speed;
 	}
-	ADCA.CH0.CTRL = ADC_CH_GAIN_1X_gc | ADCMode ; // Gain = 1, Single Ended
-	ADCA.CH0.MUXCTRL = (Channel<<3);
-	ADCA.CH0.INTCTRL = 0 ; // No interrupt
-	for(uint8_t Waste = 0; Waste<2; Waste++)
-	{
-		ADCA.CH0.CTRL |= ADC_CH_START_bm; // Start conversion
-		while (ADCA.INTFLAGS==0) ; // Wait for complete
-		ADCA.INTFLAGS = ADCA.INTFLAGS ;
+	else if (act == UPPER){
+		if(abs(upperAct.currentPos - upperAct.desiredPos) < upperAct.slowRange/2)
+			return upperAct.speed / 3;
+		else if(abs(upperAct.currentPos - upperAct.desiredPos) < upperAct.slowRange)
+			return upperAct.speed / 2;
+		else
+			return upperAct.speed;
 	}
-	return ADCA.CH0RES ;
+	
+	
+	////////
+	return 0;
+}
+
+
+//Returns a 1 or a -1, depending on whether the actuator needs to retract 
+//or extend
+int getMotorDir(int act){
+	if(act == LOWER){
+		if(!lowerAct.enabled)
+			return 0;
+		
+		if(lowerAct.currentPos > lowerAct.desiredPos)
+			return -1;
+		else
+			return 1;
+	}
+	else if(act == UPPER){
+		if(!upperAct.enabled)
+			return 0;
+		
+		if(upperAct.currentPos > upperAct.desiredPos)
+			return -1;
+		else
+			return 1;
+	}
+	/////////
+	return 0;
 }
 
 int main(void)
 {
-		DemInitThingsYouBeenDoing();							//All init moved to nicer spot
-		_delay_ms(2500);
-		char SendBuffer[200];
-
+	DemInitThingsYouBeenDoing();							//All init moved to nicer spot
+	_delay_ms(1000);
+	char SendBuffer[200];
+	
+	Sabertooth DriveSaber(&USARTD0, &PORTD);
 		
+	//- retract outer, retract inner
+	
+	
+	
+	upperAct.desiredPos = 3;
+	lowerAct.desiredPos = 1;
+	
+	lowerAct.enable();
+	upperAct.enable();
+	
 	while(1) {
-		DemStuffYouBeenDoingBefore();							//Your stepper code
-		int resultPA0 = ReadADC(0,1);
-		int resultPA1 = ReadADC(1,1);
+		DemStuffYouBeenDoingBefore();						   //Your stepper code
+		//int resultPA0 = 0;     //ReadADC(0,1);
+		//int resultPA1 = smoothADC(LOWER);     //ReadADC(1,1);  //Lower Act
 		
-		sprintf(SendBuffer, "ADC Value for PA0 is: %d.\r\nADC Value for PA1 is: %d.\r\n\r\n", resultPA0, resultPA1);	//Store the result in a string to be sent
+		
+		checkActPosition();
+		
+
+		sprintf(SendBuffer, "LowerAct Enabled: %d \r\n UpperAct Enabled: %d \r\n  \r\n", lowerAct.enabled, upperAct.enabled);
 		SendStringPC(SendBuffer);								//Send Dem Strings
-		_delay_ms(100);											//Wait so things don't die
+		
+		
+		if(lowerAct.enabled || upperAct.enabled){
+			DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));
+		}
+		
+		if(!lowerAct.enabled && !upperAct.enabled)
+			ERROR_SET();
+		
+		//_delay_ms(250);											//Wait so things don't die
+		//STATUS1_SET();
+		//_delay_ms(250);
+		//STATUS1_CLR();
+		
+		_delay_ms(10);  //For the lols
 	}
 }
+
+
+
+
+
+
