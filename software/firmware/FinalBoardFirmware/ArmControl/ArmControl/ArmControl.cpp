@@ -2,9 +2,13 @@
  * ArmControl.cpp
  *
  * Created: 4/22/2014 8:54:20 PM
+<<<<<<< HEAD
  *  Author: NICK!
  * PA0 is Step2POT
  * PA1 is Step1POT
+=======
+ *  Author: Nick
+>>>>>>> 034fb4b9ec9e5b3ad4812938ac8725fedd57e6b0
  */ 
 
 #define F_CPU 32000000UL

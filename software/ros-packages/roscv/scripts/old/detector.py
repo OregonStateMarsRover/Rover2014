@@ -56,15 +56,15 @@ class image_converter(object):
         baseline = self.points.T
         #next step get the disparity value d then use z = fb/d
         disp = struct.unpack(str(self.points.image.width*self.points.image.height)+'f', self.points.image.data)
-	self.left = self.points = None
+        self.left = self.points = None
         detect = colorDetect.colorDetect(left, [110,30, 140], [255, 85, 255])
         boxes = detect.detect()
         for data in boxes:
             x,y,w,h = data
             cv2.rectangle(left,(x,y),(x+w,y+h),(0,255,0),10)
             minDepth = self.minDepthInRegion(disp, focal, baseline, (x, y),(x+w, y+h), left.shape[0])
-	    if minDepth > 0:
-            	cv2.putText(left, str(minDepth) + " m", (x-w/2, y+h/2), cv2.FONT_HERSHEY_COMPLEX, 1, 255)
+            if minDepth > 0:
+                cv2.putText(left, str(minDepth) + " m", (x-w/2, y+h/2), cv2.FONT_HERSHEY_COMPLEX, 1, 255)
         try:
             self.image_left_pub.publish(self.bridge.cv_to_imgmsg(cv2.cv.fromarray(left), "bgr8"))
         except CvBridgeError, e:
@@ -79,8 +79,8 @@ class image_converter(object):
                     print item
                     #using formula z = fb/d
                     minn = min(minn, fb/item)
-	if minn == no:
-		minn = 0
+    if minn == no:
+        minn = 0
         return minn
 
 

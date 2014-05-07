@@ -26,10 +26,50 @@
       <file leaf-file-name="kmeans_cluster.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="123" column="49" selection-start="4126" selection-end="4126" vertical-scroll-proportion="0.4" vertical-offset="2058" max-vertical-offset="3312">
+            <state line="8" column="4" selection-start="106" selection-end="106" vertical-scroll-proportion="0.38196287" vertical-offset="0" max-vertical-offset="4212">
               <folding>
-                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#22#40#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="encoder.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/encoder.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="8" column="23" selection-start="161" selection-end="161" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="396">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="rmotors.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/rmotors.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="268" column="0" selection-start="8046" selection-end="8453" vertical-scroll-proportion="0.0" vertical-offset="4740" max-vertical-offset="5130">
+              <folding>
+                <element signature="e#22#34#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="find_base_station.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/find_base_station.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="46" column="25" selection-start="1688" selection-end="1688" vertical-scroll-proportion="0.0" vertical-offset="54" max-vertical-offset="1134">
+              <folding>
+                <element signature="e#24#34#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="detector.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/old/detector.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="0" selection-start="334" selection-end="334" vertical-scroll-proportion="0.0" vertical-offset="54" max-vertical-offset="1836">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -49,8 +89,12 @@
         <option value="$PROJECT_DIR$/xbox_sender.py" />
         <option value="$PROJECT_DIR$/better_sender.py" />
         <option value="$PROJECT_DIR$/kmeans-clustering.py" />
-        <option value="$PROJECT_DIR$/rmotors.py" />
         <option value="$PROJECT_DIR$/haralick.py" />
+        <option value="$PROJECT_DIR$/socket2ros.py" />
+        <option value="$PROJECT_DIR$/encoder.py" />
+        <option value="$PROJECT_DIR$/rmotors.py" />
+        <option value="$PROJECT_DIR$/old/detector.py" />
+        <option value="$PROJECT_DIR$/find_base_station.py" />
         <option value="$PROJECT_DIR$/kmeans_cluster.py" />
       </list>
     </option>
@@ -102,20 +146,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test_images" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -201,6 +231,24 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="scripts" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/haralick.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="encoder" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="scripts" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/encoder.py" />
       <option name="PARAMETERS" value="" />
       <RunnerSettings RunnerId="PythonRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
@@ -347,19 +395,21 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <list size="5">
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Python.kmeans_cluster" />
       <item index="1" class="java.lang.String" itemvalue="Python.pyramid_match" />
       <item index="2" class="java.lang.String" itemvalue="Python.brute_match" />
       <item index="3" class="java.lang.String" itemvalue="Python.xbox_sender" />
       <item index="4" class="java.lang.String" itemvalue="Python.haralick" />
+      <item index="5" class="java.lang.String" itemvalue="Python.encoder" />
     </list>
     <recent_temporary>
-      <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.haralick" />
-        <item index="1" class="java.lang.String" itemvalue="Python.xbox_sender" />
-        <item index="2" class="java.lang.String" itemvalue="Python.brute_match" />
-        <item index="3" class="java.lang.String" itemvalue="Python.pyramid_match" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.encoder" />
+        <item index="1" class="java.lang.String" itemvalue="Python.haralick" />
+        <item index="2" class="java.lang.String" itemvalue="Python.xbox_sender" />
+        <item index="3" class="java.lang.String" itemvalue="Python.brute_match" />
+        <item index="4" class="java.lang.String" itemvalue="Python.pyramid_match" />
       </list>
     </recent_temporary>
   </component>
@@ -377,16 +427,16 @@
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905295" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24963397" sideWeight="0.67255217" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39967898" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32744783" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -460,20 +510,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/socket2ros.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="630" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/rmotors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="2" selection-start="1409" selection-end="1409" vertical-scroll-proportion="0.18461539" vertical-offset="900" max-vertical-offset="4518">
-          <folding>
-            <element signature="e#22#34#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/haralick.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="176" column="17" selection-start="7179" selection-end="7179" vertical-scroll-proportion="-3.6611571" vertical-offset="4497" max-vertical-offset="4968">
@@ -483,11 +519,57 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/old/watcher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="0" selection-start="220" selection-end="265" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1980">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/socket2ros.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="49" selection-start="508" selection-end="610" vertical-scroll-proportion="0.41538462" vertical-offset="162" max-vertical-offset="630">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/encoder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="23" selection-start="161" selection-end="161" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="396">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rmotors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="268" column="0" selection-start="8046" selection-end="8453" vertical-scroll-proportion="0.0" vertical-offset="4740" max-vertical-offset="5130">
+          <folding>
+            <element signature="e#22#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/old/detector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="0" selection-start="334" selection-end="334" vertical-scroll-proportion="0.0" vertical-offset="54" max-vertical-offset="1836">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/find_base_station.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="46" column="25" selection-start="1688" selection-end="1688" vertical-scroll-proportion="0.0" vertical-offset="54" max-vertical-offset="1134">
+          <folding>
+            <element signature="e#24#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/kmeans_cluster.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="123" column="49" selection-start="4126" selection-end="4126" vertical-scroll-proportion="0.4" vertical-offset="2058" max-vertical-offset="3312">
+        <state line="8" column="4" selection-start="106" selection-end="106" vertical-scroll-proportion="0.38196287" vertical-offset="0" max-vertical-offset="4212">
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#22#40#0" expanded="true" />
           </folding>
         </state>
       </provider>

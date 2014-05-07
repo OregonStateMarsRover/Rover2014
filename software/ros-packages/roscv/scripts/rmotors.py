@@ -4,7 +4,7 @@ import time
 from std_msgs.msg import String
 import itertools #Used to break apart string
 import collections #used for the command queue
-
+import threading
 
 import signal
 import sys
@@ -12,13 +12,6 @@ import sys
 import os
 import serial
 from serial.tools import list_ports
-
-"""
-" TODO to fix this code:
-" Switch the rospy.Timer to a threading.Timer like what is used here https://docs.python.org/2/library/threading.html#timer-objects
-" Add a send stop byte in the update function when the q is empty
-" Store threading timers in an array that you cancel when ever a flush is sent so that timers can't build up.
-"""
 
 
 def handler(signum, frame):
@@ -77,10 +70,11 @@ class Motor(object):
     ramp_rate = 1
 
     def __init__(self):
+        self.stopped = False
         self.serial = SerialHandler()
         self.serial.get_control_port("ID: MainDrive")
         time.sleep(2)
-        self.serial.write(chr(68))
+        self.serial.write('r')
         time.sleep(2)
         open(os.devnull, 'w')
 
@@ -119,9 +113,22 @@ class Motor(object):
         self.serial.write(chr(self.right_speed))
         self.serial.write(chr(0 ^ self.left_speed ^ self.right_speed))
         self.serial.write(chr(255))
-        while not self.serial.read(1) == 'r':
+        while not self.read_packet:
             pass
         time.sleep(.02)
+
+    def read_packet(self):
+        read = self.serial.read(3)
+        if ord(read[0]) == 255 and ord(read[2]) == 255:
+            if (ord(read[1]) & 1) == 1:
+                self.stopped = False
+                self.estop = 0
+            elif ord(read[1]) == 0:
+                self.stopped = True
+                self.estop = 1
+            if (ord(read[1]) & 11) > 10:
+                time.sleep(5)
+        return False
 
 
 class RosController(object):
@@ -135,7 +142,8 @@ class RosController(object):
     def __init__(self, status_to, commands_from):
         self.q = collections.deque()
         self.pub = rospy.Publisher(status_to, String)
-
+        self.thread = None
+        self.distance = 0
         self.m = Motor()
 
         rospy.Subscriber(commands_from, String, self.read_commands)
@@ -185,6 +193,7 @@ class MotorController(RosController):
 
     def update(self, event=None):
         if len(self.q) == 0:
+            self.m.change(self.meters_to_char(0), self.meters_to_char(0), self.m.estop)
             return
         action = self.q[0]
         value = self.q[1]
@@ -194,8 +203,7 @@ class MotorController(RosController):
         self.q.popleft()
 
         if action == "f" or action == "b":
-            spd = self.meters_to_char(self.speed
-                            if action == "f" else -self.speed)
+            spd = self.meters_to_char(self.speed if action == "f" else -self.speed)
             self.m.change(spd, spd, 0) 
             self.wait_distance(value)
 
@@ -220,9 +228,10 @@ class MotorController(RosController):
             length = 0
         else:
             length = float(distance)/(self.speed*a_mps)
+        self.distance = length
+        self.thread = MotorStopperTimer(self.update, self.distance)
+        self.thread.start()
 
-        rospy.Timer(rospy.Duration(length), self.update, True)
-        
 
     def wait_angle(self, angle):
         start = time.time()
@@ -231,9 +240,27 @@ class MotorController(RosController):
             angle = 360 - angle
         #assume one degree a second
         dps = 1
-        
-        rospy.Timer(rospy.Duration(angle*dps), self.update, True) 
-        
+        self.distance = angle*dps
+        if self.thread is not None:
+            self.thread.cancel()
+        self.thread = MotorStopperTimer(self.update, self.distance)
+        self.thread.start()
+
+
+class MotorStopperTimer(threading.Thread):
+    def __init__(self, update, duration):
+        threading.Thread.__init__(self)
+        self.update = update
+        self.time = time.time()+duration
+        self.event = threading.Event()
+
+    def run(self):
+        while not self.event.is_set():
+            if time.time() > self.time:
+                break
+            self.event.wait(.05)
+
+
 
 
 
