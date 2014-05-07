@@ -119,7 +119,7 @@ void DemInitThingsYouBeenDoing(){
 	MD2_ENABLE();
 	
 	//Setup Microstepping
-	MD2_M0_SET();
+	MD2_M0_SET();  //Small amount of micro stepping is sufficient 
 	MD2_M1_CLR();
 	MD2_M2_CLR();
 	
@@ -248,10 +248,6 @@ int main(void)
 	char SendBuffer[200];
 	
 	Sabertooth DriveSaber(&USARTD0, &PORTD);
-		
-	//- retract outer, retract inner
-	
-	
 	
 	upperAct.desiredPos = 2;
 	lowerAct.desiredPos = 3.5;
@@ -263,7 +259,8 @@ int main(void)
 	
 	MD2_DIR_CLR();
 	
-	baseStepper.rotateBase(90);
+	baseStepper.rotateBase(90);  //Note that this function takes an angle relative
+								 //to the absolute 0 on the robot
 	
 	_delay_ms(2000);
 
@@ -276,54 +273,26 @@ int main(void)
 	_delay_ms(2000);
 	
 	baseStepper.rotateBase(180);
-	
-	
 
-	/*
-	
-	for(int i = 0; i < 50; ++i){
-		MD2_STEP_CLR();
-		_delay_ms(10);
-		MD2_STEP_SET();
-		_delay_ms(10);
-	}
-	
-	*/
+	/////////////////   DEBUG (and not wasting power) purposes!
+	MD2_DISABLE();
+	/////////////////
 
-	sprintf(SendBuffer, "Multiplier: %d \r\n  \r\n", (int) baseStepper.multiplier);
-	SendStringPC(SendBuffer);								//Send Dem Strings
+//	sprintf(SendBuffer, "Multiplier: %d \r\n  \r\n", (int) baseStepper.multiplier);
+//	SendStringPC(SendBuffer);								//Send Dem Strings
 	
 	while(1) {
-		//int resultPA0 = 0;     //ReadADC(0,1);
-		//int resultPA1 = smoothADC(LOWER);     //ReadADC(1,1);  //Lower Act
-		
-		
 		checkActPosition();
-		
-
-		//sprintf(SendBuffer, "LowerAct Enabled: %d \r\n UpperAct Enabled: %d \r\n  \r\n", lowerAct.enabled, upperAct.enabled);
-		
-		
 		
 		if(lowerAct.enabled || upperAct.enabled){
 			DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));
 		}
 		else {
 			ERROR_SET();
-			DriveSaber.ParsePacket(127,127);  //This line should only be executed once
-											  //unlike the current implementation
+			DriveSaber.ParsePacket(127,127);  //TODO: This line should only be executed
+											  //once, unlike the current implementation
 		}
 		
-		/*
-		MD2_DIR_CLR();  //CLR is Counter-clockwise
-		
-		MD2_STEP_CLR();
-		_delay_us(2000);
-		MD2_STEP_SET();
-		_delay_us(2000);
-		*/
-
-
 		/*
 		
 		gripStepper.enable();

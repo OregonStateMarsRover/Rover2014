@@ -101,7 +101,7 @@ void rotateStepper::moveBase(int degreesToMove){
 		MD2_STEP_CLR();
 		_delay_ms(1);
 		MD2_STEP_SET();
-		_delay_ms(10);
+		_delay_ms(7);
 	}
 	
 }

@@ -5,6 +5,9 @@
 * Author: Nick
 */
 
+//LINEAR ACTUATOR REFERENCE DIRECTION
+//- retract outer, retract inner
+
 
 #include "motorInfo.h"
 
