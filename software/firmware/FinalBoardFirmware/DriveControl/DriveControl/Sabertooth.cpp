@@ -10,6 +10,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+
 Sabertooth::Sabertooth(USART_t *USART_SaberUsart, PORT_t * SaberPORT)
 {
 	Sabertooth_USART = USART_SaberUsart;				//Sets the private variable to the USART being used
@@ -95,6 +96,10 @@ unsigned char Sabertooth::SaberChecksum(unsigned char command, unsigned char val
 }
 
 void Sabertooth::SendDriveCmd(char command, char value){
+	////////////////////////////////Testing.....
+	//while(!USART_IsTXDataRegisterEmpty(Sabertooth_USART));						//Necessary to make sure we don't overwrite data in the buffer
+	//USART_PutChar(Sabertooth_USART, AUTOBAUD_BYTE);								//Send the autobaud byte to get the sabertooth communicating
+	////////////////////////////////
 	while(!USART_IsTXDataRegisterEmpty(Sabertooth_USART));						//Necessary to make sure we don't overwrite data in the buffer
 	USART_PutChar(Sabertooth_USART, SABERTOOTHADDRESS);							//Sends the address to the sabertooth
 	while(!USART_IsTXDataRegisterEmpty(Sabertooth_USART));

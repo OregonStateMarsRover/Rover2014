@@ -2,65 +2,88 @@
  * ArmControl.cpp
  *
  * Created: 4/22/2014 8:54:20 PM
+<<<<<<< HEAD
+ *  Author: NICK!
+ * PA0 is Step2POT
+ * PA1 is Step1POT
+=======
+
+PB3 = Limit 1 = Grip Limit
+PA3 = Limit 2 = Grip Close
+PA2 = Limit 3 = Rotation Calibration
+
+
  *  Author: Nick
+>>>>>>> 034fb4b9ec9e5b3ad4812938ac8725fedd57e6b0
  */ 
 
 #define F_CPU 32000000UL
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include "usart_driver.h"
-#include "avr_compiler.h"
+#include <stdio.h>
+
+extern "C" {
+	#include "avr_compiler.h"
+	#include "usart_driver.h"
+};
+
+#include "Sabertooth.h"
 #include "XMegaMacros.h"
+#include "adc.h"  //Include the ADC functions
+#include "motorInfo.h"  //Include the motor information
+#include "stepperInfo.h"
+#include "rotateStepper.h"
 
-/*! Define that selects the Usart used in example. */
-#define USART USARTC0
+int swap = 0;
+USART_data_t USART_PC_Data;
 
-/*! Success variable, used to test driver. */
-bool success;
+motorInfo lowerAct;
+motorInfo upperAct;
+stepperInfo gripStepper;
+rotateStepper baseStepper;
+
+#define LOWER 0
+#define UPPER 1
+
+#define GRIP 0
+#define RELEASE 1
 
 
-int main(void)
-{
+void SetXMEGA32MhzCalibrated(){
+	CCP = CCP_IOREG_gc;						//Disable register security for oscillator update
+	OSC.CTRL = OSC_RC32MEN_bm;				//Enable 32MHz oscillator
+	while(!(OSC.STATUS & OSC_RC32MRDY_bm)); //Wait for oscillator to be ready
+	CCP = CCP_IOREG_gc;						//Disable register security for clock update
+	CLK.CTRL = CLK_SCLKSEL_RC32M_gc;		//Switch to 32MHz clock
+
+
+	CCP = CCP_IOREG_gc;						//Disable register security for oscillator update
+	OSC.CTRL |= OSC_RC32KEN_bm;				//Enable 32Khz oscillator
+	while(!(OSC.STATUS & OSC_RC32KRDY_bm)); //Wait for oscillator to be ready
+	OSC.DFLLCTRL &= ~OSC_RC32MCREF_bm;		//Set up calibration source to be 32Khz crystal
+	DFLLRC32M.CTRL |= DFLL_ENABLE_bm;		//Enable calibration of 32Mhz oscillator
+}
+
+void SetupPCComms(){
+	PORTC.DIRSET = PIN3_bm;																			//Sets TX Pin as output
+	PORTC.DIRCLR = PIN2_bm;																			//Sets RX pin as input
 	
-	CCP = CCP_IOREG_gc;              // disable register security for oscillator update
-	OSC.CTRL = OSC_RC32MEN_bm;       // enable 32MHz oscillator
-	while(!(OSC.STATUS & OSC_RC32MRDY_bm)); // wait for oscillator to be ready
-	CCP = CCP_IOREG_gc;              // disable register security for clock update
-	CLK.CTRL = CLK_SCLKSEL_RC32M_gc; // switch to 32MHz clock
-	
-	/* Variable used to send and receive data. */
-	uint8_t sendData[] = "This is a string\r\n";
-	//uint8_t receivedData;
-
-	/* This PORT setting is only valid to USARTC0 if other USARTs is used a
-	 * different PORT and/or pins is used. */
-	/* PIN3 (TXD0) as output. */
-	PORTC.DIRSET = PIN3_bm;
-
-	/* PC2 (RXD0) as input. */
-	PORTC.DIRCLR = PIN2_bm;
-
-	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
-	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
-
-	/* Set Baudrate to 9600 bps:
-	 * Use the default I/O clock fequency that is 2 MHz.
-	 * Do not use the baudrate scale factor
-	 *
-	 * Baudrate select = (1/(16*(((I/O clock frequency)/Baudrate)-1)
-	 *                 = 12
-	 */
-	USART_Baudrate_Set(&USART, 207 , 0);
-
-	/* Enable both RX and TX. */
-	USART_Rx_Enable(&USART);
-	USART_Tx_Enable(&USART);
+	USART_InterruptDriver_Initialize(&USART_PC_Data, &USARTC0, USART_DREINTLVL_LO_gc);				//Initialize USARTC0 as interrupt driven serial and clear it's buffers
+	USART_Format_Set(USART_PC_Data.usart, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);	//Set the data format of 8 bits, no parity, 1 stop bit
+	USART_RxdInterruptLevel_Set(USART_PC_Data.usart, USART_RXCINTLVL_LO_gc);						//Enable the receive interrupt
+	USART_Baudrate_Set(&USARTC0, 207 , 0);															//Set baudrate to 9600 with 32Mhz system clock
+	USART_Rx_Enable(USART_PC_Data.usart);															//Enable receiving over serial
+	USART_Tx_Enable(USART_PC_Data.usart);															//Enable transmitting over serial
+	PMIC.CTRL |= PMIC_LOLVLEX_bm;																	//Enable PMIC interrupt level low (No idea what this does, but is necessary)
+}
 
 
-	/* Assume that everything is OK. */
-	success = true;
-	/* Send data from 255 down to 0*/
+//Motor 1 is Gripper
+//Motor 2 is Base Stepper
+void DemInitThingsYouBeenDoing(){
+	SetXMEGA32MhzCalibrated();
+	SetupPCComms();
 	
 	//Setup Status and Error LEDS
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
@@ -71,10 +94,14 @@ int main(void)
 	PORTB.DIRSET = (PIN0_bm | PIN1_bm | PIN2_bm);  //Second set of M settings
 
 	//Setup Inputs
-	PORTA.DIRCLR = (PIN2_bm);
+	PORTA.DIRCLR = (PIN2_bm); //Rotation Calibration
+	PORTA.DIRCLR = (PIN3_bm); //Grip Close
+	PORTB.DIRCLR = (PIN3_bm); //Grip Limit	
+		
+
+	//GRIP STEPPER is MD1
 
 	//SETUP "UPPER" DRIVER
-	//Set the enable pin low (disable high)
 	MD1_DISABLE();
 	
 	//Setup Microstepping
@@ -85,78 +112,212 @@ int main(void)
 	MD1_DIR_CLR();
 	MD1_STEP_CLR();
 	
+	
+	//BASE STEPPER is MD2
+	
 	//Motor Driver 2 setup
 	MD2_ENABLE();
 	
 	//Setup Microstepping
-	MD2_M0_CLR();
+	MD2_M0_SET();  //Small amount of micro stepping is sufficient 
 	MD2_M1_CLR();
 	MD2_M2_CLR();
 	
 	MD2_DIR_CLR();
 	MD2_STEP_CLR();
-	
-	
-	int swap = 0;
-	
-	while(1) {
-		int i = 0;
-		while(sendData[i] != '\0') {
-		    /* Send one char. */
-			do{
-				/* Wait until it is possible to put data into TX data register.
-				 * NOTE: If TXDataRegister never becomes empty this will be a DEADLOCK. */
-			}while(!USART_IsTXDataRegisterEmpty(&USART));
-			USART_PutChar(&USART, sendData[i]);
-			i++;
-			//uint16_t timeout = 1000;
-			/* Receive one char. */
-			//do{
-			//	/* Wait until data received or a timeout.*/
-			//	timeout--;
-			//}while(!USART_IsRXComplete(&USART) && timeout!=0);
-			//receivedData = USART_GetChar(&USART);
-			
-			//if(receivedData != 0){
-			//USART_PutChar(&USART, receivedData);
-			//receivedData = 0;
-			//}
-			/* Check the received data. */
-		}
+}
 
-		/* Disable both RX and TX. */
-
-
-		//PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
-		//PORTD.OUTSET = PIN5_bm;
-		MD2_STEP_SET();
-		_delay_us(60);
-		MD2_STEP_CLR();
-		//PORTD.OUTCLR = PIN5_bm;
-		//PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);
-		_delay_us(60);
-		
-		++swap;
-		
-		if(swap > 250){
-			MD2_DIR_SET();
-			STATUS1_CLR();
-			STATUS2_SET();
-		}
-		else {
-			MD2_DIR_CLR();
-			STATUS1_SET();
-			STATUS2_CLR();
-		}
-		if(swap > 500){
-			swap = 0;
-		}
-		
-		if((PORTA.IN & (1 << PIN0_bp)) == 0){
-			ERROR_SET();
-		}
-		else {
-			ERROR_CLR();
-		}
+void SendStringPC(char *stufftosend){
+	for(int i = 0 ; stufftosend[i] != '\0' ; i++){
+		while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+		USART_PutChar(&USARTC0, stufftosend[i]);	
 	}
 }
+
+
+//DOCUMENTATION NEEDED :D
+double abs(double input){
+	if(input > 0)
+		return input;
+	else
+		return input * -1;
+}
+
+//PA1 is lower act
+
+//If a 0 is passed in, then the lower act is read
+//0 = LOWER ACT
+//1 = UPPER ACT
+int smoothADC(int act){
+	const int smoothFactor = 7;
+	int count = 0;
+	for(int i = 0; i < smoothFactor; ++i){
+		if(act == LOWER){ 
+			count += ReadADC(1,1);	
+		}
+		else if(act == UPPER) {
+			count += ReadADC(0,1);
+		}
+		_delay_ms(1);
+	}
+	return count/smoothFactor;
+}
+
+//lowerAct   upperAct
+void checkActPosition(){
+	
+	if (abs(lowerAct.currentPos - lowerAct.desiredPos) < lowerAct.acceptableError){
+		++lowerAct.acceptableCount;
+	}
+	else{
+		lowerAct.acceptableCount = 0;
+	}
+	if (abs(upperAct.currentPos - upperAct.desiredPos) < upperAct.acceptableError){
+		++upperAct.acceptableCount;
+	}
+	else{
+		upperAct.acceptableCount = 0;
+	}
+	
+	if(upperAct.acceptableCount >= upperAct.acceptableCountMax){
+		upperAct.disable();
+	}
+	if(lowerAct.acceptableCount >= upperAct.acceptableCountMax){
+		lowerAct.disable();
+	}
+	
+	
+	lowerAct.currentPos = smoothADC(LOWER)/58.13 -.41;
+	upperAct.currentPos = smoothADC(UPPER)/58.13 -.41;
+}
+
+int getMotorSpeed(int act){
+		
+	if(act == LOWER){
+		if(abs(lowerAct.currentPos - lowerAct.desiredPos) < lowerAct.slowRange/2)
+			return lowerAct.speed / 3;
+		else if(abs(lowerAct.currentPos - lowerAct.desiredPos) < lowerAct.slowRange)
+			return lowerAct.speed / 2;
+		else
+			return lowerAct.speed;
+	}
+	else if (act == UPPER){
+		if(abs(upperAct.currentPos - upperAct.desiredPos) < upperAct.slowRange/2)
+			return upperAct.speed / 3;
+		else if(abs(upperAct.currentPos - upperAct.desiredPos) < upperAct.slowRange)
+			return upperAct.speed / 2;
+		else
+			return upperAct.speed;
+	}
+	
+	
+	////////
+	return 0;
+}
+
+/*Returns a 1 or a -1, depending on whether the actuator needs to retract 
+  or extend
+*/
+int getMotorDir(int act){
+	if(act == LOWER){
+		if(!lowerAct.enabled)
+			return 0;
+		
+		if(lowerAct.currentPos > lowerAct.desiredPos)
+			return -1;
+		else
+			return 1;
+	}
+	else if(act == UPPER){
+		if(!upperAct.enabled)
+			return 0;
+		
+		if(upperAct.currentPos > upperAct.desiredPos)
+			return -1;
+		else
+			return 1;
+	}
+	/////////
+	return 0;
+}
+
+int main(void)
+{
+	DemInitThingsYouBeenDoing();							//All init moved to nicer spot
+	_delay_ms(1000);
+	char SendBuffer[200];
+	
+	Sabertooth DriveSaber(&USARTD0, &PORTD);
+	
+	upperAct.desiredPos = 2;
+	lowerAct.desiredPos = 3.5;
+	
+//	lowerAct.enable();
+//	upperAct.enable();
+	
+	baseStepper.calibrateBase();
+	
+	MD2_DIR_CLR();
+	
+	baseStepper.rotateBase(90);  //Note that this function takes an angle relative
+								 //to the absolute 0 on the robot
+	
+	_delay_ms(2000);
+
+	baseStepper.rotateBase(45);
+	
+	_delay_ms(2000);
+	
+	baseStepper.rotateBase(0);
+	
+	_delay_ms(2000);
+	
+	baseStepper.rotateBase(180);
+
+	/////////////////   DEBUG (and not wasting power) purposes!
+	MD2_DISABLE();
+	/////////////////
+
+//	sprintf(SendBuffer, "Multiplier: %d \r\n  \r\n", (int) baseStepper.multiplier);
+//	SendStringPC(SendBuffer);								//Send Dem Strings
+	
+	while(1) {
+		checkActPosition();
+		
+		if(lowerAct.enabled || upperAct.enabled){
+			DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));
+		}
+		else {
+			ERROR_SET();
+			DriveSaber.ParsePacket(127,127);  //TODO: This line should only be executed
+											  //once, unlike the current implementation
+		}
+		
+		/*
+		
+		gripStepper.enable();
+		
+		gripStepper.processCommand(GRIP);
+		
+		_delay_ms(2000);		
+
+		gripStepper.enable();
+
+		gripStepper.processCommand(RELEASE);
+
+		_delay_ms(2000);
+
+		*/
+
+		_delay_ms(250);
+			
+		
+		_delay_ms(10);  //For the lols
+	}
+}
+
+
+
+
+
+

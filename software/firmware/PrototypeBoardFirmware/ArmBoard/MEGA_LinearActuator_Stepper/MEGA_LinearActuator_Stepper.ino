@@ -668,16 +668,16 @@ void processGrip(){
    
    //Set the dirction of the stepper
    if (!stepper2.currentState){  //If grip command
-   digitalWrite(stepper2.dirPin, HIGH);
-   alternate = 0;  //Not necessary
-   lcd.setCursor(9,0);
-   lcd.print("Release");
+     digitalWrite(stepper2.dirPin, HIGH);
+     alternate = 0;  //Not necessary
+     //lcd.setCursor(9,0);
+     //lcd.print("Release");
    }
    else {  //If open command
-   alternate = 1;  //Not necessary
-   digitalWrite(stepper2.dirPin, LOW);
-   lcd.setCursor(10,0);
-   lcd.print("Grip");
+     alternate = 1;  //Not necessary
+     digitalWrite(stepper2.dirPin, LOW);
+     //lcd.setCursor(10,0);
+     //lcd.print("Grip");
    }
    
    //Force the stepper to move beyond the throw of the switch
@@ -700,7 +700,7 @@ void processGrip(){
    
    }
    else
-   stepper2.init = 0;
+     stepper2.init = 0;
    
    
    

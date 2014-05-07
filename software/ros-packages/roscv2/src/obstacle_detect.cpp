@@ -158,7 +158,7 @@ void loop() {
 		/* Loop backwards-- farthest first, panter's algorithm */
 		for (int i = slice_bboxes.size()-1; i >= 0; i--) {
 			/* Calculate hue */
-			int hue = 120 - (int)(((float)i)/((float)slice_bboxes.size())*120.0);
+			int hue = (int)(((float)i)/((float)slice_bboxes.size())*120.0);
 			cv::Scalar color = cv::Scalar(hue, 255, 255);
 			for (int j = 0; j < slice_bboxes[i].size(); j++) { //TODO: Iterators???
 				/* Get / resize boxes */

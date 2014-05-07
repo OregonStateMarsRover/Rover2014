@@ -39,14 +39,16 @@ if __name__ == '__main__':
             continue
         if abs(vert) > abs(turn):
             if vert < 0:
-                send_string(sock, "f01")
+                send_string(sock, "f10")
             else:
-                send_string(sock, "b01")
+                send_string(sock, "b10")
         elif abs(vert) < abs(turn):
-            if turn > 0:
-                send_string(sock, "r01")
+            if turn > 1:
+                send_string(sock, "r90")
+                time.sleep(1.0) 
             else:
-                send_string(sock, "r359")
+                send_string(sock, "r270")
+                time.sleep(1.0) 
 
         clock.tick(10)
 

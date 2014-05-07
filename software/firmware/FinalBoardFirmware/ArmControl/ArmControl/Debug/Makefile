@@ -36,7 +36,13 @@ SUBDIRS :=
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../ArmControl.cpp
+../adc.cpp \
+../ArmControl.cpp \
+../motorInfo.cpp \
+../rotateStepper.cpp \
+../Sabertooth.cpp \
+../stepperInfo.cpp \
+../usart_driver.c
 
 
 PREPROCESSING_SRCS += 
@@ -46,16 +52,40 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-ArmControl.o
+adc.o \
+ArmControl.o \
+motorInfo.o \
+rotateStepper.o \
+Sabertooth.o \
+stepperInfo.o \
+usart_driver.o
 
 OBJS_AS_ARGS +=  \
-ArmControl.o
+adc.o \
+ArmControl.o \
+motorInfo.o \
+rotateStepper.o \
+Sabertooth.o \
+stepperInfo.o \
+usart_driver.o
 
 C_DEPS +=  \
-ArmControl.d
+adc.d \
+ArmControl.d \
+motorInfo.d \
+rotateStepper.d \
+Sabertooth.d \
+stepperInfo.d \
+usart_driver.d
 
 C_DEPS_AS_ARGS +=  \
-ArmControl.d
+adc.d \
+ArmControl.d \
+motorInfo.d \
+rotateStepper.d \
+Sabertooth.d \
+stepperInfo.d \
+usart_driver.d
 
 OUTPUT_FILE_PATH +=ArmControl.elf
 
@@ -71,10 +101,29 @@ LIB_DEP+=
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+./%.o: .././%.c
+	@echo Building file: $<
+	@echo Invoking: AVR8/GNU C Compiler : 4.8.1
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1051\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atxmega32d4 -c -std=gnu99  -Wl,-7u,vfprintf -lprintf_flt -lm -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
 ./%.o: .././%.cpp
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler : 4.8.1
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1051\avr8-gnu-toolchain\bin\avr-g++.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atxmega32d4 -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1051\avr8-gnu-toolchain\bin\avr-g++.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atxmega32d4 -c -Wl,-u,vfprintf -lprintf_flt -lm -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
 	@echo Finished building: $<
 	
 

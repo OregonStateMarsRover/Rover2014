@@ -37,7 +37,17 @@ unsigned char PCComsChecksum(unsigned char command, unsigned char left, unsigned
 	
 }
 
-void SendDriveControlStatus(USART_t *PCComs, bool IsRoving){
+void SendDriveControlStatus(USART_t *PCComs, bool IsRoving, bool Checksum){
 	while(!USART_IsTXDataRegisterEmpty(PCComs));
-	USART_PutChar(PCComs, 'r');
+	USART_PutChar(PCComs, 255);
+	while(!USART_IsTXDataRegisterEmpty(PCComs));
+	USART_PutChar(PCComs, ((IsRoving << 0) | (Checksum << 1)));
+	while(!USART_IsTXDataRegisterEmpty(PCComs));
+	USART_PutChar(PCComs, 255);
+}
+
+void FlushSerialBuffer(USART_data_t *UsartBuffer){
+	while(USART_RXBufferData_Available(UsartBuffer)){
+		USART_RXBuffer_GetByte(UsartBuffer);
+	}
 }
