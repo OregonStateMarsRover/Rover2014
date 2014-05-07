@@ -4,8 +4,9 @@ import rospy
 import std_msgs
 import math
 
-ROVER_WIDTH=1.0
-WHEEL_DIAMETER=1.0
+#TODO: THESE SUCK
+ROVER_WIDTH=1.093
+WHEEL_DIAMETER=0.284
 WHEEL_CIRC=math.pi*WHEEL_DIAMETER
 
 class Localization:
@@ -49,13 +50,18 @@ class Localization:
 		right_dist = right_rot * WHEEL_CIRC
 
 		dist = 0.5 * (left_dist + right_dist)
-		rot = (left_dist - right_dist) / (ROVER_WIDTH * math.pi)
+		rot = (left_dist - right_dist) / (ROVER_WIDTH * 2.0 * math.pi)
 		#TODO: CHECK ABOVE
 
-		x = self.position[0] + math.cos(self.angle)
-		y = self.position[1] + math.sin(self.angle)
-		self.position = (x,y)
-		self.angle = self.angle + rot
+		xp = self.position[0] + dist * math.cos(self.angle)
+		yp = self.position[1] + dist * math.sin(self.angle)
+		self.position = (xp,yp)
+		ap = self.angle + rot
+		while ap > 2.0 * math.pi:
+			ap -= 2.0 * math.pi
+		while ap < 0:
+			ap += 2.0 * math.pi
+		self.angle = ap
 
 
 if __name__=="__main__":
