@@ -32,6 +32,7 @@ stepperInfo::~stepperInfo()
 } //~stepperInfo
 
 
+//Used for the gripping stepper
 void stepperInfo::processCommand(int cmd){
 	if(!enabled)
 		return;  //TODO: MAKE BETTER

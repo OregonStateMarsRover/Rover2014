@@ -33,6 +33,7 @@ extern "C" {
 #include "adc.h"  //Include the ADC functions
 #include "motorInfo.h"  //Include the motor information
 #include "stepperInfo.h"
+#include "rotateStepper.h"
 
 int swap = 0;
 USART_data_t USART_PC_Data;
@@ -40,6 +41,7 @@ USART_data_t USART_PC_Data;
 motorInfo lowerAct;
 motorInfo upperAct;
 stepperInfo gripStepper;
+rotateStepper baseStepper;
 
 #define LOWER 0
 #define UPPER 1
@@ -100,7 +102,7 @@ void DemInitThingsYouBeenDoing(){
 	//GRIP STEPPER is MD1
 
 	//SETUP "UPPER" DRIVER
-	MD1_ENABLE();
+	MD1_DISABLE();
 	
 	//Setup Microstepping
 	MD1_M0_CLR();
@@ -114,10 +116,10 @@ void DemInitThingsYouBeenDoing(){
 	//BASE STEPPER is MD2
 	
 	//Motor Driver 2 setup
-	MD2_DISABLE();
+	MD2_ENABLE();
 	
 	//Setup Microstepping
-	MD2_M0_CLR();
+	MD2_M0_SET();
 	MD2_M1_CLR();
 	MD2_M2_CLR();
 	
@@ -139,40 +141,6 @@ double abs(double input){
 		return input;
 	else
 		return input * -1;
-}
-
-void DemStuffYouBeenDoingBefore(){
-
-	/*	
-	MD2_STEP_SET();
-	_delay_ms(60);
-	MD2_STEP_CLR();
-
-	_delay_ms(60);
-	
-	++swap;
-	
-	if(swap > 250){
-		MD2_DIR_SET();
-		STATUS1_CLR();
-		STATUS2_SET();
-	}
-	else {
-		MD2_DIR_CLR();
-		STATUS1_SET();
-		STATUS2_CLR();
-	}
-	if(swap > 500){
-		swap = 0;
-	}
-	
-	if((PORTA.IN & (1 << PIN0_bp)) == 0){
-		ERROR_SET();
-	}
-	else {
-		ERROR_CLR();
-	}
-	*/
 }
 
 //PA1 is lower act
@@ -285,14 +253,47 @@ int main(void)
 	
 	
 	
-	upperAct.desiredPos = 3;
-	lowerAct.desiredPos = 1;
+	upperAct.desiredPos = 2;
+	lowerAct.desiredPos = 3.5;
 	
-	//lowerAct.enable();
-	//upperAct.enable();
+//	lowerAct.enable();
+//	upperAct.enable();
+	
+	baseStepper.calibrateBase();
+	
+	MD2_DIR_CLR();
+	
+	baseStepper.rotateBase(90);
+	
+	_delay_ms(2000);
+
+	baseStepper.rotateBase(45);
+	
+	_delay_ms(2000);
+	
+	baseStepper.rotateBase(0);
+	
+	_delay_ms(2000);
+	
+	baseStepper.rotateBase(180);
+	
+	
+
+	/*
+	
+	for(int i = 0; i < 50; ++i){
+		MD2_STEP_CLR();
+		_delay_ms(10);
+		MD2_STEP_SET();
+		_delay_ms(10);
+	}
+	
+	*/
+
+	sprintf(SendBuffer, "Multiplier: %d \r\n  \r\n", (int) baseStepper.multiplier);
+	SendStringPC(SendBuffer);								//Send Dem Strings
 	
 	while(1) {
-		DemStuffYouBeenDoingBefore();						   //Your stepper code
 		//int resultPA0 = 0;     //ReadADC(0,1);
 		//int resultPA1 = smoothADC(LOWER);     //ReadADC(1,1);  //Lower Act
 		
@@ -300,8 +301,8 @@ int main(void)
 		checkActPosition();
 		
 
-		sprintf(SendBuffer, "LowerAct Enabled: %d \r\n UpperAct Enabled: %d \r\n  \r\n", lowerAct.enabled, upperAct.enabled);
-		SendStringPC(SendBuffer);								//Send Dem Strings
+		//sprintf(SendBuffer, "LowerAct Enabled: %d \r\n UpperAct Enabled: %d \r\n  \r\n", lowerAct.enabled, upperAct.enabled);
+		
 		
 		
 		if(lowerAct.enabled || upperAct.enabled){
@@ -313,15 +314,14 @@ int main(void)
 											  //unlike the current implementation
 		}
 		
-			
-		//Stepper development
+		/*
+		MD2_DIR_CLR();  //CLR is Counter-clockwise
 		
-		//MD1_STEP_SET();
-		//_delay_us(500);
-		//MD1_STEP_CLR();
-		//_delay_us(500);
-		
-
+		MD2_STEP_CLR();
+		_delay_us(2000);
+		MD2_STEP_SET();
+		_delay_us(2000);
+		*/
 
 
 		/*
@@ -342,11 +342,6 @@ int main(void)
 
 		_delay_ms(250);
 			
-		
-		//_delay_ms(250);											//Wait so things don't die
-		//STATUS1_SET();
-		//_delay_ms(250);
-		//STATUS1_CLR();
 		
 		_delay_ms(10);  //For the lols
 	}

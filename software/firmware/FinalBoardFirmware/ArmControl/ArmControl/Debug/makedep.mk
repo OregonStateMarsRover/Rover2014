@@ -8,6 +8,8 @@ ArmControl.cpp
 
 motorInfo.cpp
 
+rotateStepper.cpp
+
 Sabertooth.cpp
 
 stepperInfo.cpp

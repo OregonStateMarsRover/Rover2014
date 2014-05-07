@@ -138,6 +138,12 @@
     <Compile Include="motorInfo.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rotateStepper.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rotateStepper.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Sabertooth.cpp">
       <SubType>compile</SubType>
     </Compile>

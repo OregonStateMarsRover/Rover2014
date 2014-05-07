@@ -13,7 +13,7 @@ motorInfo::motorInfo() {
 	acceptableCount = 0;
 	acceptableCountMax = 5;
 	acceptableError = .1;  //Needs calibration
-	slowRange = .5;
+	slowRange = .75;
 	speed = 50;
 	enabled = 0;
 	
