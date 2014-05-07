@@ -1,0 +1,248 @@
+
+PauseSwitch.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000112  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000002  00800060  00000112  000001a6  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000002  00800062  00800062  000001a8  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  000001a8  2**0
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000030  00000000  00000000  000001d8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   000001a3  00000000  00000000  00000208  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 00000141  00000000  00000000  000003ab  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   00000177  00000000  00000000  000004ec  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000054  00000000  00000000  00000664  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000222  00000000  00000000  000006b8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    0000003c  00000000  00000000  000008da  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000020  00000000  00000000  00000916  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0e c0       	rjmp	.+28     	; 0x1e <__ctors_end>
+   2:	28 c0       	rjmp	.+80     	; 0x54 <__bad_interrupt>
+   4:	27 c0       	rjmp	.+78     	; 0x54 <__bad_interrupt>
+   6:	26 c0       	rjmp	.+76     	; 0x54 <__bad_interrupt>
+   8:	25 c0       	rjmp	.+74     	; 0x54 <__bad_interrupt>
+   a:	24 c0       	rjmp	.+72     	; 0x54 <__bad_interrupt>
+   c:	23 c0       	rjmp	.+70     	; 0x54 <__bad_interrupt>
+   e:	22 c0       	rjmp	.+68     	; 0x54 <__bad_interrupt>
+  10:	21 c0       	rjmp	.+66     	; 0x54 <__bad_interrupt>
+  12:	20 c0       	rjmp	.+64     	; 0x54 <__bad_interrupt>
+  14:	4c c0       	rjmp	.+152    	; 0xae <__vector_10>
+  16:	1e c0       	rjmp	.+60     	; 0x54 <__bad_interrupt>
+  18:	1d c0       	rjmp	.+58     	; 0x54 <__bad_interrupt>
+  1a:	1c c0       	rjmp	.+56     	; 0x54 <__bad_interrupt>
+  1c:	1b c0       	rjmp	.+54     	; 0x54 <__bad_interrupt>
+
+0000001e <__ctors_end>:
+  1e:	11 24       	eor	r1, r1
+  20:	1f be       	out	0x3f, r1	; 63
+  22:	cf e5       	ldi	r28, 0x5F	; 95
+  24:	d2 e0       	ldi	r29, 0x02	; 2
+  26:	de bf       	out	0x3e, r29	; 62
+  28:	cd bf       	out	0x3d, r28	; 61
+
+0000002a <__do_copy_data>:
+  2a:	10 e0       	ldi	r17, 0x00	; 0
+  2c:	a0 e6       	ldi	r26, 0x60	; 96
+  2e:	b0 e0       	ldi	r27, 0x00	; 0
+  30:	e2 e1       	ldi	r30, 0x12	; 18
+  32:	f1 e0       	ldi	r31, 0x01	; 1
+  34:	02 c0       	rjmp	.+4      	; 0x3a <__do_copy_data+0x10>
+  36:	05 90       	lpm	r0, Z+
+  38:	0d 92       	st	X+, r0
+  3a:	a2 36       	cpi	r26, 0x62	; 98
+  3c:	b1 07       	cpc	r27, r17
+  3e:	d9 f7       	brne	.-10     	; 0x36 <__do_copy_data+0xc>
+
+00000040 <__do_clear_bss>:
+  40:	20 e0       	ldi	r18, 0x00	; 0
+  42:	a2 e6       	ldi	r26, 0x62	; 98
+  44:	b0 e0       	ldi	r27, 0x00	; 0
+  46:	01 c0       	rjmp	.+2      	; 0x4a <.do_clear_bss_start>
+
+00000048 <.do_clear_bss_loop>:
+  48:	1d 92       	st	X+, r1
+
+0000004a <.do_clear_bss_start>:
+  4a:	a4 36       	cpi	r26, 0x64	; 100
+  4c:	b2 07       	cpc	r27, r18
+  4e:	e1 f7       	brne	.-8      	; 0x48 <.do_clear_bss_loop>
+  50:	06 d0       	rcall	.+12     	; 0x5e <main>
+  52:	5d c0       	rjmp	.+186    	; 0x10e <_exit>
+
+00000054 <__bad_interrupt>:
+  54:	d5 cf       	rjmp	.-86     	; 0x0 <__vectors>
+
+00000056 <_Z12ButtonPushedv>:
+const unsigned char InterruptCountMax = 31;								//Hold our interrupt count max to make up for only having an 8 bit timer and needing 1Hz led flash
+volatile unsigned char LEDState = LIT;									//Holds the current Led state
+unsigned char RoverState = NOT_ROVING;									//Holds the current rover roving state
+	
+unsigned char ButtonPushed(void){
+	return ((BUTTON & PINB) == 0);										//Returns whether the button has been pushed (active low)
+  56:	86 b3       	in	r24, 0x16	; 22
+  58:	80 95       	com	r24
+}
+  5a:	81 70       	andi	r24, 0x01	; 1
+  5c:	08 95       	ret
+
+0000005e <main>:
+	
+int main(void)
+{
+	DDRB = (STATUSLED | XBEEIO);										//Set Outputs
+  5e:	88 e1       	ldi	r24, 0x18	; 24
+  60:	87 bb       	out	0x17, r24	; 23
+	DDRB &= ~(BUTTON);													//Set Inputs
+  62:	b8 98       	cbi	0x17, 0	; 23
+	PORTB |= (BUTTON);													//Enable Internal pull up resistor for Button
+  64:	c0 9a       	sbi	0x18, 0	; 24
+
+	TCCR0A = 0;															//Clear settings for timer counter 0 register A
+  66:	1a bc       	out	0x2a, r1	; 42
+	TCCR0B = 0;															//Clear settings for timer counter 0 register B
+  68:	13 be       	out	0x33, r1	; 51
+	TCNT0 = 0;															//zeros the count register
+  6a:	12 be       	out	0x32, r1	; 50
+
+	TCCR0B |= ((1 << CS02) | (1 << CS00));								//Sets the counter prescaler to 1024
+  6c:	83 b7       	in	r24, 0x33	; 51
+  6e:	85 60       	ori	r24, 0x05	; 5
+  70:	83 bf       	out	0x33, r24	; 51
+	TIMSK = (1 << OCIE0A);												//Sets an interrupt to trigger on counter hitting 255 for timer 0
+  72:	80 e1       	ldi	r24, 0x10	; 16
+  74:	89 bf       	out	0x39, r24	; 57
+
+	sei();																//Enable global interrupts
+  76:	78 94       	sei
+			if(RoverState == ROVING){									//If the button was pushed and the state was previously roving, switch to non-roving
+				PORTB &= ~XBEEIO;										//Send new roving state to rover
+				RoverState = NOT_ROVING;								//We are now not roving
+			}else if(RoverState == NOT_ROVING){							//If the button was pushed and the state was previously not roving, switch to roving
+				PORTB |= XBEEIO;										//Send new roving state to rover
+				RoverState = ROVING;									//We are now roving
+  78:	c1 e0       	ldi	r28, 0x01	; 1
+	TIMSK = (1 << OCIE0A);												//Sets an interrupt to trigger on counter hitting 255 for timer 0
+
+	sei();																//Enable global interrupts
+	
+    while(1){	
+		if(ButtonPushed() == 1){
+  7a:	ed df       	rcall	.-38     	; 0x56 <_Z12ButtonPushedv>
+  7c:	81 30       	cpi	r24, 0x01	; 1
+  7e:	e9 f7       	brne	.-6      	; 0x7a <main+0x1c>
+			if(RoverState == ROVING){									//If the button was pushed and the state was previously roving, switch to non-roving
+  80:	80 91 62 00 	lds	r24, 0x0062
+  84:	81 30       	cpi	r24, 0x01	; 1
+  86:	21 f4       	brne	.+8      	; 0x90 <main+0x32>
+				PORTB &= ~XBEEIO;										//Send new roving state to rover
+  88:	c3 98       	cbi	0x18, 3	; 24
+				RoverState = NOT_ROVING;								//We are now not roving
+  8a:	10 92 62 00 	sts	0x0062, r1
+  8e:	05 c0       	rjmp	.+10     	; 0x9a <main+0x3c>
+			}else if(RoverState == NOT_ROVING){							//If the button was pushed and the state was previously not roving, switch to roving
+  90:	81 11       	cpse	r24, r1
+  92:	03 c0       	rjmp	.+6      	; 0x9a <main+0x3c>
+				PORTB |= XBEEIO;										//Send new roving state to rover
+  94:	c3 9a       	sbi	0x18, 3	; 24
+				RoverState = ROVING;									//We are now roving
+  96:	c0 93 62 00 	sts	0x0062, r28
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  9a:	2f ef       	ldi	r18, 0xFF	; 255
+  9c:	84 e3       	ldi	r24, 0x34	; 52
+  9e:	9c e0       	ldi	r25, 0x0C	; 12
+  a0:	21 50       	subi	r18, 0x01	; 1
+  a2:	80 40       	sbci	r24, 0x00	; 0
+  a4:	90 40       	sbci	r25, 0x00	; 0
+  a6:	e1 f7       	brne	.-8      	; 0xa0 <main+0x42>
+  a8:	00 c0       	rjmp	.+0      	; 0xaa <main+0x4c>
+  aa:	00 00       	nop
+  ac:	e6 cf       	rjmp	.-52     	; 0x7a <main+0x1c>
+
+000000ae <__vector_10>:
+		}
+    }
+}
+
+
+ISR(TIMER0_COMPA_vect){								
+  ae:	1f 92       	push	r1
+  b0:	0f 92       	push	r0
+  b2:	0f b6       	in	r0, 0x3f	; 63
+  b4:	0f 92       	push	r0
+  b6:	11 24       	eor	r1, r1
+  b8:	8f 93       	push	r24
+	if(RoverState == NOT_ROVING){										//If the rover is not roving
+  ba:	80 91 62 00 	lds	r24, 0x0062
+  be:	81 11       	cpse	r24, r1
+  c0:	02 c0       	rjmp	.+4      	; 0xc6 <__vector_10+0x18>
+		PORTB |= STATUSLED;												//Rover is paused, make status light solid
+  c2:	c4 9a       	sbi	0x18, 4	; 24
+  c4:	1e c0       	rjmp	.+60     	; 0x102 <__vector_10+0x54>
+	}else if(RoverState == ROVING){										//If the rover is roving
+  c6:	81 30       	cpi	r24, 0x01	; 1
+  c8:	e1 f4       	brne	.+56     	; 0x102 <__vector_10+0x54>
+		if(InterruptCounter == InterruptCountMax){						//Check to see if the interrupt counter has hit max (needed because you can't get 1Hz from an 8 bit counter)
+  ca:	80 91 63 00 	lds	r24, 0x0063
+  ce:	8f 31       	cpi	r24, 0x1F	; 31
+  d0:	99 f4       	brne	.+38     	; 0xf8 <__vector_10+0x4a>
+			if(LEDState == LIT){										//If it has and the led was previously lit
+  d2:	80 91 60 00 	lds	r24, 0x0060
+  d6:	81 30       	cpi	r24, 0x01	; 1
+  d8:	21 f4       	brne	.+8      	; 0xe2 <__vector_10+0x34>
+				PORTB &= ~STATUSLED;									//Turn off the led
+  da:	c4 98       	cbi	0x18, 4	; 24
+				LEDState = NOT_LIT;										//Set led state to off
+  dc:	10 92 60 00 	sts	0x0060, r1
+  e0:	08 c0       	rjmp	.+16     	; 0xf2 <__vector_10+0x44>
+			}else if(LEDState == NOT_LIT){								//If it was previously off
+  e2:	80 91 60 00 	lds	r24, 0x0060
+  e6:	81 11       	cpse	r24, r1
+  e8:	04 c0       	rjmp	.+8      	; 0xf2 <__vector_10+0x44>
+				PORTB |= STATUSLED;										//Turn the led on	
+  ea:	c4 9a       	sbi	0x18, 4	; 24
+				LEDState = LIT;											//Set led state to on
+  ec:	81 e0       	ldi	r24, 0x01	; 1
+  ee:	80 93 60 00 	sts	0x0060, r24
+			}
+			InterruptCounter = 0;										//Zero our interrupt counter
+  f2:	10 92 63 00 	sts	0x0063, r1
+  f6:	05 c0       	rjmp	.+10     	; 0x102 <__vector_10+0x54>
+		}else{
+			InterruptCounter++;											//If the interrupt counter is not at max, increment it
+  f8:	80 91 63 00 	lds	r24, 0x0063
+  fc:	8f 5f       	subi	r24, 0xFF	; 255
+  fe:	80 93 63 00 	sts	0x0063, r24
+		}
+	}
+ 102:	8f 91       	pop	r24
+ 104:	0f 90       	pop	r0
+ 106:	0f be       	out	0x3f, r0	; 63
+ 108:	0f 90       	pop	r0
+ 10a:	1f 90       	pop	r1
+ 10c:	18 95       	reti
+
+0000010e <_exit>:
+ 10e:	f8 94       	cli
+
+00000110 <__stop_program>:
+ 110:	ff cf       	rjmp	.-2      	; 0x110 <__stop_program>

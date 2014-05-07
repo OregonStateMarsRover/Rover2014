@@ -1,0 +1,48 @@
+# depslib dependency file v1.0
+1384473664 source:/home/corwin/Rover2014/software/firmware/MainDriveFirmware/fuse.c
+	<avr/io.h>
+
+1393072211 source:/home/corwin/Rover2014/software/firmware/MainDriveFirmware/main.c
+	<stdio.h>
+	<main.h>
+	<util/delay.h>
+	<avr/io.h>
+	<avr/interrupt.h>
+	<usart.h>
+	<Sabertooth.h>
+	<Mega2560.h>
+
+1385325483 /home/corwin/Rover2014/software/firmware/MainDriveFirmware//main.h
+
+1389417894 /home/corwin/Rover2014/software/firmware/MainDriveFirmware//usart.h
+
+1386040289 /home/corwin/Rover2014/software/firmware/MainDriveFirmware//Sabertooth.h
+
+1385263416 /home/corwin/Rover2014/software/firmware/MainDriveFirmware//Mega2560.h
+
+1385263416 source:/home/corwin/Rover2014/software/firmware/MainDriveFirmware/Mega2560.c
+	<Mega2560.h>
+	<avr/io.h>
+	<main.h>
+	<inttypes.h>
+	<util/delay_basic.h>
+	<math.h>
+
+1393083195 source:/home/corwin/Rover2014/software/firmware/MainDriveFirmware/Sabertooth.c
+	<usart.h>
+	<stdint.h>
+	<Sabertooth.h>
+	<util/delay.h>
+	<main.h>
+	<Mega2560.h>
+
+1392490300 source:/home/corwin/Rover2014/software/firmware/MainDriveFirmware/usart.c
+	<avr/io.h>
+	<usart.h>
+	<avr/interrupt.h>
+	<main.h>
+	<stdio.h>
+	<stdlib.h>
+	<Sabertooth.h>
+	<Mega2560.h>
+

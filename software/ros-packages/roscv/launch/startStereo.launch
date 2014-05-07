@@ -1,0 +1,9 @@
+<launch>
+    <node name="stereo_process" pkg="stereo_image_proc" type="stereo_image_proc" ns="my_stereo">
+    	<param name="prefilter_size" value="15.0" />
+    	<param name="min_disparity" value="-32.0" />
+    	<param name="disparity_range" value="64.0" />
+    	<param name="uniqueness_ratio" value="10.0" />
+    	<param name="speckle_size" value="400.0" />
+    </node>
+</launch>
