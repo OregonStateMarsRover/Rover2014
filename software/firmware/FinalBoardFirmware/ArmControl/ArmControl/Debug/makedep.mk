@@ -10,5 +10,7 @@ motorInfo.cpp
 
 Sabertooth.cpp
 
+stepperInfo.cpp
+
 usart_driver.c
 

@@ -32,16 +32,20 @@ extern "C" {
 #include "XMegaMacros.h"
 #include "adc.h"  //Include the ADC functions
 #include "motorInfo.h"  //Include the motor information
+#include "stepperInfo.h"
 
 int swap = 0;
 USART_data_t USART_PC_Data;
 
 motorInfo lowerAct;
 motorInfo upperAct;
-
+stepperInfo gripStepper;
 
 #define LOWER 0
 #define UPPER 1
+
+#define GRIP 0
+#define RELEASE 1
 
 
 void SetXMEGA32MhzCalibrated(){
@@ -93,16 +97,21 @@ void DemInitThingsYouBeenDoing(){
 	PORTB.DIRCLR = (PIN3_bm); //Grip Limit	
 		
 
+	//GRIP STEPPER is MD1
+
 	//SETUP "UPPER" DRIVER
-	MD1_DISABLE();
+	MD1_ENABLE();
 	
 	//Setup Microstepping
-	MD1_M0_SET();
+	MD1_M0_CLR();
 	MD1_M1_CLR();
 	MD1_M2_CLR();
 	
 	MD1_DIR_CLR();
 	MD1_STEP_CLR();
+	
+	
+	//BASE STEPPER is MD2
 	
 	//Motor Driver 2 setup
 	MD2_DISABLE();
@@ -125,15 +134,12 @@ void SendStringPC(char *stufftosend){
 
 
 //DOCUMENTATION NEEDED :D
-
 double abs(double input){
 	if(input > 0)
 		return input;
 	else
 		return input * -1;
 }
-
-
 
 void DemStuffYouBeenDoingBefore(){
 
@@ -168,7 +174,6 @@ void DemStuffYouBeenDoingBefore(){
 	}
 	*/
 }
-
 
 //PA1 is lower act
 
@@ -206,10 +211,12 @@ void checkActPosition(){
 		upperAct.acceptableCount = 0;
 	}
 	
-	if(upperAct.acceptableCount >= upperAct.acceptableCountMax)
+	if(upperAct.acceptableCount >= upperAct.acceptableCountMax){
 		upperAct.disable();
-	if(lowerAct.acceptableCount >= upperAct.acceptableCountMax)
+	}
+	if(lowerAct.acceptableCount >= upperAct.acceptableCountMax){
 		lowerAct.disable();
+	}
 	
 	
 	lowerAct.currentPos = smoothADC(LOWER)/58.13 -.41;
@@ -240,9 +247,9 @@ int getMotorSpeed(int act){
 	return 0;
 }
 
-
-//Returns a 1 or a -1, depending on whether the actuator needs to retract 
-//or extend
+/*Returns a 1 or a -1, depending on whether the actuator needs to retract 
+  or extend
+*/
 int getMotorDir(int act){
 	if(act == LOWER){
 		if(!lowerAct.enabled)
@@ -281,8 +288,8 @@ int main(void)
 	upperAct.desiredPos = 3;
 	lowerAct.desiredPos = 1;
 	
-	lowerAct.enable();
-	upperAct.enable();
+	//lowerAct.enable();
+	//upperAct.enable();
 	
 	while(1) {
 		DemStuffYouBeenDoingBefore();						   //Your stepper code
@@ -300,9 +307,41 @@ int main(void)
 		if(lowerAct.enabled || upperAct.enabled){
 			DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));
 		}
-		
-		if(!lowerAct.enabled && !upperAct.enabled)
+		else {
 			ERROR_SET();
+			DriveSaber.ParsePacket(127,127);  //This line should only be executed once
+											  //unlike the current implementation
+		}
+		
+			
+		//Stepper development
+		
+		//MD1_STEP_SET();
+		//_delay_us(500);
+		//MD1_STEP_CLR();
+		//_delay_us(500);
+		
+
+
+
+		/*
+		
+		gripStepper.enable();
+		
+		gripStepper.processCommand(GRIP);
+		
+		_delay_ms(2000);		
+
+		gripStepper.enable();
+
+		gripStepper.processCommand(RELEASE);
+
+		_delay_ms(2000);
+
+		*/
+
+		_delay_ms(250);
+			
 		
 		//_delay_ms(250);											//Wait so things don't die
 		//STATUS1_SET();

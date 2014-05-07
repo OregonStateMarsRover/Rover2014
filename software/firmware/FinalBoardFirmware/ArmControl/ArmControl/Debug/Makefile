@@ -40,6 +40,7 @@ C_SRCS +=  \
 ../ArmControl.cpp \
 ../motorInfo.cpp \
 ../Sabertooth.cpp \
+../stepperInfo.cpp \
 ../usart_driver.c
 
 
@@ -54,6 +55,7 @@ adc.o \
 ArmControl.o \
 motorInfo.o \
 Sabertooth.o \
+stepperInfo.o \
 usart_driver.o
 
 OBJS_AS_ARGS +=  \
@@ -61,6 +63,7 @@ adc.o \
 ArmControl.o \
 motorInfo.o \
 Sabertooth.o \
+stepperInfo.o \
 usart_driver.o
 
 C_DEPS +=  \
@@ -68,6 +71,7 @@ adc.d \
 ArmControl.d \
 motorInfo.d \
 Sabertooth.d \
+stepperInfo.d \
 usart_driver.d
 
 C_DEPS_AS_ARGS +=  \
@@ -75,6 +79,7 @@ adc.d \
 ArmControl.d \
 motorInfo.d \
 Sabertooth.d \
+stepperInfo.d \
 usart_driver.d
 
 OUTPUT_FILE_PATH +=ArmControl.elf
@@ -88,6 +93,8 @@ OUTPUT_FILE_DEP:= ./makedep.mk
 LIB_DEP+= 
 
 # AVR32/GNU C Compiler
+
+
 
 
 
