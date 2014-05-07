@@ -20,7 +20,7 @@ extern USART_data_t USART_PC_Data;
 void SetXMEGA32MhzCalibrated();
 void SetupPCComms();
 unsigned char PCComsChecksum(unsigned char command, unsigned char left, unsigned char right);
-void SendDriveControlStatus(USART_t *PCComs, bool IsRoving);
-
+void SendDriveControlStatus(USART_t *PCComs, bool IsRoving, bool Checksum);
+void FlushSerialBuffer(USART_data_t *UsartBuffer);
 
 #endif /* MISC_H_ */

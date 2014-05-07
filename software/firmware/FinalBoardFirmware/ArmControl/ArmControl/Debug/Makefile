@@ -36,7 +36,9 @@ SUBDIRS :=
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../ArmControl.cpp
+../ArmControl.cpp \
+../Sabertooth.cpp \
+../usart_driver.c
 
 
 PREPROCESSING_SRCS += 
@@ -46,16 +48,24 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-ArmControl.o
+ArmControl.o \
+Sabertooth.o \
+usart_driver.o
 
 OBJS_AS_ARGS +=  \
-ArmControl.o
+ArmControl.o \
+Sabertooth.o \
+usart_driver.o
 
 C_DEPS +=  \
-ArmControl.d
+ArmControl.d \
+Sabertooth.d \
+usart_driver.d
 
 C_DEPS_AS_ARGS +=  \
-ArmControl.d
+ArmControl.d \
+Sabertooth.d \
+usart_driver.d
 
 OUTPUT_FILE_PATH +=ArmControl.elf
 
@@ -70,6 +80,17 @@ LIB_DEP+=
 # AVR32/GNU C Compiler
 
 
+
+
+
+
+
+./%.o: .././%.c
+	@echo Building file: $<
+	@echo Invoking: AVR8/GNU C Compiler : 4.8.1
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1051\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atxmega32d4 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
 
 ./%.o: .././%.cpp
 	@echo Building file: $<

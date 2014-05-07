@@ -32,6 +32,9 @@ uint8_t receiveArray[RECEIVE_PACKET_SIZE];
 USART_data_t USART_PC_Data;
 
 bool IsRoving = false;
+//////////////////////////////////////////////////////
+///// Add in buffer flush for initialization to get rid of nonsense data
+/////////////////////////////////
 
 int main(void)
 {
@@ -44,8 +47,12 @@ int main(void)
 	
 	
 	///////Initialize Serial Communcations///////
-	SetupPCComms();												//Initializes PC Communications at 9600 baud	
+	SetupPCComms();												//Initializes PC Communications at 9600 baud0
+	_delay_ms(500);												//Delay to make sabertooth initialize
 	Sabertooth DriveSaber(&USARTD0, &PORTD);					//Initializes Sabertooth Communications at 9600 Baud
+	
+	TCC0.PER = 1000;
+	TCC0.
 	
 	sei();														//Enables global interrupts so the interrupt serial can work
 	
@@ -67,7 +74,7 @@ int main(void)
 				}
 				_delay_ms(500);
 				if(USART_RXBufferData_Available(&USART_PC_Data)){
-					if(USART_RXBuffer_GetByte(&USART_PC_Data) == 'D'){
+					if(USART_RXBuffer_GetByte(&USART_PC_Data) == 'r'){
 						XMegaState = Driving;
 						USART_PutChar(&USARTC0, 'r');
 					}
@@ -81,17 +88,18 @@ int main(void)
 				}
 			
 				if(BufferIdx == RECEIVE_PACKET_SIZE){
+					FlushSerialBuffer(&USART_PC_Data);
 					if(IsRoving){
 						if(receiveArray[4] == PCComsChecksum(receiveArray[1], receiveArray[2], receiveArray[3])){
 							DriveSaber.ParsePacket(receiveArray[2], receiveArray[3]);
-						}else{
-							DriveSaber.StopAll();
-						}
+					}else if(!IsRoving){
+						_delay_ms(10);
 					}
+				}					
 					BufferIdx = 0;
-					SendDriveControlStatus(&USARTC0, true);
+					SendDriveControlStatus(&USARTC0, IsRoving, false);
 				}
-			
+		
 				if(!IsRoving){
 					DriveSaber.StopAll();
 				}
