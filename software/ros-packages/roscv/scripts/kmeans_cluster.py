@@ -1,14 +1,18 @@
 #!/usr/bin/env python
-import roslib
-roslib.load_manifest('roscv')
 import numpy as np
-from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import time
 import random
 
-import rospy
-import sensor_msgs
+try:
+    import roslib
+    roslib.load_manifest('roscv')
+    from cv_bridge import CvBridge, CvBridgeError
+    import rospy
+    import sensor_msgs
+    USE_ROS = True
+except ImportError:
+    USE_ROS = False
 
 """
 " See the comments in the color filter code since it is exactly the same code
@@ -217,5 +221,8 @@ class RosDetect():
             print e
 
 if __name__ == "__main__":
-    detect = RosDetect()
-    rospy.spin()
+    if USE_ROS:
+        detect = RosDetect()
+        rospy.spin()
+    else:
+        main()
