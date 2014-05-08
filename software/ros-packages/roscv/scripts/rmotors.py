@@ -191,6 +191,7 @@ class RosController(object):
                 self.update()
             elif command_list[0] == "flush" and self.thread is not None:
                 self.thread.cancel()
+                self.unset_thread()
 
     def meters_to_char(self, speed):
         #speed must be a positive number
@@ -199,6 +200,10 @@ class RosController(object):
         speed = 255*(speed/4.0)
         #ensure its an int where 0 <= speed <= 255
         return max(min(255, int(speed)), 0)
+
+    def unset_thread(self):
+        print "UNSET THREAD"
+		self.thread = None
 
 
 class MotorController(RosController):
@@ -261,9 +266,10 @@ class MotorController(RosController):
 
 
 class MotorStopperTimer(threading.Thread):
-    def __init__(self, update, duration):
+    def __init__(self, update, unset, duration):
         threading.Thread.__init__(self)
         self.update = update
+        self.unset = unset
         self.time = time.time()+duration
         self.event = threading.Event()
         self.done = False
@@ -274,6 +280,7 @@ class MotorStopperTimer(threading.Thread):
             if time.time() > self.time or self.done:
                 break
             self.event.wait(.05)
+        self.unset()
         self.update()
 
     def cancel(self):
