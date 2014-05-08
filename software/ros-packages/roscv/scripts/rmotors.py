@@ -85,10 +85,11 @@ class Motor(object):
         self.left = l
         self.right = r
         self.estop = e
+        print "C: %d %d %d" % (self.left, self.right, self.estop)
 
     def send_packet(self):
-        #print self.left, self.left_speed
-        #print self.right, self.right_speed
+        print self.left, self.left_speed
+        print self.right, self.right_speed
         if self.left == None or self.right == None:
                 return
         if self.right_speed != self.right:
@@ -104,9 +105,11 @@ class Motor(object):
         if self.left_speed != self.left:
             delta = self.left - self.left_speed
             if abs(delta) > self.ramp_rate:
+                    self.ramp_rate += 1
                     self.left_speed += self.ramp_rate if delta > 0 else -self.ramp_rate
             else:
                     self.left_speed = self.left
+                    self.ramp_rate = 1
         self.serial.write(chr(255))
         self.serial.write(chr(self.estop))
         self.serial.write(chr(self.left_speed))
@@ -156,7 +159,8 @@ class RosController(object):
         command_list = ["".join(x) for _, x in itertools.groupby(commands, key=str.isdigit)]
         print commands, command_list
         #flush the queues
-        self.m.change(self.meters_to_char(0),self.meters_to_char(0),0)
+        if self.mode == "rover":
+            self.m.change(self.meters_to_char(0),self.meters_to_char(0),0)
         if self.mode == "rover":
             if command_list[0] in "fbsr":
                 self.q.extend(command_list)
@@ -164,25 +168,29 @@ class RosController(object):
                 #invalid commands, we will need to handle later
                 pass
         else:
+            o_left = self.m.left
+            o_right = self.m.right
             for i in range(0, len(command_list), 2):
+                amt = float(command_list[i+1])
+                amt = amt - 20.0
                 if command_list[i] == "left":
-                    print float(command_list[i+1])/10.0
-                    self.m.change(self.meters_to_char(float(command_list[i+1])/10.0), self.m.right, 0)
+                    o_left = self.meters_to_char(amt/10.0)
                 elif command_list[i] == "right":
-                    print float(command_list[i+1])/10.0
-                    self.m.change(self.m.left, self.meters_to_char(float(command_list[i+1])/10.0), 0)
+                    o_right = self.meters_to_char(amt/10.0)
                 elif command_list[i] == "rover":
                     self.mode = "rover"
+            self.m.change(o_left, o_right, 0)
 
         if command_list[0] == "rover":
             self.mode = "rover"
         elif command_list[0] == "controller":
             self.mode = "controller"
 
-        if length == 0 and command_list[0] != "flush":
-            self.update()
-        elif command_list[0] == "flush" and self.thread is not None:
-            self.thread.cancel()
+        if self.mode == "rover":
+            if length == 0 and command_list[0] != "flush":
+                self.update()
+            elif command_list[0] == "flush" and self.thread is not None:
+                self.thread.cancel()
 
     def meters_to_char(self, speed):
         #speed must be a positive number
@@ -196,10 +204,9 @@ class RosController(object):
 class MotorController(RosController):
 
     def update(self, event=None):
-        print "UPDATE"
         if len(self.q) == 0:
-            print "QUEUE EMPTY"
-            self.m.change(self.meters_to_char(0), self.meters_to_char(0), self.m.estop)
+            if self.mode == "rover":
+                self.m.change(self.meters_to_char(0), self.meters_to_char(0), self.m.estop)
             return
         action = self.q[0]
         value = self.q[1]
