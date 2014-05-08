@@ -20,6 +20,7 @@ public:
 	int enabled;
 	int currentState;
 	int init;
+	volatile unsigned char desiredGripState;
 protected:
 private:
 

@@ -87,8 +87,8 @@ class Motor(object):
         self.estop = e
 
     def send_packet(self):
-        print self.left, self.left_speed
-        print self.right, self.right_speed
+        #print self.left, self.left_speed
+        #print self.right, self.right_speed
         if self.left == None or self.right == None:
                 return
         if self.right_speed != self.right:
@@ -104,9 +104,11 @@ class Motor(object):
         if self.left_speed != self.left:
             delta = self.left - self.left_speed
             if abs(delta) > self.ramp_rate:
+                    self.ramp_rate += 1
                     self.left_speed += self.ramp_rate if delta > 0 else -self.ramp_rate
             else:
                     self.left_speed = self.left
+                    self.ramp_rate = 1
         self.serial.write(chr(255))
         self.serial.write(chr(self.estop))
         self.serial.write(chr(self.left_speed))
@@ -149,14 +151,23 @@ class RosController(object):
         rospy.Subscriber(commands_from, String, self.read_commands)
 
         rospy.Timer(rospy.Duration(.001), self.m.maintain)
+        rospy.Timer(rospy.Duration(.05), self.publish_status)
+
+    def publish_status(self, event=None):
+        free = len(self.q) == 0 and self.thread is None
+        if free:
+            msg = "free"
+        else:
+            msg = "busy"
+        self.pub.publish(msg)
 
     def read_commands(self, commands):
         length = len(self.q)
         commands = str(commands).replace("data:", "").replace(" ", "")
         command_list = ["".join(x) for _, x in itertools.groupby(commands, key=str.isdigit)]
-        print commands, command_list
         #flush the queues
-        self.m.change(self.meters_to_char(0),self.meters_to_char(0),0)
+        if self.mode == "rover":
+            self.m.change(self.meters_to_char(0),self.meters_to_char(0),0)
         if self.mode == "rover":
             if command_list[0] in "fbsr":
                 self.q.extend(command_list)
@@ -164,21 +175,30 @@ class RosController(object):
                 #invalid commands, we will need to handle later
                 pass
         else:
+            o_left = self.m.left
+            o_right = self.m.right
             for i in range(0, len(command_list), 2):
                 if command_list[i] == "left":
-                    self.m.change(self.meters_to_char(float(command_list[i+1])/10.0), self.m.right, 0)
+                    amt = float(command_list[i+1])-20.0
+                    o_left = self.meters_to_char(amt/10.0)
                 elif command_list[i] == "right":
-                    self.m.change(self.m.left, self.meters_to_char(float(command_list[i+1])/10.0), 0)
+                    amt = float(command_list[i+1])-20.0
+                    o_right = self.meters_to_char(amt/10.0)
                 elif command_list[i] == "rover":
                     self.mode = "rover"
+            self.m.change(o_left, o_right, 0)
 
         if command_list[0] == "rover":
             self.mode = "rover"
         elif command_list[0] == "controller":
             self.mode = "controller"
 
-        if length == 0 and command_list[0] != "flush":
-            self.update()
+        if self.mode == "rover":
+            if length == 0 and command_list[0] != "flush":
+                self.update()
+            elif command_list[0] == "flush":
+                self.q.clear()
+                self.unset_thread()
 
     def meters_to_char(self, speed):
         #speed must be a positive number
@@ -188,12 +208,18 @@ class RosController(object):
         #ensure its an int where 0 <= speed <= 255
         return max(min(255, int(speed)), 0)
 
+    def unset_thread(self):
+        if self.thread is not None:
+            self.thread.cancel()
+            self.thread = None
+
 
 class MotorController(RosController):
 
     def update(self, event=None):
         if len(self.q) == 0:
-            self.m.change(self.meters_to_char(0), self.meters_to_char(0), self.m.estop)
+            if self.mode == "rover":
+                self.m.change(self.meters_to_char(0), self.meters_to_char(0), self.m.estop)
             return
         action = self.q[0]
         value = self.q[1]
@@ -223,13 +249,13 @@ class MotorController(RosController):
     def wait_distance(self, distance):
         start = time.time()
         #the ratio between the actual and theoretical meters per second
-        a_mps = .3
+        a_mps = .3*36.0
         if self.speed == 0:
             length = 0
         else:
             length = float(distance)/(self.speed*a_mps)
         self.distance = length
-        self.thread = MotorStopperTimer(self.update, self.distance)
+        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance)
         self.thread.start()
 
 
@@ -239,28 +265,34 @@ class MotorController(RosController):
         if angle > 180:
             angle = 360 - angle
         #assume one degree a second
-        dps = 1
+        dps = 1.0/20.0
         self.distance = angle*dps
         if self.thread is not None:
             self.thread.cancel()
-        self.thread = MotorStopperTimer(self.update, self.distance)
+        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance)
         self.thread.start()
 
 
 class MotorStopperTimer(threading.Thread):
-    def __init__(self, update, duration):
+    def __init__(self, update, unset, duration):
         threading.Thread.__init__(self)
         self.update = update
+        self.unset = unset
         self.time = time.time()+duration
         self.event = threading.Event()
+        self.done = False
 
     def run(self):
         while not self.event.is_set():
-            if time.time() > self.time:
+            #print "Running! %s %s" % (time.time(), self.time)
+            if time.time() > self.time or self.done:
                 break
             self.event.wait(.05)
+        self.unset()
+        self.update()
 
-
+    def cancel(self):
+        self.done = True
 
 
 
@@ -269,7 +301,7 @@ con = None
 if __name__ == '__main__':
     try:
         rospy.init_node("motor_controller", anonymous=True)
-        con = MotorController("motor_control", "motor_command")
+        con = MotorController("motor_status", "motor_command")
         #handle lethal signals in order to stop the motors if the script quits
         signal.signal(signal.SIGHUP, handler)
         signal.signal(signal.SIGQUIT, handler)

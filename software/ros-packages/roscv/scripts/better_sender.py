@@ -34,17 +34,22 @@ if __name__ == '__main__':
     send_string(sock, "controller")
     while not rospy.is_shutdown():
         pygame.event.pump()
-        left = int(joy.get_axis(1)*(-20))
+        left = int(joy.get_axis(1)*(-20))+20
+        right = int(joy.get_axis(4)*(-20))+20
 
-        right = int(joy.get_axis(4)*(-20))
-        if left < 5:
-            send_string(sock, "left0")
+        print "LEFT: %d\tRIGHT: %d" % (left, right)
+
+        left_s = ""
+        right_s = ""
+        if abs(left) < 5:
+            left_s = "left0"
         else:
-            send_string(sock, "left"+str(left))
-        if right < 5:
-            send_string(sock, "right0")
+            left_s = "left"+str(left)
+        if abs(right) < 5:
+            right_s = "right0"
         else:
-            send_string(sock, "right"+str(right))
+            right_s = "right"+str(right)
+        send_string(sock, left_s+right_s)
         clock.tick(10)
 
 
