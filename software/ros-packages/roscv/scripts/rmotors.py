@@ -87,8 +87,8 @@ class Motor(object):
         self.estop = e
 
     def send_packet(self):
-        print self.left, self.left_speed
-        print self.right, self.right_speed
+        #print self.left, self.left_speed
+        #print self.right, self.right_speed
         if self.left == None or self.right == None:
                 return
         if self.right_speed != self.right:
@@ -192,7 +192,9 @@ class RosController(object):
 class MotorController(RosController):
 
     def update(self, event=None):
+        print "UPDATE"
         if len(self.q) == 0:
+            print "QUEUE EMPTY"
             self.m.change(self.meters_to_char(0), self.meters_to_char(0), self.m.estop)
             return
         action = self.q[0]
@@ -223,7 +225,7 @@ class MotorController(RosController):
     def wait_distance(self, distance):
         start = time.time()
         #the ratio between the actual and theoretical meters per second
-        a_mps = .3
+        a_mps = .3*36.0
         if self.speed == 0:
             length = 0
         else:
@@ -239,7 +241,7 @@ class MotorController(RosController):
         if angle > 180:
             angle = 360 - angle
         #assume one degree a second
-        dps = 1
+        dps = 1.0/20.0
         self.distance = angle*dps
         if self.thread is not None:
             self.thread.cancel()
@@ -253,14 +255,18 @@ class MotorStopperTimer(threading.Thread):
         self.update = update
         self.time = time.time()+duration
         self.event = threading.Event()
+        self.done = False
 
     def run(self):
         while not self.event.is_set():
-            if time.time() > self.time:
+            print "Running! %s %s" % (time.time(), self.time)
+            if time.time() > self.time or self.done:
                 break
             self.event.wait(.05)
+        self.update()
 
-
+    def cancel(self):
+        self.done = True
 
 
 
