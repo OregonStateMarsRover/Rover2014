@@ -5,7 +5,8 @@ from std_msgs.msg import String
 import itertools #Used to break apart string
 import collections #used for the command queue
 import threading
-from math import cos,acos,sin,asin,tan,atan
+from math import cos,acos,sin,asin,tan,atan,degrees,sqrt
+
 import signal
 import sys
 
@@ -13,14 +14,8 @@ import os
 import serial
 from serial.tools import list_ports
 
-"""
-" TODO to fix this code:
-" Switch the rospy.Timer to a threading.Timer like what is used here https://docs.python.org/2/library/threading.html#timer-objects
-" Add a send stop byte in the update function when the q is empty
-" Store threading timers in an array that you cancel when ever a flush is sent so that timers can't build up.
-"""
 
-
+'''
 def handler(signum, frame):
     print "Lethal signal received sending motor kill signal and exiting"
     if con != None:
@@ -28,7 +23,7 @@ def handler(signum, frame):
         con.q.clear()
         con.m.maintain()
     sys.exit(1)
-
+'''
 class SerialHandler(object):
     baud = 9600
     timeout = 3
@@ -128,7 +123,11 @@ class Arm(object):
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
+        ready = True
         return False
+
+    def arm_ready(self):
+        return ready
 
 
 class RosController(object):
@@ -136,31 +135,46 @@ class RosController(object):
     pub = None
     a = None
 
+
     def __init__(self, arm_status, commands_from):
         self.pub = rospy.Publisher(arm_status, String)
-        self.a = Arm()
+       # self.a = Arm()
+        self.x1=3*self.sind(30)
+        self.z1=3*self.cosd(30)
+        self.h1=sqrt(self.x1**2+self.z1**2)
+        self.M1=11.5
+        self.L1=20
 
-        rospy.Subscriber(commands_from, String, self.read_commands)
+        self.x2=3*self.cosd(30)
+        self.z2=3*self.sind(30)
+        self.h2=sqrt(self.x2**2+self.z2**2)
+        self.M2=12
+        self.L2=14
 
-        rospy.Timer(rospy.Duration(.001), self.a.maintain)
+        self.OS_1=0.5
+        self.OS_2=0.34808
+        rospy.Subscriber('arm_commands',String, self.read_commands)
+
+        #rospy.Timer(rospy.Duration(.001), self.a.maintain)
 
     def read_commands(self, commands):
         commands = str(commands).replace("data:", "").replace(" ", "")
         command_list = commands.split(',')
         print commands, command_list
 
-        if len(command_list) != 3:
+        if len(command_list) != 2:
             return
         for element in command_list:
             if not (str(element).isdigit()):
                 return
 
 
-       ## if not arm_ready():
-       ##     self.pub.publish("Arm is busy")
+        if not self.a.arm_ready():
+            self.pub.publish("Arm is busy")
 
-        else:
-            converted_vars = convertXYZ(command_list[0],command_list[1],command_list[2])
+        else
+            a.ready = False
+            converted_vars = convertXYZ(command_list[0],command_list[1],Z)
 
             if converted_vars[0] > 360 or converted_vars < 0:
                 print "Bad theta"
@@ -195,47 +209,49 @@ class RosController(object):
                     a.upperAct2 = 0
             a.send_packet()
 
-
-
-#class ArmController(RosController):
-    x1=3*self.sind(30);
-    z1=3*cosd(30);
-    h1=sqrt(x1**2+z1**2);
-    M1=11.5;
-    L1=20;
-
-    x2=3*self.cosd(30);
-    z2=3*self.sind(30);
-    h2=sqrt(x2**2+z2**2);
-    M2=12;
-    L2=14;
-
-    OS_1=0.5;
-    OS_2=0.34808;
+    def arm_ready(self):
+        return True
 
     def convertXYZ(self,x,y,z):
         theta_base = self.atand(y/x)
 
-        s1 = 3
-        s2 = 5
+        x_o = (x/(self.cosd(theta_base)))-(self.OS_1+self.OS_2)
+        v = (sqrt(x_o**2+z**2))
+        theta_v = (self.atand(z/x_o))
+        theta_b = (self.acosd((self.L2**2-self.L1**2-v**2)/(-2*L1*v)))
+
+        theta1 = theta_b+theta_v
+
+        theta_c = (self.acoscd((v**2-self.L1**2-self.L2**2)/(-2*self.L1*self.L2)))
+        theta2 = theta_c+theta1-180
+
+        s1 = sqrt((self.M1-(self.h1*self.cosd(90-self.atand(self.x1/self.z1)+thta1)))**2+(self.h1*self.sind(90-self.atand(self.x1/self.z1)+theta1))**2)
+
+        s2 = sqrt((self.M2+(self.h2*self.cosd(90-self.atand(self.x2/self.z2)-theta2)))**2+(self.h2*self.sind(90-self.atand(self.x2/self.z2)-theta2))**2)
+
+
+       # s1 = 3
+       # s2 = 5
        # s1=sqrt((M1-(h1*cosd(90-atand(x1/z1))+((acos((L2**2-L1**2-(sqrt(((x/(cos((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2)/(-2*L1*(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2)))))+(atand(z/((x/(cosd((atand(y/x)))))-(OS_1+OS_2))))))))**2+(h1*sind(90-atand(x1/z1)+((acosd((L2**2-L1**2-(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2)/(-2*L1*(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2)))))+(atand(z/((x/(cosd((atand(y/x)))))-(OS_1+OS_2)))))))**2)
 
        # s2=sqrt((M2+(h2*cosd(90-atand(x2/z2)-((acosd(((sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2-L1**2-L2**2)/(-2*L1*L2)))+((acosd((L2**2-L1**2-(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2)/(-2*L1*(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2)))))+(atand(z/((x/(cosd((atand(y/x)))))-(OS_1+OS_2)))))-180))))**2+(h2*sind(90-atand(x2/z2)-((acosd(((sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2-L1**2-L2**2)/(-2*L1*L2)))+((acosd((L2**2-L1**2-(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2)/(-2*L1*(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2)))))+(atand(z/((x/(cosd((atand(y/x)))))-(OS_1+OS_2)))))-180)))**2)
 
         return [theta_base,s1,s2]
-
-    def atand(self, val):
+    def atand(self,val):
         return degrees(atan(val))
-    def acosd(self, val):
+    def acosd(self,val):
         return degrees(acos(val))
-    def asind(self, val):
+    def asind(self,val):
         return degrees(asin(val))
-    def cosd(self, val):
+    def cosd(self,val):
         return degrees(cos(val))
-    def sind(self, val):
+    def sind(self,val):
         return degrees(sin(val))
-    def tand(self, val):
+    def tand(self,val):
         return degrees(tan(val))
+#class ArmController(RosController):
+
+
 
 
 
@@ -255,11 +271,11 @@ con = None
 if __name__ == '__main__':
     try:
         rospy.init_node("arm_controller", anonymous=True)
-        con = ArmController("arm_controller", "arm_command")
+        #con = ArmController("arm_controller", "arm_command")
         #handle lethal signals in order to stop the motors if the script quits
-        signal.signal(signal.SIGHUP, handler)
-        signal.signal(signal.SIGQUIT, handler)
-
+        #signal.signal(signal.SIGHUP, handler)
+        #signal.signal(signal.SIGQUIT, handler)
+        test = RosController("arm_status","arm_command")
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
