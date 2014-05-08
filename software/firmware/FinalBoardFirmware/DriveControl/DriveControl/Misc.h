@@ -10,6 +10,17 @@
 #define MISC_H_
 #include <avr/io.h>
 
+//Custom Defined Macros
+#define STATUS1_SET(void) (PORTC.OUTSET = PIN6_bm)
+#define STATUS1_CLR(void) (PORTC.OUTCLR = PIN6_bm)
+#define STATUS1-TOGGLE(void) (PORTC.OUTSET ^= (PORTC.IN & PIN6_bm))
+
+#define STATUS2_SET(void) (PORTC.OUTSET = PIN5_bm)
+#define STATUS2_CLR(void) (PORTC.OUTCLR = PIN5_bm)
+
+#define ERROR_SET(void) (PORTC.OUTSET = PIN7_bm)
+#define ERROR_CLR(void) (PORTC.OUTCLR = PIN7_bm)
+
 extern "C"{
 	#include "usart_driver.h"
 	#include "avr_compiler.h"

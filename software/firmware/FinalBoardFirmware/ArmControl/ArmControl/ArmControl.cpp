@@ -38,6 +38,7 @@ extern "C" {
 int swap = 0;
 USART_data_t USART_PC_Data;
 
+
 motorInfo lowerAct;
 motorInfo upperAct;
 stepperInfo gripStepper;
@@ -48,6 +49,34 @@ rotateStepper baseStepper;
 
 #define GRIP 0
 #define RELEASE 1
+
+volatile bool canAcceptPackets = true;
+
+volatile unsigned char bufferIndex = 0;
+#define PACKETSIZE 10
+volatile char recieveBuffer[PACKETSIZE];
+
+enum { HEADER, COMMAND, BASEROTVAL1, BASEROTVAL2, ACT1VAL1, ACT1VAL2, ACT2VAL1, ACT2VAL2, CHECKSUM, TAIL};
+
+ISR(USARTC0_RXC_vect){
+	USART_RXComplete(&USART_PC_Data);
+	
+	if(USART_RXBufferData_Available(&USART_PC_Data)){
+		recieveBuffer[bufferIndex++] = USART_RXBuffer_GetByte(&USART_PC_Data);
+		bufferIndex++;
+	}
+	
+	if(bufferIndex == PACKETSIZE){
+		canAcceptPackets = false;
+		//Process packet
+		STATUS1_SET();
+	}
+
+}
+
+ISR(USARTC0_DRE_vect){
+	USART_DataRegEmpty(&USART_PC_Data);
+}
 
 
 void SetXMEGA32MhzCalibrated(){
@@ -102,12 +131,12 @@ void DemInitThingsYouBeenDoing(){
 	//GRIP STEPPER is MD1
 
 	//SETUP "UPPER" DRIVER
-	MD1_DISABLE();
+	MD1_ENABLE();
 	
 	//Setup Microstepping
 	MD1_M0_CLR();
 	MD1_M1_CLR();
-	MD1_M2_CLR();
+	MD1_M2_SET();
 	
 	MD1_DIR_CLR();
 	MD1_STEP_CLR();
@@ -125,6 +154,8 @@ void DemInitThingsYouBeenDoing(){
 	
 	MD2_DIR_CLR();
 	MD2_STEP_CLR();
+	
+	sei();
 }
 
 void SendStringPC(char *stufftosend){
@@ -249,30 +280,18 @@ int main(void)
 	
 	Sabertooth DriveSaber(&USARTD0, &PORTD);
 	
-	upperAct.desiredPos = 2;
-	lowerAct.desiredPos = 3.5;
+	upperAct.desiredPos = 3.5;
+	lowerAct.desiredPos = 1.5;
 	
-//	lowerAct.enable();
-//	upperAct.enable();
+	lowerAct.enable();
+	upperAct.enable();
 	
-	baseStepper.calibrateBase();
 	
-	MD2_DIR_CLR();
-	
-	baseStepper.rotateBase(90);  //Note that this function takes an angle relative
+	//baseStepper.calibrateBase();
+	//MD2_DIR_CLR();
+	//baseStepper.rotateBase(0);  //Note that this function takes an angle relative
 								 //to the absolute 0 on the robot
-	
-	_delay_ms(2000);
 
-	baseStepper.rotateBase(45);
-	
-	_delay_ms(2000);
-	
-	baseStepper.rotateBase(0);
-	
-	_delay_ms(2000);
-	
-	baseStepper.rotateBase(180);
 
 	/////////////////   DEBUG (and not wasting power) purposes!
 	MD2_DISABLE();
@@ -293,21 +312,31 @@ int main(void)
 											  //once, unlike the current implementation
 		}
 		
-		/*
+		//Handle sending ready byte
+		if(!canAcceptPackets){
+			canAcceptPackets = true;
+			USART_PutChar(&USARTC0,'r');
+		}
 		
+		
+		_delay_ms(2000);
+		STATUS1_CLR();
+		
+		/*
+		gripStepper.enable();
+
+		gripStepper.processCommand(RELEASE);
+
+		_delay_ms(2000);	
+			
 		gripStepper.enable();
 		
 		gripStepper.processCommand(GRIP);
 		
 		_delay_ms(2000);		
-
-		gripStepper.enable();
-
-		gripStepper.processCommand(RELEASE);
-
-		_delay_ms(2000);
-
 		*/
+
+	
 
 		_delay_ms(250);
 			
