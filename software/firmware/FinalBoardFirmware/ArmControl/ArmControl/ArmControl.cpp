@@ -333,12 +333,14 @@ int main(void)
 			_delay_ms(500);
 			if(recieveBuffer[0] == 'r'){
 				CurrentState = ARMControl;
+				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0, 'r');
 			}else{
 				bufferIndex = 0;
 			}
 		}else if(CurrentState == ARMControl){
 			if(IsPacketToParse){
+				ERROR_SET();									//Show light when done with actuators
 				lowerAct.enable();						//Re-enable lower actuator
 				upperAct.enable();						//Re-enabled lower actuator
 
@@ -350,7 +352,7 @@ int main(void)
 					DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));	//Move to position
 				}												//Exit when done moving
 					
-				ERROR_SET();									//Show light when done with actuators
+
 				DriveSaber.ParsePacket(127,127);				//Stop actuators from moving any more
 
 				if(gripStepper.desiredGripState == GRIP){
@@ -360,9 +362,17 @@ int main(void)
 					gripStepper.enable();
 					gripStepper.processCommand(RELEASE);
 
-					IsPacketToParse = false;
 				}
+				
+				IsPacketToParse = false;
+				ERROR_CLR();
+				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+				USART_PutChar(&USARTC0, 255);
+				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0,'r');
+				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+				USART_PutChar(&USARTC0,255);
+
 			}
 			//Handle sending ready byte
 				

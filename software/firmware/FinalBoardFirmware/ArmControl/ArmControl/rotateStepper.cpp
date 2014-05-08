@@ -76,7 +76,7 @@ void rotateStepper::calibrateBase(){
 		}
 		
 		MD2_STEP_CLR();
-		_delay_us(400);
+		_delay_us(800);
 		MD2_STEP_SET();
 		_delay_us(800);	
 		
@@ -99,9 +99,9 @@ void rotateStepper::moveBase(int degreesToMove){
 	
 	for(int i = 0; i < stepsToMove; ++i){
 		MD2_STEP_CLR();
-		_delay_us(400);
+		_delay_us(600);
 		MD2_STEP_SET();
-		_delay_us(800);
+		_delay_us(900);
 	}
 	
 }

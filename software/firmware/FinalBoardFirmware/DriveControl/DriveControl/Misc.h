@@ -17,9 +17,15 @@
 
 #define STATUS2_SET(void) (PORTC.OUTSET = PIN5_bm)
 #define STATUS2_CLR(void) (PORTC.OUTCLR = PIN5_bm)
+#define STATUS2_TOGGLE(void) (PORTC.OUTTGL = PIN5_bm)
 
 #define ERROR_SET(void) (PORTC.OUTSET = PIN7_bm)
 #define ERROR_CLR(void) (PORTC.OUTCLR = PIN7_bm)
+#define ERROR_TOGGLE(void) (PORTC.OUTTGL = PIN7_bm)
+
+#define JUDGELED_SET(void) (PORTE.OUTSET = PIN3_bm)
+#define JUDGELED_CLR(void) (PORTE.OUTCLR = PIN3_bm)
+#define JUDGELED_TOGGLE(void) (PORTE.OUTTGL = PIN3_bm)
 
 extern "C"{
 	#include "usart_driver.h"

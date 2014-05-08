@@ -3,6 +3,7 @@
  *
  * Created: 4/22/2014 8:54:20 PM
  *  Author: corwin
+ PE3 - Status LED
  */ 
 
 #define F_CPU 32000000UL
@@ -16,7 +17,7 @@ extern "C"{
 	#include "usart_driver.h"
 	#include "avr_compiler.h"
 };
-
+#define TIMEOUTMAX 5				//Time in seconds before state change back to init
 
 /*! Define that selects the Usart used in example. */
 #define XBEEDIO0 PIN5_bm //PORTA
@@ -30,10 +31,11 @@ uint8_t sendArray[SEND_PACKET_SIZE] = {0x55, 0xaa, 0xf0};
 uint8_t receiveArray[RECEIVE_PACKET_SIZE];
 
 USART_data_t USART_PC_Data;
-
+ 
 bool IsRoving = false;
 
 volatile long unsigned int TimeSinceInit = 0;
+long unsigned int TimePrevious = 0;
 
 int main(void)
 {
@@ -42,7 +44,8 @@ int main(void)
 	///////Setup Inputs and Outputs///////
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm | PIN3_bm);		//Sets outputs on port C
 	PORTC.DIRCLR = PIN2_bm;										//Sets inputs on PORT C
-	PORTA.DIRCLR = XBEEDIO0;									//Sets inputs on PORTA
+	PORTA.DIRCLR = XBEEDIO0;
+	PORTE.DIRSET = PIN3_bm;									//Sets inputs on PORTA
 	
 	
 	///////Initialize Serial Communcations///////
@@ -54,7 +57,7 @@ int main(void)
 	//////////////////Timers///////////////
 	TCC0.CTRLA = TC_CLKSEL_DIV1024_gc; //31250 counts per second with 32Mhz Processor
 	TCC0.CTRLB = TC_WGMODE_NORMAL_gc;
-	TCC0.PER = 31250;
+	TCC0.PER = 15625;
 	TCC0.INTCTRLA = TC_OVFINTLVL_LO_gc;
 	
 	TCD0.CTRLA = TC_CLKSEL_DIV1024_gc; //31250 counts per second with 32Mhz Processor
@@ -88,6 +91,7 @@ int main(void)
 						USART_PutChar(&USARTC0, 'r');
 					}
 				}
+				TimePrevious = TimeSinceInit;
 				break;	
 				
 			case Driving:
@@ -107,38 +111,54 @@ int main(void)
 				}					
 					BufferIdx = 0;
 					SendDriveControlStatus(&USARTC0, IsRoving, false);
+					TimePrevious = TimeSinceInit;
 				}
-		
-				if(!IsRoving){
+				
+				if((TimeSinceInit - TimePrevious) > TIMEOUTMAX){
 					DriveSaber.StopAll();
-				}
-			
-				if((PORTA.IN & XBEEDIO0)){
-					PORTC.OUTSET = (PIN5_bm | PIN6_bm | PIN7_bm);
-					IsRoving = true;
-				}else if((!(PORTA.IN & XBEEDIO0))){
-					PORTC.OUTCLR = (PIN5_bm | PIN6_bm | PIN7_bm);
-					IsRoving = false;
+					XMegaState = WaitForHost;
+					TimePrevious = TimeSinceInit;
 				}
 				break;
 				
 		};	
+	
+		if(!IsRoving){
+			DriveSaber.StopAll();
+		}
+	
+		if((PORTA.IN & XBEEDIO0)){
+			ERROR_CLR();
+			IsRoving = true;
+		}else if((!(PORTA.IN & XBEEDIO0))){
+			ERROR_SET();
+			IsRoving = false;
+		}
+	
 	}
-}ISR(USARTC0_RXC_vect){
+}
+
+
+ISR(USARTC0_RXC_vect){
 	USART_RXComplete(&USART_PC_Data);
 }
 
 
 ISR(USARTC0_DRE_vect){
 	USART_DataRegEmpty(&USART_PC_Data);
-}
+} 
 
 ISR(TCC0_OVF_vect){
-	TimeSinceInit++;
-	STATUS1_TOGGLE();
+	if(IsRoving){
+		JUDGELED_TOGGLE();	
+	}else if(!IsRoving){
+		JUDGELED_SET();
+	}
+	
 }
 
 ISR(TCD0_OVF_vect){
-
+	STATUS2_TOGGLE();
+	TimeSinceInit++;
 }
 
