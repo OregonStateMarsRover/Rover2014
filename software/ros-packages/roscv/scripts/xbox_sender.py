@@ -25,6 +25,9 @@ if __name__ == '__main__':
     #set up socket
     HOST = '192.168.0.64'# The remote host
     PORT = 35800 # The same port as used by the server
+    last_command = None
+    command = "flush"
+    ticks = 0
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((HOST, PORT))
     print sock.getsockname()
@@ -35,22 +38,23 @@ if __name__ == '__main__':
         vert = int(joy.get_axis(1)*127)
         turn = int(joy.get_axis(0)*127)
         if abs(abs(vert) - abs(turn)) < 20:
-            send_string(sock, "flush")
-            continue
-        if abs(vert) > abs(turn):
-            if vert < 0:
-                send_string(sock, "f10")
+            command = "flush"
+        else:
+            if abs(vert) > abs(turn):
+                if vert < 0:
+                    command = "f10"
             else:
-                send_string(sock, "b10")
-        elif abs(vert) < abs(turn):
-            if turn > 1:
-                send_string(sock, "r90")
-                time.sleep(1.0) 
+                    command = "b10"
+            elif abs(vert) < abs(turn):
+                if turn > 1:
+                    command = "r179"
             else:
-                send_string(sock, "r270")
-                time.sleep(1.0) 
+                    command = "r181"
 
+        if command != last_command or ticks > 10:
+            ticks = 0
+            send_string(sock, command)
+            last_command = command
         clock.tick(10)
-
-
+        ticks += 1
     sock.close()
