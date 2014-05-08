@@ -52,7 +52,8 @@ if __name__ == '__main__':
                     command = "r181"
 
         if command != last_command or ticks > 10:
-            send_string(sock, "flush")
+            if command != last_command:
+                send_string(sock, "flush")
             send_string(sock, command)
             ticks = 0
             last_command = command

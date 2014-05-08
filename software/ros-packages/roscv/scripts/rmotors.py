@@ -166,8 +166,10 @@ class RosController(object):
         else:
             for i in range(0, len(command_list), 2):
                 if command_list[i] == "left":
+                    print float(command_list[i+1])/10.0
                     self.m.change(self.meters_to_char(float(command_list[i+1])/10.0), self.m.right, 0)
                 elif command_list[i] == "right":
+                    print float(command_list[i+1])/10.0
                     self.m.change(self.m.left, self.meters_to_char(float(command_list[i+1])/10.0), 0)
                 elif command_list[i] == "rover":
                     self.mode = "rover"

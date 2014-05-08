@@ -33,6 +33,7 @@ if __name__ == '__main__':
 
     send_string(sock, "controller")
     while not rospy.is_shutdown():
+        print "Loop!"
         pygame.event.pump()
         left = int(joy.get_axis(1)*(-20))
 
