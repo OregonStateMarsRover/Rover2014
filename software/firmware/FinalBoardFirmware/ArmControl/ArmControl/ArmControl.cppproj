@@ -96,6 +96,7 @@
         <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
         <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
         <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.compiler.miscellaneous.OtherFlags>-std=gnu99  -Wl,-7u,vfprintf -lprintf_flt -lm</avrgcc.compiler.miscellaneous.OtherFlags>
         <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
         <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
         <avrgcccpp.compiler.symbols.DefSymbols>
@@ -108,6 +109,7 @@
         <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
         <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
         <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
+        <avrgcccpp.compiler.miscellaneous.OtherFlags>-Wl,-u,vfprintf -lprintf_flt -lm</avrgcccpp.compiler.miscellaneous.OtherFlags>
         <avrgcccpp.linker.libraries.Libraries>
           <ListValues>
             <Value>libm</Value>
@@ -118,16 +120,40 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="adc.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="adc.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ArmControl.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="avr_compiler.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="motorInfo.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="motorInfo.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rotateStepper.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rotateStepper.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Sabertooth.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Sabertooth.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="stepperInfo.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="stepperInfo.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="usart_driver.c">

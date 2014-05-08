@@ -1,4 +1,4 @@
-ArmControl.d ArmControl.o: .././ArmControl.cpp \
+stepperInfo.d stepperInfo.o: .././stepperInfo.cpp \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\io.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\sfr_defs.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\inttypes.h \
@@ -17,14 +17,12 @@ ArmControl.d ArmControl.o: .././ArmControl.cpp \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\stdio.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdarg.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stddef.h \
- .././avr_compiler.h \
+ .././stepperInfo.h .././XMegaMacros.h .././avr_compiler.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdbool.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\stdlib.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\interrupt.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\pgmspace.h \
- .././usart_driver.h .././Sabertooth.h .././XMegaMacros.h .././adc.h \
- c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\ctype.h \
- .././motorInfo.h .././stepperInfo.h .././rotateStepper.h
+ .././usart_driver.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\io.h:
 
@@ -62,6 +60,10 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-g
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stddef.h:
 
+.././stepperInfo.h:
+
+.././XMegaMacros.h:
+
 .././avr_compiler.h:
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdbool.h:
@@ -73,17 +75,3 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-g
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\pgmspace.h:
 
 .././usart_driver.h:
-
-.././Sabertooth.h:
-
-.././XMegaMacros.h:
-
-.././adc.h:
-
-c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\ctype.h:
-
-.././motorInfo.h:
-
-.././stepperInfo.h:
-
-.././rotateStepper.h:
