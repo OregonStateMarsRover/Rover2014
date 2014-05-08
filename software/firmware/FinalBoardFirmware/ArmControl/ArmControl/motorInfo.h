@@ -22,7 +22,7 @@ public:
 	int enabled;
 	
 	double currentPos;  //Current pos in inches
-	double desiredPos;  //Desired pos in inches
+	volatile double desiredPos;  //Desired pos in inches
 	
 protected:
 private:

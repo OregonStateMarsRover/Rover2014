@@ -18,6 +18,7 @@ public:
 	double calSpan;
 	
 	int currentAngle;
+	volatile int desiredPos;
 protected:
 private:
 

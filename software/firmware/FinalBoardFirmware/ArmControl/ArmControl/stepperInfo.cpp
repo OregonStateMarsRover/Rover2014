@@ -77,9 +77,9 @@ void stepperInfo::processCommand(int cmd){
 	//MOVE UNTIL LIMIT OR GRIP
 	while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
 		MD1_STEP_SET();
-		_delay_us(40);
+		_delay_us(60);
 		MD1_STEP_CLR();
-		_delay_us(40);
+		_delay_us(60);
 	}
 	
 	enabled = 0;

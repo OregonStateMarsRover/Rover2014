@@ -51,25 +51,47 @@ rotateStepper baseStepper;
 #define RELEASE 1
 
 volatile bool canAcceptPackets = true;
-
+volatile bool IsPacketToParse = false;
 volatile unsigned char bufferIndex = 0;
+
+volatile int v = 0;
+
 #define PACKETSIZE 10
 volatile char recieveBuffer[PACKETSIZE];
 
 enum { HEADER, COMMAND, BASEROTVAL1, BASEROTVAL2, ACT1VAL1, ACT1VAL2, ACT2VAL1, ACT2VAL2, CHECKSUM, TAIL};
+	
+enum XMegaStates{
+	WaitForHost,
+	ARMControl
+} CurrentState = WaitForHost;
+	
+void FlushSerialBuffer(USART_data_t *UsartBuffer){
+	while(USART_RXBufferData_Available(UsartBuffer)){
+		USART_RXBuffer_GetByte(UsartBuffer);
+	}
+}
 
 ISR(USARTC0_RXC_vect){
 	USART_RXComplete(&USART_PC_Data);
 	
 	if(USART_RXBufferData_Available(&USART_PC_Data)){
-		recieveBuffer[bufferIndex++] = USART_RXBuffer_GetByte(&USART_PC_Data);
+		recieveBuffer[bufferIndex] = USART_RXBuffer_GetByte(&USART_PC_Data);
 		bufferIndex++;
 	}
 	
 	if(bufferIndex == PACKETSIZE){
+		FlushSerialBuffer(&USART_PC_Data);
 		canAcceptPackets = false;
-		//Process packet
+		
+		gripStepper.desiredGripState = ~(recieveBuffer[1] & (1 << 1)); //0b00000010
+		baseStepper.desiredPos = (recieveBuffer[2]+recieveBuffer[3]);
+		lowerAct.setDesired((double(recieveBuffer[4]+recieveBuffer[5]) / double(100)));
+		upperAct.setDesired((double(recieveBuffer[6]+recieveBuffer[7]) / double(100)));
+		
 		STATUS1_SET();
+		IsPacketToParse = true;
+		bufferIndex = 0;
 	}
 
 }
@@ -149,7 +171,7 @@ void DemInitThingsYouBeenDoing(){
 	
 	//Setup Microstepping
 	MD2_M0_SET();  //Small amount of micro stepping is sufficient 
-	MD2_M1_CLR();
+	MD2_M1_SET();
 	MD2_M2_CLR();
 	
 	MD2_DIR_CLR();
@@ -280,69 +302,74 @@ int main(void)
 	
 	Sabertooth DriveSaber(&USARTD0, &PORTD);
 	
-	upperAct.desiredPos = 3.5;
-	lowerAct.desiredPos = 1.5;
+	upperAct.desiredPos = 2.5;
+	lowerAct.desiredPos = 3.5;
 	
 	lowerAct.enable();
 	upperAct.enable();
 	
 	
-	//baseStepper.calibrateBase();
-	//MD2_DIR_CLR();
-	//baseStepper.rotateBase(0);  //Note that this function takes an angle relative
+	/////////////Initial Calibration and Default Positions//////////////////////
+	while(lowerAct.enabled || upperAct.enabled){
+		checkActPosition();
+		DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(UPPER)*getMotorDir(UPPER));	
+	}
+
+	baseStepper.calibrateBase();
+	MD2_DIR_CLR();
+	baseStepper.rotateBase(0);  //Note that this function takes an angle relative
 								 //to the absolute 0 on the robot
-
-
 	/////////////////   DEBUG (and not wasting power) purposes!
-	MD2_DISABLE();
+	//MD2_DISABLE();
 	/////////////////
+
+	/////////////Initial Calibration and Default Positions//////////////////////
 
 //	sprintf(SendBuffer, "Multiplier: %d \r\n  \r\n", (int) baseStepper.multiplier);
 //	SendStringPC(SendBuffer);								//Send Dem Strings
-	
-	while(1) {
-		checkActPosition();
-		
-		if(lowerAct.enabled || upperAct.enabled){
-			DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));
-		}
-		else {
-			ERROR_SET();
-			DriveSaber.ParsePacket(127,127);  //TODO: This line should only be executed
-											  //once, unlike the current implementation
-		}
-		
-		//Handle sending ready byte
-		if(!canAcceptPackets){
-			canAcceptPackets = true;
+	while(1){
+		if(CurrentState == WaitForHost){
+			SendStringPC("ID: ArmControl");
+			_delay_ms(500);
+			if(USART_RXBufferData_Available(&USART_PC_Data)){
+				if(USART_RXBuffer_GetByte(&USART_PC_Data) == 'r'){
+					CurrentState = ARMControl;
+					USART_PutChar(&USARTC0, 'r');
+				}
+			}
+		}else if(CurrentState == ARMControl){
+
+			if(IsPacketToParse){
+				lowerAct.enable();						//Re-enable lower actuator
+				upperAct.enable();						//Re-enabled lower actuator
+
+				baseStepper.rotateBase(baseStepper.desiredPos);	//Move base to position
+					
+				checkActPosition();								//Check once to avoid loop is possible
+				while(lowerAct.enabled || upperAct.enabled){	//If a motor needs to move, do below
+					checkActPosition();							//Check positions
+					DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));	//Move to position
+				}												//Exit when done moving
+					
+				ERROR_SET();									//Show light when done with actuators
+				DriveSaber.ParsePacket(127,127);				//Stop actuators from moving any more
+
+				if(gripStepper.desiredGripState == GRIP){
+					gripStepper.enable();
+					gripStepper.processCommand(GRIP);
+				}else if(gripStepper.desiredGripState == RELEASE){
+					gripStepper.enable();
+					gripStepper.processCommand(RELEASE);
+
+					IsPacketToParse = false;
+				}
+			}
+			//Handle sending ready byte
+				
 			USART_PutChar(&USARTC0,'r');
 		}
-		
-		
-		_delay_ms(2000);
-		STATUS1_CLR();
-		
-		/*
-		gripStepper.enable();
-
-		gripStepper.processCommand(RELEASE);
-
-		_delay_ms(2000);	
-			
-		gripStepper.enable();
-		
-		gripStepper.processCommand(GRIP);
-		
-		_delay_ms(2000);		
-		*/
-
-	
-
-		_delay_ms(250);
-			
-		
-		_delay_ms(10);  //For the lols
 	}
+
 }
 
 
