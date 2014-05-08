@@ -32,9 +32,8 @@ uint8_t receiveArray[RECEIVE_PACKET_SIZE];
 USART_data_t USART_PC_Data;
 
 bool IsRoving = false;
-//////////////////////////////////////////////////////
-///// Add in buffer flush for initialization to get rid of nonsense data
-/////////////////////////////////
+
+volatile long unsigned int TimeSinceInit = 0;
 
 int main(void)
 {
@@ -51,8 +50,18 @@ int main(void)
 	_delay_ms(500);												//Delay to make sabertooth initialize
 	Sabertooth DriveSaber(&USARTD0, &PORTD);					//Initializes Sabertooth Communications at 9600 Baud
 	
-	TCC0.PER = 1000;
-	TCC0.
+	
+	//////////////////Timers///////////////
+	TCC0.CTRLA = TC_CLKSEL_DIV1024_gc; //31250 counts per second with 32Mhz Processor
+	TCC0.CTRLB = TC_WGMODE_NORMAL_gc;
+	TCC0.PER = 31250;
+	TCC0.INTCTRLA = TC_OVFINTLVL_LO_gc;
+	
+	TCD0.CTRLA = TC_CLKSEL_DIV1024_gc; //31250 counts per second with 32Mhz Processor
+	TCD0.CTRLB = TC_WGMODE_NORMAL_gc;
+	TCD0.PER = 31250;
+	TCD0.INTCTRLA = TC_OVFINTLVL_LO_gc;
+	///////////////////Timers//////////////
 	
 	sei();														//Enables global interrupts so the interrupt serial can work
 	
@@ -115,15 +124,21 @@ int main(void)
 				
 		};	
 	}
-}
-
-ISR(USARTC0_RXC_vect)
-{
+}ISR(USARTC0_RXC_vect){
 	USART_RXComplete(&USART_PC_Data);
 }
 
 
-ISR(USARTC0_DRE_vect)
-{
+ISR(USARTC0_DRE_vect){
 	USART_DataRegEmpty(&USART_PC_Data);
 }
+
+ISR(TCC0_OVF_vect){
+	TimeSinceInit++;
+	
+}
+
+ISR(TCD0_OVF_vect){
+
+}
+
