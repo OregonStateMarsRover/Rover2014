@@ -21,7 +21,7 @@
 #define NOT_LIT 0
 
 volatile unsigned char InterruptCounter = 0;							//A counter for our interrupt function
-const unsigned char InterruptCountMax = 31;								//Hold our interrupt count max to make up for only having an 8 bit timer and needing 1Hz led flash
+const unsigned char InterruptCountMax = 15;								//Hold our interrupt count max to make up for only having an 8 bit timer and needing 1Hz led flash
 volatile unsigned char LEDState = LIT;									//Holds the current Led state
 unsigned char RoverState = NOT_ROVING;									//Holds the current rover roving state
 	

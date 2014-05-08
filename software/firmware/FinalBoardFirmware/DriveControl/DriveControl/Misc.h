@@ -13,7 +13,7 @@
 //Custom Defined Macros
 #define STATUS1_SET(void) (PORTC.OUTSET = PIN6_bm)
 #define STATUS1_CLR(void) (PORTC.OUTCLR = PIN6_bm)
-#define STATUS1-TOGGLE(void) (PORTC.OUTSET ^= (PORTC.IN & PIN6_bm))
+#define STATUS1_TOGGLE(void) (PORTC.OUTTGL = PIN6_bm)
 
 #define STATUS2_SET(void) (PORTC.OUTSET = PIN5_bm)
 #define STATUS2_CLR(void) (PORTC.OUTCLR = PIN5_bm)

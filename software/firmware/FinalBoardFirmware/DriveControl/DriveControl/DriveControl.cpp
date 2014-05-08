@@ -135,7 +135,7 @@ ISR(USARTC0_DRE_vect){
 
 ISR(TCC0_OVF_vect){
 	TimeSinceInit++;
-	
+	STATUS1_TOGGLE();
 }
 
 ISR(TCD0_OVF_vect){

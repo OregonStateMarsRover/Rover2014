@@ -329,16 +329,15 @@ int main(void)
 //	SendStringPC(SendBuffer);								//Send Dem Strings
 	while(1){
 		if(CurrentState == WaitForHost){
-			SendStringPC("ID: ArmControl");
+			SendStringPC("ID: ArmControl\r\n");
 			_delay_ms(500);
-			if(USART_RXBufferData_Available(&USART_PC_Data)){
-				if(USART_RXBuffer_GetByte(&USART_PC_Data) == 'r'){
-					CurrentState = ARMControl;
-					USART_PutChar(&USARTC0, 'r');
-				}
+			if(recieveBuffer[0] == 'r'){
+				CurrentState = ARMControl;
+				USART_PutChar(&USARTC0, 'r');
+			}else{
+				bufferIndex = 0;
 			}
 		}else if(CurrentState == ARMControl){
-
 			if(IsPacketToParse){
 				lowerAct.enable();						//Re-enable lower actuator
 				upperAct.enable();						//Re-enabled lower actuator
@@ -363,10 +362,11 @@ int main(void)
 
 					IsPacketToParse = false;
 				}
+				USART_PutChar(&USARTC0,'r');
 			}
 			//Handle sending ready byte
 				
-			USART_PutChar(&USARTC0,'r');
+
 		}
 	}
 
