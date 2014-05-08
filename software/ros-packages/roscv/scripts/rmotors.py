@@ -179,6 +179,8 @@ class RosController(object):
 
         if length == 0 and command_list[0] != "flush":
             self.update()
+		else if command_list[0] == "flush" and self.thread is not None:
+			self.thread.cancel()
 
     def meters_to_char(self, speed):
         #speed must be a positive number
