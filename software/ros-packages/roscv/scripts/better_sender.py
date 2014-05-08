@@ -37,6 +37,8 @@ if __name__ == '__main__':
         left = int(joy.get_axis(1)*(-20))+20
         right = int(joy.get_axis(4)*(-20))+20
 
+        print "LEFT: %d\tRIGHT: %d" % (left, right)
+
         left_s = ""
         right_s = ""
         if abs(left) < 5:
