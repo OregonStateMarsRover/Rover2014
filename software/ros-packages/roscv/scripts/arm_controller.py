@@ -161,7 +161,7 @@ class RosController(object):
         self.M1=11.5
         self.L1=20
 
-        self.Z = 3
+        self.Z = 0
 
         self.x2=3*self.cosd(30)
         self.z2=3*self.sind(30)
@@ -193,47 +193,41 @@ class RosController(object):
 
         else:
             print "Ready and sending packet"
-            self.a.command = int(command_list[0])
-            self.a.lowerAct1=int(command_list[1])
-            self.a.lowerAct2=int(command_list[2])
-            self.a.upperAct1=int(command_list[3])
-            self.a.upperAct2=int(command_list[4])
-            self.a.send_packet()
-        '''
+
             converted_vars = self.convertXYZ(int(command_list[0]),(command_list[1]),int(self.Z))
             if converted_vars[0] > 360 or converted_vars < 0:
                 print "Bad theta"
                 return
             else:
                 if converted_vars[0] > 255:
-                    a.base1 = 255
-                    a.base2 = converted_vars[0] - 255
+                    self.a.base1 = 255
+                    self.a.base2 = converted_vars[0] - 255
                 else:
-                    a.base1 = converted_vars[0]
-                    a.base2 = 0
+                    self.a.base1 = converted_vars[0]
+                    self.a.base2 = 0
 
             if converted_vars[1] > 375 or converted_vars < 0:
                 print "Bad s1"
                 return
             else:
                 if converted_vars[1] > 255:
-                    a.lowerAct1 = 255
-                    a.lowerAct2 = converted_vars[1] - 255
+                    self.a.lowerAct1 = 255
+                    self.a.lowerAct2 = converted_vars[1] - 255
                 else:
-                    a.lowerAct1 = converted_vars[1]
-                    a.lowerAct2 = 0
+                    self.a.lowerAct1 = converted_vars[1]
+                    self.a.lowerAct2 = 0
             if converted_vars[2] > 375 or converted_vars < 0:
                 print "Bad s2"
                 return
             else:
                 if converted_vars[2] > 255:
-                    a.upperAct1 = 255
-                    a.upperAct2 = converted_vars[2] - 255
+                    self.a.upperAct1 = 255
+                    self.a.upperAct2 = converted_vars[2] - 255
                 else:
-                    a.upperAct1 = converted_vars[2]
-                    a.upperAct2 = 0
+                    self.a.upperAct1 = converted_vars[2]
+                    self.a.upperAct2 = 0
             a.send_packet()
-        '''
+
 
     def convertXYZ(self,x,y,z):
         theta_base = self.atand(y/x)
