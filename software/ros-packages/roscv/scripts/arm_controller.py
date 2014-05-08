@@ -97,16 +97,17 @@ class Arm(object):
 
 
     def send_packet(self):
-        print "command: %d" % self.command
+        '''print "command: %d" % self.command
         print "base1: %d" % self.base1
         print "base2: %d" % self.base2
         print "lowerAct1: %d" % self.lowerAct1
         print "lowerAct2: %d" % self.lowerAct2
         print "upperAct1: %d" % self.upperAct1
         print "upperAct2: %d" % self.upperAct2
-
-        ready = False
+        '''
+        self.ready = False
         self.serial.write(chr(255))
+        print self.command
         self.serial.write(chr(self.command))
         self.serial.write(chr(self.base1))
         self.serial.write(chr(self.base2))
@@ -116,26 +117,33 @@ class Arm(object):
         self.serial.write(chr(self.upperAct2))
         self.serial.write(chr(self.command ^ self.base1 ^ self.base2 ^ self.lowerAct1 ^ self.lowerAct2 ^ self.upperAct1 ^ self.upperAct2))
         self.serial.write(chr(255))
-        while self.serial.inWaiting() != 3:
+        while self.serial.inWaiting() != 4:
+            print self.serial.inWaiting()
             time.sleep(.1)
         self.read_packet()
 
     #TODO: fix for return packet and set flag for ready rover, probably rewrite
     def read_packet(self):
-        read = self.serial.read(3)
+        read = self.serial.read(4)
+        print "serial read 4: "
+        print ord(read[3])
+        print "checking r: "
+        print read[1]
         if ord(read[0]) == 255 and ord(read[2]) == 255:
-            if (ord(read[1]) & 1) == 1:
-                ready = True
+            if (read[1] == 'r'):
+                print "asdf"
+                self.ready = True
                 self.estop = 0
             elif ord(read[1]) == 0:
-                ready = False
+                print "asdf2"
+                self.ready = False
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
         return False
 
     def arm_ready(self):
-        return ready
+        return self.ready
 
 
 class RosController(object):
@@ -153,7 +161,7 @@ class RosController(object):
         self.M1=11.5
         self.L1=20
 
-        self.Z = 3
+        self.Z = 0
 
         self.x2=3*self.cosd(30)
         self.z2=3*self.sind(30)
@@ -172,50 +180,52 @@ class RosController(object):
         command_list = commands.split(',')
         print commands, command_list
 
-        if len(command_list) != 2:
-            return
+        #if len(command_list) != 2:
+        #    return
         for element in command_list:
             if not (str(element).isdigit()):
                 return
 
 
         if not self.a.arm_ready():
+            print "not ready"
             self.pub.publish("1")
 
         else:
-            converted_vars = convertXYZ(command_list[0],command_list[1],self.Z)
+            print "Ready and sending packet"
 
+            converted_vars = self.convertXYZ(int(command_list[0]),(command_list[1]),int(self.Z))
             if converted_vars[0] > 360 or converted_vars < 0:
                 print "Bad theta"
                 return
             else:
                 if converted_vars[0] > 255:
-                    a.base1 = 255
-                    a.base2 = converted_vars[0] - 255
+                    self.a.base1 = 255
+                    self.a.base2 = converted_vars[0] - 255
                 else:
-                    a.base1 = converted_vars[0]
-                    a.base2 = 0
+                    self.a.base1 = converted_vars[0]
+                    self.a.base2 = 0
 
             if converted_vars[1] > 375 or converted_vars < 0:
                 print "Bad s1"
                 return
             else:
                 if converted_vars[1] > 255:
-                    a.lowerAct1 = 255
-                    a.lowerAct2 = converted_vars[1] - 255
+                    self.a.lowerAct1 = 255
+                    self.a.lowerAct2 = converted_vars[1] - 255
                 else:
-                    a.lowerAct1 = converted_vars[1]
-                    a.lowerAct2 = 0
+                    self.a.lowerAct1 = converted_vars[1]
+                    self.a.lowerAct2 = 0
             if converted_vars[2] > 375 or converted_vars < 0:
                 print "Bad s2"
                 return
             else:
                 if converted_vars[2] > 255:
-                    a.upperAct1 = 255
-                    a.upperAct2 = converted_vars[2] - 255
+                    self.a.upperAct1 = 255
+                    self.a.upperAct2 = converted_vars[2] - 255
                 else:
-                    a.upperAct1 = converted_vars[2]
-                    a.upperAct2 = 0
+                    self.a.upperAct1 = converted_vars[2]
+                    self.a.upperAct2 = 0
             a.send_packet()
 
 
