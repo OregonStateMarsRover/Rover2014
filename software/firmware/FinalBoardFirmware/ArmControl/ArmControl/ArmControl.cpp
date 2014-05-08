@@ -18,6 +18,7 @@ PA2 = Limit 3 = Rotation Calibration
  */ 
 
 #define F_CPU 32000000UL
+#define MAXTIMEOUT 5
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -56,6 +57,9 @@ volatile bool canAcceptPackets = true;
 volatile bool IsPacketToParse = false;
 volatile unsigned char bufferIndex = 0;
 
+volatile long unsigned int TimeSinceInit = 0;
+long unsigned int TimePrevious = 0;
+
 volatile int v = 0;
 
 #define PACKETSIZE 10
@@ -68,6 +72,13 @@ enum XMegaStates{
 	WaitForHost,
 	ARMControl
 } CurrentState = WaitForHost;
+
+void SetupResetTimer(){
+	TCD0.CTRLA = TC_CLKSEL_DIV1024_gc; //31250 counts per second with 32Mhz Processor
+	TCD0.CTRLB = TC_WGMODE_NORMAL_gc;
+	TCD0.PER = 31250;
+	TCD0.INTCTRLA = TC_OVFINTLVL_LO_gc;
+}
 	
 void FlushSerialBuffer(USART_data_t *UsartBuffer){
 	while(USART_RXBufferData_Available(UsartBuffer)){
@@ -154,6 +165,7 @@ void SetupPCComms(){
 void DemInitThingsYouBeenDoing(){
 	SetXMEGA32MhzCalibrated();
 	SetupPCComms();
+	SetupResetTimer();
 	
 	//Setup Status and Error LEDS
 	PORTC.DIRSET = (PIN5_bm | PIN6_bm | PIN7_bm);
@@ -321,7 +333,7 @@ int main(void)
 	
 	Sabertooth DriveSaber(&USARTD0, &PORTD);
 	
-	upperAct.desiredPos = 2.5;
+	upperAct.desiredPos = 3.0;
 	lowerAct.desiredPos = 3.5;
 	
 	lowerAct.enable();
@@ -362,6 +374,7 @@ int main(void)
 				CurrentState = ARMControl;
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0, 'r');
+				TimePrevious = TimeSinceInit;
 			}
 			bufferIndex = 0;
 		}else if(CurrentState == ARMControl){
@@ -405,15 +418,19 @@ int main(void)
 				USART_PutChar(&USARTC0,recieveBuffer[0]);
 				bufferIndex = 0;
 			}
-			//Handle sending ready byte
-				
-
+			
+			if((TimePrevious - TimeSinceInit) > MAXTIMEOUT){
+				CurrentState = WaitForHost;
+				bufferIndex = 0;
+			}
 		}
 	}
 
 }
 
-
+ISR(TCD0_OVF_vect){
+	TimeSinceInit++;
+}
 
 
 
