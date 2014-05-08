@@ -233,7 +233,7 @@ class RosDetect():
                     return
                 draw_bounding_box(image, rect)
                 cv2.imshow("original", image)
-                self.objects.publish("(%d,%d)" % (rect[0]+(rect[2]/2), rect[1]+(rect[3]/2)))
+                self.objects.publish("%d,%d" % (rect[0]+(rect[2]/2), rect[1]+(rect[3]/2)))
         except CvBridgeError, e:
             print e
 
