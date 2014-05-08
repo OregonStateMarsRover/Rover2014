@@ -16,8 +16,10 @@
 extern "C" {
 	#include "avr_compiler.h"
 	#include "usart_driver.h"
+	
 };
 
+extern void SendStringPC(char *stufftosend);
 
 // default constructor
 stepperInfo::stepperInfo() {
@@ -45,6 +47,10 @@ void stepperInfo::processCommand(int cmd){
 		
 	currentState = cmd;
 	
+	//char sendBuffer[200];
+	//sprintf(sendBuffer, "Reached process command");
+	//SendStringPC(sendBuffer);
+	
 	
 	//GET DIRECTION
 	//CLR IS OUT
@@ -57,12 +63,11 @@ void stepperInfo::processCommand(int cmd){
 		MD1_DIR_CLR();
 		
 	if(!init){
-		for(int i = 0; i < 1500; ++i){
+		for(int i = 0; i < 10000; ++i){
 			MD1_STEP_SET();
-			_delay_us(500);
+			_delay_us(50);
 			MD1_STEP_CLR();
 			_delay_us(500);
-			_delay_ms(1);
 		}
 	}
 	else {
@@ -72,11 +77,9 @@ void stepperInfo::processCommand(int cmd){
 	//MOVE UNTIL LIMIT OR GRIP
 	while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
 		MD1_STEP_SET();
-		_delay_us(500);
+		_delay_us(40);
 		MD1_STEP_CLR();
-		_delay_us(500);
-		
-		_delay_us(500);
+		_delay_us(40);
 	}
 	
 	enabled = 0;
