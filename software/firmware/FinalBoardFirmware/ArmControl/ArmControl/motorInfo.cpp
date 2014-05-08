@@ -15,9 +15,9 @@
 motorInfo::motorInfo() {
 	acceptableCount = 0;
 	acceptableCountMax = 5;
-	acceptableError = .1;  //Needs calibration
+	acceptableError = .2;  //Needs calibration
 	slowRange = .75;
-	speed = 50;
+	speed = 100;
 	enabled = 0;
 	
 	//currentPos = 0;
