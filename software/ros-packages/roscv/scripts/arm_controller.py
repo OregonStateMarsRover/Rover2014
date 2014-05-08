@@ -40,6 +40,7 @@ class SerialHandler(object):
 
     def get_control_port(self, check_string):
         for port in list(self.list_serial_ports()):
+            print "Getting controller"
             try:
                 ser = serial.Serial(port, self.baud, timeout=self.timeout)
                 line_check = []
@@ -60,6 +61,11 @@ class SerialHandler(object):
     def read(self, count):
         return self.ser.read(count)
 
+    def flushInput(self):
+        self.ser.flushInput()
+
+    def inWaiting(self):
+        return self.ser.inWaiting()
 
 class Arm(object):
     #TODO: change initial values?
@@ -68,9 +74,9 @@ class Arm(object):
     command = 0
     base1 = 0
     base2 = 0
-    lowerAct1 = 0
-    lowerAct2 = 0
-    upperAct1 = 0
+    lowerAct1 = 255
+    lowerAct2 = 95
+    upperAct1 = 250
     upperAct2 = 0
     estop = 0
 
@@ -81,6 +87,8 @@ class Arm(object):
         self.serial.get_control_port("ID: ArmControl")
         time.sleep(2)
         self.serial.write('r')
+        time.sleep(.5)
+        self.serial.flushInput()
         time.sleep(2)
         open(os.devnull, 'w')
 
@@ -89,15 +97,15 @@ class Arm(object):
 
 
     def send_packet(self):
-        print "command: " + self.command
-        print "base1: " + self.base1
-        print "base2: " + self.base2
-        print "lowerAct1: " + self.lowerAct1
-        print "lowerAct2: " + self.lowerAct2
-        print "upperAct1: " + self.upperAct1
-        print "upperAct2: " + self.upperAct2
+        print "command: %d" % self.command
+        print "base1: %d" % self.base1
+        print "base2: %d" % self.base2
+        print "lowerAct1: %d" % self.lowerAct1
+        print "lowerAct2: %d" % self.lowerAct2
+        print "upperAct1: %d" % self.upperAct1
+        print "upperAct2: %d" % self.upperAct2
 
-
+        ready = False
         self.serial.write(chr(255))
         self.serial.write(chr(self.command))
         self.serial.write(chr(self.base1))
@@ -108,22 +116,22 @@ class Arm(object):
         self.serial.write(chr(self.upperAct2))
         self.serial.write(chr(self.command ^ self.base1 ^ self.base2 ^ self.lowerAct1 ^ self.lowerAct2 ^ self.upperAct1 ^ self.upperAct2))
         self.serial.write(chr(255))
-        while not self.read_packet:
-            pass
-        time.sleep(.02)
-    #TODO: fix for return packet and set flag for ready rover
+        while self.serial.inWaiting() != 3:
+            time.sleep(.1)
+        self.read_packet()
+
+    #TODO: fix for return packet and set flag for ready rover, probably rewrite
     def read_packet(self):
         read = self.serial.read(3)
         if ord(read[0]) == 255 and ord(read[2]) == 255:
             if (ord(read[1]) & 1) == 1:
-                self.stopped = False
+                ready = True
                 self.estop = 0
             elif ord(read[1]) == 0:
-                self.stopped = True
+                ready = False
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
-        ready = True
         return False
 
     def arm_ready(self):
@@ -138,12 +146,14 @@ class RosController(object):
 
     def __init__(self, arm_status, commands_from):
         self.pub = rospy.Publisher(arm_status, String)
-       # self.a = Arm()
+        self.a = Arm()
         self.x1=3*self.sind(30)
         self.z1=3*self.cosd(30)
         self.h1=sqrt(self.x1**2+self.z1**2)
         self.M1=11.5
         self.L1=20
+
+        self.Z = 3
 
         self.x2=3*self.cosd(30)
         self.z2=3*self.sind(30)
@@ -170,11 +180,10 @@ class RosController(object):
 
 
         if not self.a.arm_ready():
-            self.pub.publish("Arm is busy")
+            self.pub.publish("1")
 
-        else
-            a.ready = False
-            converted_vars = convertXYZ(command_list[0],command_list[1],Z)
+        else:
+            converted_vars = convertXYZ(command_list[0],command_list[1],self.Z)
 
             if converted_vars[0] > 360 or converted_vars < 0:
                 print "Bad theta"
@@ -209,8 +218,6 @@ class RosController(object):
                     a.upperAct2 = 0
             a.send_packet()
 
-    def arm_ready(self):
-        return True
 
     def convertXYZ(self,x,y,z):
         theta_base = self.atand(y/x)
