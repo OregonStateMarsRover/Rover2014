@@ -52,8 +52,9 @@ if __name__ == '__main__':
                     command = "r181"
 
         if command != last_command or ticks > 10:
-            ticks = 0
+			send_string(sock, "flush")
             send_string(sock, command)
+			ticks = 0
             last_command = command
         clock.tick(10)
         ticks += 1
