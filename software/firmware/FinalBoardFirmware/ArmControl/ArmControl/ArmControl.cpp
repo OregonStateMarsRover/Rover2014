@@ -50,6 +50,8 @@ rotateStepper baseStepper;
 #define GRIP 0
 #define RELEASE 1
 
+#define GRIP_BM_SERIAL (1 << 1)
+
 volatile bool canAcceptPackets = true;
 volatile bool IsPacketToParse = false;
 volatile unsigned char bufferIndex = 0;
@@ -58,6 +60,7 @@ volatile int v = 0;
 
 #define PACKETSIZE 10
 volatile char recieveBuffer[PACKETSIZE];
+volatile char SendBuffer[100];
 
 enum { HEADER, COMMAND, BASEROTVAL1, BASEROTVAL2, ACT1VAL1, ACT1VAL2, ACT2VAL1, ACT2VAL2, CHECKSUM, TAIL};
 	
@@ -80,18 +83,34 @@ ISR(USARTC0_RXC_vect){
 		bufferIndex++;
 	}
 	
-	if(bufferIndex == PACKETSIZE){
+	if((bufferIndex == PACKETSIZE)){
 		FlushSerialBuffer(&USART_PC_Data);
-		canAcceptPackets = false;
+		if(recieveBuffer[8] == (recieveBuffer[1] ^ recieveBuffer[2] ^ recieveBuffer[3] ^ recieveBuffer[4] ^ recieveBuffer[5] ^ recieveBuffer[6] ^ recieveBuffer[7])){
+			//if(recieveBuffer[1] == 2){
+			//sprintf(SendBuffer)
+			gripStepper.desiredGripState = !(recieveBuffer[1] & GRIP_BM_SERIAL); //0b00000010	
+				//STATUS1_SET();
+			//}else if(recieveBuffer[1] != 2){
+				
+				//STATUS1_CLR();
+			//}
+
+			baseStepper.desiredPos = (recieveBuffer[3]+recieveBuffer[2]);
+			lowerAct.setDesired((double(recieveBuffer[5]+recieveBuffer[4]) / double(100)));
+			upperAct.setDesired((double(recieveBuffer[7]+recieveBuffer[6]) / double(100)));
+			IsPacketToParse = true;
+		}else{
+			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+			USART_PutChar(&USARTC0, 255);
+			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+			USART_PutChar(&USARTC0,'r');
+			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+			USART_PutChar(&USARTC0,255);
+			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+			USART_PutChar(&USARTC0,recieveBuffer[0]);
+			bufferIndex = 0;	
+		}
 		
-		gripStepper.desiredGripState = ~(recieveBuffer[1] & (1 << 1)); //0b00000010
-		baseStepper.desiredPos = (recieveBuffer[2]+recieveBuffer[3]);
-		lowerAct.setDesired((double(recieveBuffer[4]+recieveBuffer[5]) / double(100)));
-		upperAct.setDesired((double(recieveBuffer[6]+recieveBuffer[7]) / double(100)));
-		
-		STATUS1_SET();
-		IsPacketToParse = true;
-		bufferIndex = 0;
 	}
 
 }
@@ -298,7 +317,7 @@ int main(void)
 {
 	DemInitThingsYouBeenDoing();							//All init moved to nicer spot
 	_delay_ms(1000);
-	char SendBuffer[200];
+
 	
 	Sabertooth DriveSaber(&USARTD0, &PORTD);
 	
@@ -318,7 +337,15 @@ int main(void)
 	baseStepper.calibrateBase();
 	MD2_DIR_CLR();
 	baseStepper.rotateBase(0);  //Note that this function takes an angle relative
-								 //to the absolute 0 on the robot
+	
+	
+	gripStepper.enable();							 //to the absolute 0 on the robot
+	gripStepper.processCommand(RELEASE);
+	/*
+	_delay_ms(5000);
+	gripStepper.enable();
+	gripStepper.processCommand(GRIP);
+	*/ 
 	/////////////////   DEBUG (and not wasting power) purposes!
 	//MD2_DISABLE();
 	/////////////////
@@ -335,9 +362,8 @@ int main(void)
 				CurrentState = ARMControl;
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0, 'r');
-			}else{
-				bufferIndex = 0;
 			}
+			bufferIndex = 0;
 		}else if(CurrentState == ARMControl){
 			if(IsPacketToParse){
 				ERROR_SET();									//Show light when done with actuators
@@ -355,6 +381,8 @@ int main(void)
 
 				DriveSaber.ParsePacket(127,127);				//Stop actuators from moving any more
 
+				
+				
 				if(gripStepper.desiredGripState == GRIP){
 					gripStepper.enable();
 					gripStepper.processCommand(GRIP);
@@ -364,6 +392,7 @@ int main(void)
 
 				}
 				
+				
 				IsPacketToParse = false;
 				ERROR_CLR();
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
@@ -372,7 +401,9 @@ int main(void)
 				USART_PutChar(&USARTC0,'r');
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0,255);
-
+				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
+				USART_PutChar(&USARTC0,recieveBuffer[0]);
+				bufferIndex = 0;
 			}
 			//Handle sending ready byte
 				
