@@ -97,15 +97,15 @@ class Arm(object):
 
 
     def send_packet(self):
-        print "command: %d" % self.command
+        '''print "command: %d" % self.command
         print "base1: %d" % self.base1
         print "base2: %d" % self.base2
         print "lowerAct1: %d" % self.lowerAct1
         print "lowerAct2: %d" % self.lowerAct2
         print "upperAct1: %d" % self.upperAct1
         print "upperAct2: %d" % self.upperAct2
-
-        ready = False
+        '''
+        self.ready = False
         self.serial.write(chr(255))
         self.serial.write(chr(self.command))
         self.serial.write(chr(self.base1))
@@ -123,19 +123,23 @@ class Arm(object):
     #TODO: fix for return packet and set flag for ready rover, probably rewrite
     def read_packet(self):
         read = self.serial.read(3)
+        print "checking r: "
+        print read[1]
         if ord(read[0]) == 255 and ord(read[2]) == 255:
-            if (ord(read[1]) & 1) == 1:
-                ready = True
+            if (read[1] == 'r'):
+                print "asdf"
+                self.ready = True
                 self.estop = 0
             elif ord(read[1]) == 0:
-                ready = False
+                print "asdf2"
+                self.ready = False
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
         return False
 
     def arm_ready(self):
-        return ready
+        return self.ready
 
 
 class RosController(object):
@@ -172,19 +176,26 @@ class RosController(object):
         command_list = commands.split(',')
         print commands, command_list
 
-        if len(command_list) != 2:
-            return
+        #if len(command_list) != 2:
+        #    return
         for element in command_list:
             if not (str(element).isdigit()):
                 return
 
 
         if not self.a.arm_ready():
+            print "not ready"
             self.pub.publish("1")
 
         else:
-            converted_vars = convertXYZ(command_list[0],command_list[1],self.Z)
-
+            print "Ready and sending packet"
+            self.a.lowerAct1=int(command_list[0])
+            self.a.lowerAct2=int(command_list[1])
+            self.a.upperAct1=int(command_list[2])
+            self.a.upperAct2=int(command_list[3])
+            self.a.send_packet()
+        ''' 
+            converted_vars = self.convertXYZ(int(command_list[0]),(command_list[1]),int(self.Z))
             if converted_vars[0] > 360 or converted_vars < 0:
                 print "Bad theta"
                 return
@@ -217,7 +228,7 @@ class RosController(object):
                     a.upperAct1 = converted_vars[2]
                     a.upperAct2 = 0
             a.send_packet()
-
+        '''
 
     def convertXYZ(self,x,y,z):
         theta_base = self.atand(y/x)
