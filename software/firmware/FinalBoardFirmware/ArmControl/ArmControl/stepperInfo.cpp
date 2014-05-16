@@ -63,7 +63,7 @@ void stepperInfo::processCommand(int cmd){
 		MD1_DIR_CLR();
 		
 	if(!init){
-		for(int i = 0; i < 10000; ++i){
+		for(int i = 0; i < 5000; ++i){
 			MD1_STEP_SET();
 			_delay_us(50);
 			MD1_STEP_CLR();
@@ -77,9 +77,9 @@ void stepperInfo::processCommand(int cmd){
 	//MOVE UNTIL LIMIT OR GRIP
 	while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
 		MD1_STEP_SET();
-		_delay_us(60);
+		_delay_us(20);
 		MD1_STEP_CLR();
-		_delay_us(60);
+		_delay_us(40);
 	}
 	
 	enabled = 0;

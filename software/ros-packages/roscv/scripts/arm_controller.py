@@ -5,7 +5,7 @@ from std_msgs.msg import String
 import itertools #Used to break apart string
 import collections #used for the command queue
 import threading
-from math import cos,acos,sin,asin,tan,atan,degrees,sqrt
+from math import cos,acos,sin,asin,tan,atan,degrees,sqrt,radians
 
 import signal
 import sys
@@ -97,16 +97,17 @@ class Arm(object):
 
 
     def send_packet(self):
-        print "command: %d" % self.command
+        '''print "command: %d" % self.command
         print "base1: %d" % self.base1
         print "base2: %d" % self.base2
         print "lowerAct1: %d" % self.lowerAct1
         print "lowerAct2: %d" % self.lowerAct2
         print "upperAct1: %d" % self.upperAct1
         print "upperAct2: %d" % self.upperAct2
-
-        ready = False
+        '''
+        self.ready = False
         self.serial.write(chr(255))
+        print self.command
         self.serial.write(chr(self.command))
         self.serial.write(chr(self.base1))
         self.serial.write(chr(self.base2))
@@ -116,36 +117,44 @@ class Arm(object):
         self.serial.write(chr(self.upperAct2))
         self.serial.write(chr(self.command ^ self.base1 ^ self.base2 ^ self.lowerAct1 ^ self.lowerAct2 ^ self.upperAct1 ^ self.upperAct2))
         self.serial.write(chr(255))
-        while self.serial.inWaiting() != 3:
+        while self.serial.inWaiting() != 4:
+            print self.serial.inWaiting()
             time.sleep(.1)
         self.read_packet()
 
     #TODO: fix for return packet and set flag for ready rover, probably rewrite
     def read_packet(self):
-        read = self.serial.read(3)
+        read = self.serial.read(4)
+        print "serial read 4: "
+        print ord(read[3])
+
+        print "checking r: "
+        print read[1]
         if ord(read[0]) == 255 and ord(read[2]) == 255:
-            if (ord(read[1]) & 1) == 1:
-                ready = True
+            if (read[1] == 'r'):
+                print "asdf"
+                self.ready = True
                 self.estop = 0
             elif ord(read[1]) == 0:
-                ready = False
+                print "asdf2"
+                self.ready = False
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
         return False
 
     def arm_ready(self):
-        return ready
+        return self.ready
 
 
 class RosController(object):
 
-    pub = None
+    #pub = None
     a = None
 
 
     def __init__(self, arm_status, commands_from):
-        self.pub = rospy.Publisher(arm_status, String)
+        #self.pub = rospy.Publisher(arm_status, String)
         self.a = Arm()
         self.x1=3*self.sind(30)
         self.z1=3*self.cosd(30)
@@ -153,7 +162,7 @@ class RosController(object):
         self.M1=11.5
         self.L1=20
 
-        self.Z = 3
+        self.Z = 1
 
         self.x2=3*self.cosd(30)
         self.z2=3*self.sind(30)
@@ -163,7 +172,7 @@ class RosController(object):
 
         self.OS_1=0.5
         self.OS_2=0.34808
-        rospy.Subscriber('arm_commands',String, self.read_commands)
+        #rospy.Subscriber('arm_commands',String, self.read_commands)
 
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)
     def convert_act(self, val):
@@ -172,11 +181,13 @@ class RosController(object):
         else:
             return ['255','%d' %(int(val)-255)]
 
+
     def read_commands(self, commands):
         commands = str(commands).replace("data:", "").replace(" ", "")
         command_list = commands.split(',')
         command_send[7]
         print commands, command_list
+
 
         if len(command_list) != 4:
             return
@@ -196,42 +207,52 @@ class RosController(object):
         self.a.send_packet()
 '''
         if not self.a.arm_ready():
-            self.pub.publish("1")
+            print "not ready"
+           # self.pub.publish("1")
 
         else:
-            converted_vars = convertXYZ(command_list[0],command_list[1],self.Z)
 
+            print "Ready and sending packet"
+            self.a.command = int(command_list[0])
+            self.a.base1 = int(command_list[1])
+            self.a.base2 = int(command_list[2])
+            self.a.lowerAct1 = int(command_list[3])
+            self.a.lowerAct2 = int(command_list[4])
+            self.a.upperAct1 = int(command_list[5])
+            self.a.upperAct2 = int(command_list[6])
+            self.a.send_packet()
+            converted_vars = self.convertXYZ(int(command_list[0]),int(command_list[1]),int(self.Z))
             if converted_vars[0] > 360 or converted_vars < 0:
                 print "Bad theta"
                 return
             else:
                 if converted_vars[0] > 255:
-                    a.base1 = 255
-                    a.base2 = converted_vars[0] - 255
+                    self.a.base1 = 255
+                    self.a.base2 = converted_vars[0] - 255
                 else:
-                    a.base1 = converted_vars[0]
-                    a.base2 = 0
+                    self.a.base1 = converted_vars[0]
+                    self.a.base2 = 0
 
             if converted_vars[1] > 375 or converted_vars < 0:
                 print "Bad s1"
                 return
             else:
                 if converted_vars[1] > 255:
-                    a.lowerAct1 = 255
-                    a.lowerAct2 = converted_vars[1] - 255
+                    self.a.lowerAct1 = 255
+                    self.a.lowerAct2 = converted_vars[1] - 255
                 else:
-                    a.lowerAct1 = converted_vars[1]
-                    a.lowerAct2 = 0
+                    self.a.lowerAct1 = converted_vars[1]
+                    self.a.lowerAct2 = 0
             if converted_vars[2] > 375 or converted_vars < 0:
                 print "Bad s2"
                 return
             else:
                 if converted_vars[2] > 255:
-                    a.upperAct1 = 255
-                    a.upperAct2 = converted_vars[2] - 255
+                    self.a.upperAct1 = 255
+                    self.a.upperAct2 = converted_vars[2] - 255
                 else:
-                    a.upperAct1 = converted_vars[2]
-                    a.upperAct2 = 0
+                    self.a.upperAct1 = converted_vars[2]
+                    self.a.upperAct2 = 0
             a.send_packet()
 
 
@@ -241,14 +262,14 @@ class RosController(object):
         x_o = (x/(self.cosd(theta_base)))-(self.OS_1+self.OS_2)
         v = (sqrt(x_o**2+z**2))
         theta_v = (self.atand(z/x_o))
-        theta_b = (self.acosd((self.L2**2-self.L1**2-v**2)/(-2*L1*v)))
+        theta_b = (self.acosd((self.L2**2-self.L1**2-v**2)/(-2*self.L1*v)))
 
         theta1 = theta_b+theta_v
 
-        theta_c = (self.acoscd((v**2-self.L1**2-self.L2**2)/(-2*self.L1*self.L2)))
+        theta_c = (self.acosd((v**2-self.L1**2-self.L2**2)/(-2*self.L1*self.L2)))
         theta2 = theta_c+theta1-180
 
-        s1 = sqrt((self.M1-(self.h1*self.cosd(90-self.atand(self.x1/self.z1)+thta1)))**2+(self.h1*self.sind(90-self.atand(self.x1/self.z1)+theta1))**2)
+        s1 = sqrt((self.M1-(self.h1*self.cosd(90-self.atand(self.x1/self.z1)+theta1)))**2+(self.h1*self.sind(90-self.atand(self.x1/self.z1)+theta1))**2)
 
         s2 = sqrt((self.M2+(self.h2*self.cosd(90-self.atand(self.x2/self.z2)-theta2)))**2+(self.h2*self.sind(90-self.atand(self.x2/self.z2)-theta2))**2)
 
@@ -261,22 +282,21 @@ class RosController(object):
 
         return [theta_base,s1,s2]
     def atand(self,val):
-        return degrees(atan(val))
+        return degrees(atan(radians(val)))
     def acosd(self,val):
-        return degrees(acos(val))
+        return degrees(acos(radians(val)))
     def asind(self,val):
-        return degrees(asin(val))
+        return degrees(asin(radians(val)))
     def cosd(self,val):
-        return degrees(cos(val))
+        return degrees(cos(radians(val)))
     def sind(self,val):
-        return degrees(sin(val))
+        return degrees(sin(radians(val)))
     def tand(self,val):
-        return degrees(tan(val))
+        return degrees(tan(radians(val)))
 #class ArmController(RosController):
-
-
-
 '''
+
+
 
 '''class MotorStopperForward(threading.Thread):
     def __init__(self, update, distance):
@@ -293,13 +313,62 @@ class RosController(object):
 con = None
 if __name__ == '__main__':
     try:
-        rospy.init_node("arm_controller", anonymous=True)
+        
         #con = ArmController("arm_controller", "arm_command")
         #handle lethal signals in order to stop the motors if the script quits
         #signal.signal(signal.SIGHUP, handler)
         #signal.signal(signal.SIGQUIT, handler)
-        test = RosController("arm_status","arm_command")
-        rospy.spin()
+        pub_motor = rospy.Publisher("motor_command", String)
+        rospy.init_node("motor_command", "navigation")
+       # subs = pub_motor.getNumSubscribers()
+       # while subs > pub_motor.getNumSubscribers():
+        #    pass
+'''
+        rospy.sleep(1)
+        pub_motor.publish('f50')
+        rospy.sleep(5)
+
+        test = Arm()
+        
+        test.command=2
+        test.base1=0
+        test.base2=0
+        test.lowerAct1=38
+        test.lowerAct2=0
+        test.UpperAct1=255
+        test.UpperAct2=45
+        test.send_packet()
+        
+        test.command=2
+        test.base1=0
+        test.base2=0
+        test.lowerAct1=255
+        test.lowerAct2=115
+        test.UpperAct1=255
+        test.UpperAct2=115
+        test.send_packet()
+        
+        test.command=2
+        test.base1=150
+        test.base2=0
+        test.lowerAct1=255
+        test.lowerAct2=115
+        test.UpperAct1=255
+        test.UpperAct2=115
+        test.send_packet()
+        
+        test.command=0
+        test.base1=150
+        test.base2=0
+        test.lowerAct1=255
+        test.lowerAct2=20
+        test.UpperAct1=255
+        test.UpperAct2=115
+        test.send_packet()
+        rospy.sleep(5)
+        pub_motor.publish("r98f50")
+'''
+       rospy.spin()
     except rospy.ROSInterruptException:
         pass
 
