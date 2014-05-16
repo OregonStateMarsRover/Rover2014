@@ -105,6 +105,7 @@ class Arm(object):
         print "upperAct1: %d" % self.upperAct1
         print "upperAct2: %d" % self.upperAct2
         '''
+        print "sending"
         self.ready = False
         self.serial.write(chr(255))
         self.serial.write(chr(self.command))
@@ -119,6 +120,7 @@ class Arm(object):
         while self.serial.inWaiting() != 3:
             time.sleep(.1)
         self.read_packet()
+        print "reading packet"
 
     #TODO: fix for return packet and set flag for ready rover, probably rewrite
     def read_packet(self):
@@ -151,50 +153,59 @@ class RosController(object):
     def __init__(self, arm_status, commands_from):
         self.pub = rospy.Publisher(arm_status, String)
         self.a = Arm()
-        self.x1=3*self.sind(30)
-        self.z1=3*self.cosd(30)
-        self.h1=sqrt(self.x1**2+self.z1**2)
-        self.M1=11.5
-        self.L1=20
+       # self.x1=3*self.sind(30)
+       # self.z1=3*self.cosd(30)
+       # self.h1=sqrt(self.x1**2+self.z1**2)
+       # self.M1=11.5
+       # self.L1=20
 
-        self.Z = 3
+       # self.Z = 3
 
-        self.x2=3*self.cosd(30)
-        self.z2=3*self.sind(30)
-        self.h2=sqrt(self.x2**2+self.z2**2)
-        self.M2=12
-        self.L2=14
+       # self.x2=3*self.cosd(30)
+       # self.z2=3*self.sind(30)
+       # self.h2=sqrt(self.x2**2+self.z2**2)
+       # self.M2=12
+       # self.L2=14
 
         self.OS_1=0.5
         self.OS_2=0.34808
         rospy.Subscriber('arm_commands',String, self.read_commands)
 
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)
+    def convert_act(self, val):
+        print val
+        if int(val) < 255:
+            return [int(val),0]
+        else:
+            print "the mod is"
+            print int(val)%255 
+            return [255, (int(val)%255)]
+
 
     def read_commands(self, commands):
         commands = str(commands).replace("data:", "").replace(" ", "")
         command_list = commands.split(',')
         print commands, command_list
 
-        #if len(command_list) != 2:
-        #    return
+        if len(command_list) != 4:
+            return
         for element in command_list:
             if not (str(element).isdigit()):
                 return
-
-
-        if not self.a.arm_ready():
-            print "not ready"
-            self.pub.publish("1")
-
-        else:
-            print "Ready and sending packet"
-            self.a.lowerAct1=int(command_list[0])
-            self.a.lowerAct2=int(command_list[1])
-            self.a.upperAct1=int(command_list[2])
-            self.a.upperAct2=int(command_list[3])
-            self.a.send_packet()
-        ''' 
+        print command_list
+        self.a.command =int( command_list[0]) 
+        base = self.convert_act(command_list[1])
+        act1 = self.convert_act(command_list[2])
+        act2 = self.convert_act(command_list[3])
+        print base,act1,act2
+        self.a.base1 = int(base[0])
+        self.a.base2 = int(base[1])
+        self.a.lowerAct1 = int(act1[0])
+        self.a.lowerAct2 = int(act1[1])
+        self.a.upperAct1 = int(act2[0])
+        self.a.upperAct2 = int(act2[1])
+        self.a.send_packet()
+''' 
             converted_vars = self.convertXYZ(int(command_list[0]),(command_list[1]),int(self.Z))
             if converted_vars[0] > 360 or converted_vars < 0:
                 print "Bad theta"
@@ -228,7 +239,7 @@ class RosController(object):
                     a.upperAct1 = converted_vars[2]
                     a.upperAct2 = 0
             a.send_packet()
-        '''
+        
 
     def convertXYZ(self,x,y,z):
         theta_base = self.atand(y/x)
@@ -255,7 +266,8 @@ class RosController(object):
        # s2=sqrt((M2+(h2*cosd(90-atand(x2/z2)-((acosd(((sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2-L1**2-L2**2)/(-2*L1*L2)))+((acosd((L2**2-L1**2-(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2)/(-2*L1*(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2)))))+(atand(z/((x/(cosd((atand(y/x)))))-(OS_1+OS_2)))))-180))))**2+(h2*sind(90-atand(x2/z2)-((acosd(((sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2-L1**2-L2**2)/(-2*L1*L2)))+((acosd((L2**2-L1**2-(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2))**2)/(-2*L1*(sqrt(((x/(cosd((atand(y/x)))))-(OS_1+OS_2))**2+z**2)))))+(atand(z/((x/(cosd((atand(y/x)))))-(OS_1+OS_2)))))-180)))**2)
 
         return [theta_base,s1,s2]
-    def atand(self,val):
+'''        
+'''    def atand(self,val):
         return degrees(atan(val))
     def acosd(self,val):
         return degrees(acos(val))
@@ -268,7 +280,7 @@ class RosController(object):
     def tand(self,val):
         return degrees(tan(val))
 #class ArmController(RosController):
-
+'''
 
 
 
