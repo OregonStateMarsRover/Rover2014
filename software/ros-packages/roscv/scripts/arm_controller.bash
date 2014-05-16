@@ -4,3 +4,4 @@ source /opt/ros/groovy/setup.bash
 source /home/rover/ros/rover_ws/devel/setup.bash
 
 rosrun roscv arm_controller.py 
+
