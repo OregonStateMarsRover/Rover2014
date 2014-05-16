@@ -166,19 +166,35 @@ class RosController(object):
         rospy.Subscriber('arm_commands',String, self.read_commands)
 
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)
+    def convert_act(self, val):
+        if val < 255:
+            return [val,'0']
+        else:
+            return ['255','%d' %(int(val)-255)]
 
     def read_commands(self, commands):
         commands = str(commands).replace("data:", "").replace(" ", "")
         command_list = commands.split(',')
+        command_send[7]
         print commands, command_list
 
-        if len(command_list) != 2:
+        if len(command_list) != 4:
             return
         for element in command_list:
             if not (str(element).isdigit()):
                 return
-
-
+        command_send[0] = command_list[0]
+        base = self.convert_act(command[1])
+        act1 = self.convert_act(command[2])
+        act2 = self.covert_act(command[3])
+        self.a.base1 = base[0]
+        self.a.base2 = base[1]
+        self.a.lowerAct1 = act1[0]
+        self.a.lowerAct2 = act1[1]
+        self.a.upperAct1 = act2[0]
+        self.a.upperAct2 = act2[1]
+        self.a.send_packet()
+'''
         if not self.a.arm_ready():
             self.pub.publish("1")
 
@@ -260,7 +276,7 @@ class RosController(object):
 
 
 
-
+'''
 
 '''class MotorStopperForward(threading.Thread):
     def __init__(self, update, distance):

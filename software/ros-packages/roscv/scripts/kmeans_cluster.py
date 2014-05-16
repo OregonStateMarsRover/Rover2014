@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+import sys
+print sys.path
 import numpy as np
 import cv2
 import time
 import random
-
 try:
     import roslib
     roslib.load_manifest('roscv')
@@ -143,9 +144,11 @@ def test_matching(hook_skel, puck_skel, lower_bound, upper_bound, test_count):
     wrong = 0
     skip_count = 0
     m_wrong = 0.0
+    vid = cv2.VideoCapture(1)
     random.seed(time.time())
     for num in range(test_count):
         img = cv2.imread("test_images/images/image%03d.png" % random.randint(lower_bound, upper_bound))
+        _, img = vid.read()
         try:
             original = img.copy()
         except AttributeError:
