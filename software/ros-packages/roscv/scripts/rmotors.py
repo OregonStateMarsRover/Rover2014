@@ -62,14 +62,15 @@ class SerialHandler(object):
 class Motor(object):
 
     serial = None
-    left = None
-    right = None
+    left = 127
+    right = 127
     estop = 0
     right_speed = 127
     left_speed = 127
-    ramp_rate = 1
+
 
     def __init__(self):
+        self.ramp_rate = 1
         self.stopped = False
         self.serial = SerialHandler()
         self.serial.get_control_port("ID: MainDrive")
@@ -104,7 +105,7 @@ class Motor(object):
         if self.left_speed != self.left:
             delta = self.left - self.left_speed
             if abs(delta) > self.ramp_rate:
-                    self.ramp_rate += 1
+                    self.ramp_rate += .5
                     self.left_speed += self.ramp_rate if delta > 0 else -self.ramp_rate
             else:
                     self.left_speed = self.left

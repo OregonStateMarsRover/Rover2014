@@ -18,7 +18,7 @@ def init_ros(publish, node_name):
 
 if __name__ == "__main__":
     s = create_socket_server()
-    motor_pub = rospy.Publisher("arm_command", String)
+    motor_pub = rospy.Publisher("arm_commands", String)
     pub = init_ros("arm_command", "navigation")
     conn, addr = s.accept()
     print 'Connected by', addr

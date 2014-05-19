@@ -64,6 +64,9 @@ if __name__ == '__main__':
         if y:
             rover = 1 ^ rover
 
+        if rover == 0:
+            continue
+
         if state == "down":
             upper = 80
             lower = 80
@@ -74,6 +77,6 @@ if __name__ == '__main__':
         print "%d,%d,%d,%d" % (grab, 0, lower, upper)
         send_string(sock, "%d,%d,%d,%d" % (grab, 0, lower, upper))
         if a or b or x:
-            time.sleep(.5)
+            clock.tick(1)
         clock.tick(20)
     sock.close()

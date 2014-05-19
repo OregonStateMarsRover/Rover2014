@@ -154,7 +154,7 @@ class RosController(object):
 
 
     def __init__(self, arm_status, commands_from):
-        #self.pub = rospy.Publisher(arm_status, String)
+        self.pub = rospy.Publisher(arm_status, String)
         self.a = Arm()
        # self.x1=3*self.sind(30)
        # self.z1=3*self.cosd(30)
@@ -169,7 +169,7 @@ class RosController(object):
 
         self.OS_1=0.5
         self.OS_2=0.34808
-        #rospy.Subscriber('arm_commands',String, self.read_commands)
+        rospy.Subscriber('arm_commands',String, self.read_commands)
 
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)
     def convert_act(self, val):
@@ -296,7 +296,7 @@ con = None
 if __name__ == '__main__':
     try:
         
-        #con = ArmController("arm_controller", "arm_command")
+        con = RosController("arm_controller", "arm_command")
         #handle lethal signals in order to stop the motors if the script quits
         #signal.signal(signal.SIGHUP, handler)
         #signal.signal(signal.SIGQUIT, handler)
