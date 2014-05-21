@@ -25,31 +25,15 @@ class ProcessManager:
 		self.move_proc = None
 
 	def start_stereo(self):
-		cam_args = ['roslaunch', 'roscv', 'startCam.launch']
-		self.cam_proc = Popen(cam_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-		#Read from cam_proc.stdout.readlines() ????
+		sp = StereoProcess()
+		sp.start()
 
-		stereo_args = ['roslaunch', 'roscv', 'startStereo.launch']
-		self.stereo_proc = Popen(stereo_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-		#Read from stereo_proc.stdout.readlines() ????
-		rospy.loginfo("Started stereo system")
-
-		while True:
-			time.sleep(1)
-			print "xxx"
-			sr = nb_read(self.stereo_proc.stdout)
-			if sr != "":
-				print sr
-
-	def start_obstacle(self):
-		obs_args = ['rosrun', 'roscv2', 'obstacle_detect']
-		self.obs_proc = Popen(obs_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-		rospy.loginfo("Started obstacle detection")
-
+"""
 	def start_pathfinding(self):
 		move_args = ['rosrun', 'roscv', 'pathfinding']
 		self.move_proc = Popen(move_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 		rospy.loginfo("Started pathfinding")
+"""
 
 class StereoProcess:
 	def __init__(self):
@@ -59,6 +43,18 @@ class StereoProcess:
 		self.stereo_running = False
 
 	def start(self):
+		rospy.loginfo("Starting stereo system...")
+		cam_args = ['roslaunch', 'roscv', 'startCam.launch']
+		self.cam_proc = Popen(cam_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+		stereo_args = ['roslaunch', 'roscv', 'startStereo.launch']
+		self.stereo_proc = Popen(stereo_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+		#Read from stereo_proc.stdout.readlines() ????
+		while True:
+			time.sleep(1)
+			print "xxx"
+			sr = nb_read(self.stereo_proc.stdout)
+			if sr != "":
+				print sr
 
 
 if __name__=="__main__":
