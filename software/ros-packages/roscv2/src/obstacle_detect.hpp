@@ -16,7 +16,7 @@
 #include "Grid.hpp"
 
 /* Options */
-//#define CV_OUTPUT
+#define CV_OUTPUT
 //#define __SLICE_DEBUG
 
 /* Constants */
@@ -45,7 +45,7 @@
 
 #define MIN_AREA (500/(DOWNSCALE*DOWNSCALE))
 
-#define NUM_SLICES (10)
+#define NUM_SLICES (40)
 
 /* Typedefs */
 

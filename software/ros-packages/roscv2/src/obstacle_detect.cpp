@@ -8,6 +8,8 @@ static sensor_msgs::Image::ConstPtr last_img;
 static stereo_msgs::DisparityImage::ConstPtr last_disp;
 static unsigned int last_seq = 0;
 
+static int frame_count = 0;
+
 int main(int argc, char *argv[]) {
 	/* Init ROS */
 	ros::init(argc, argv, "obstacle_detect");
@@ -49,9 +51,14 @@ void disp_callback(const stereo_msgs::DisparityImage::ConstPtr &msg) {
 		img_lock.unlock();
 }
 
+void toHSV(cv::Mat &input, float scale) {
+	input.convertTo(input, CV_8UC1, 255.0);
+}
+
 void loop() { 
 	Timer loop_t = Timer("TOTAL");
 	cv::Mat depth, obstacle, clear;
+	cv::Mat scaled_depth, scaled_obs;
 	cv_bridge::CvImagePtr img;
 	{
 		Timer setup_t = Timer("setup");
@@ -99,8 +106,9 @@ void loop() {
 		cv::resize(full_depth, depth, cv::Size(IMG_WIDTH, IMG_HEIGHT));
 
 		/* Display value-scaled depth image */
+		scaled_depth = depth / RANGE_MAX;
+		toHSV(scaled_depth, 1.0 / RANGE_MAX);
 #ifdef CV_OUTPUT
-		cv::Mat scaled_depth = depth / RANGE_MAX;
 		cv::imshow(DEPTH_WINDOW, scaled_depth);
 #endif
 
@@ -114,8 +122,10 @@ void loop() {
 		Timer obs_t = Timer("find_obstacles");
 		find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
 	}
+
+	scaled_obs = obstacle / RANGE_MAX;
+	toHSV(scaled_obs, 1.0 / RANGE_MAX);
 #ifdef CV_OUTPUT
-	cv::Mat scaled_obs = obstacle / RANGE_MAX;
 	cv::imshow(OBS_WINDOW, scaled_obs);
 #endif
 
@@ -194,8 +204,6 @@ void loop() {
 	cv::imshow(TOP_WINDOW, top);
 	cv::imshow(IMAGE_WINDOW, final_image);
 #endif
-
-
 #if defined(__SLICE_DEBUG) && defined(CV_OUTPUT)
 	for (int i = 0; i < NUM_SLICES; i++) {
 		std::string s = "a";
@@ -203,6 +211,18 @@ void loop() {
 		cv::imshow(s, slices[i]);
 	}
 #endif
+
+	char c[128];
+	frame_count++;
+	sprintf(c, "./boxes%04d.png", frame_count);
+	cv::imwrite(c, final_image);
+
+	sprintf(c, "./distance%04d.png", frame_count);
+	cv::imwrite(c, scaled_depth);
+
+	sprintf(c, "./obs%04d.png", frame_count);
+	cv::imwrite(c, scaled_obs);
+
 }
 
 void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
