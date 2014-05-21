@@ -64,6 +64,9 @@ void stepperInfo::processCommand(int cmd){
 		
 	if(!init){
 		for(int i = 0; i < 5000; ++i){
+			
+			while(!CHECK_ISROVING());  //e-stop check
+
 			MD1_STEP_SET();
 			_delay_us(50);
 			MD1_STEP_CLR();
@@ -76,6 +79,7 @@ void stepperInfo::processCommand(int cmd){
 	
 	//MOVE UNTIL LIMIT OR GRIP
 	while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
+		while(!CHECK_ISROVING());  //e-stop check
 		MD1_STEP_SET();
 		_delay_us(20);
 		MD1_STEP_CLR();

@@ -98,6 +98,8 @@ void rotateStepper::moveBase(int degreesToMove){
 	int stepsToMove = abs(degreesToMove) * multiplier;
 	
 	for(int i = 0; i < stepsToMove; ++i){
+		while(!CHECK_ISROVING());  //e-stop check
+		
 		MD2_STEP_CLR();
 		_delay_us(600);
 		MD2_STEP_SET();

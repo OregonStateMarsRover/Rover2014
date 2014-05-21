@@ -114,11 +114,10 @@ ISR(USARTC0_RXC_vect){
 			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 			USART_PutChar(&USARTC0, 255);
 			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
-			USART_PutChar(&USARTC0,'r');
+			USART_PutChar(&USARTC0,0);  //Checksum failed
 			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 			USART_PutChar(&USARTC0,255);
-			while(!USART_IsTXDataRegisterEmpty(&USARTC0));
-			USART_PutChar(&USARTC0,recieveBuffer[0]);
+
 			bufferIndex = 0;	
 		}
 		
@@ -178,7 +177,8 @@ void DemInitThingsYouBeenDoing(){
 	//Setup Inputs
 	PORTA.DIRCLR = (PIN2_bm); //Rotation Calibration
 	PORTA.DIRCLR = (PIN3_bm); //Grip Close
-	PORTB.DIRCLR = (PIN3_bm); //Grip Limit	
+	PORTB.DIRCLR = (PIN3_bm); //Grip Limit
+	PORTA.DIRCLR = (PIN4_bm); //'IsRoving' check
 		
 
 	//GRIP STEPPER is MD1
@@ -336,12 +336,15 @@ int main(void)
 	upperAct.desiredPos = 3.0;
 	lowerAct.desiredPos = 3.5;
 	
+	//Wait until rover is unpaused
+	while(!CHECK_ISROVING());
+	
 	lowerAct.enable();
 	upperAct.enable();
 	
 	
 	/////////////Initial Calibration and Default Positions//////////////////////
-	while(lowerAct.enabled || upperAct.enabled){
+	while((lowerAct.enabled || upperAct.enabled) && CHECK_ISROVING()){
 		checkActPosition();
 		DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(UPPER)*getMotorDir(UPPER));	
 	}
@@ -389,6 +392,7 @@ int main(void)
 				while(lowerAct.enabled || upperAct.enabled){	//If a motor needs to move, do below
 					checkActPosition();							//Check positions
 					DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));	//Move to position
+					while(!CHECK_ISROVING());  //e-stop check
 				}												//Exit when done moving
 					
 
@@ -411,11 +415,9 @@ int main(void)
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0, 255);
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
-				USART_PutChar(&USARTC0,'r');
+				USART_PutChar(&USARTC0, 0b00000010 | CHECK_GRIP_CLOSE());
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0,255);
-				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
-				USART_PutChar(&USARTC0,recieveBuffer[0]);
 				bufferIndex = 0;
 			}
 			
