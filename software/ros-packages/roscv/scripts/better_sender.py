@@ -34,8 +34,9 @@ if __name__ == '__main__':
     send_string(sock, "controller")
     while not rospy.is_shutdown():
         pygame.event.pump()
-        left = int(joy.get_axis(1)*(-20))+20
-        right = int(joy.get_axis(4)*(-20))+20
+        speed = 20
+        left = int(joy.get_axis(1)*(-speed))+speed
+        right = int(joy.get_axis(4)*(-speed))+speed
 
         print "LEFT: %d\tRIGHT: %d" % (left, right)
 
