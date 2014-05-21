@@ -81,7 +81,7 @@ class FindStart():
                 theta5 = angle-skew
                 m = distance/math.sin(math.radians(threta5))
                 theta = 90+skew
-
+	    """
             threshold = math.asin(.5/distance)
             #if m is in the threshhold
             if -threshold < skew < threshold:
@@ -94,7 +94,11 @@ class FindStart():
                     self.motor.publish("r%df%dr270" % (int(theta), int(m*10)))
                 else:
                     self.motor.publish("r%df%dr90" % (int(theta), int(m*10)))
-
+	    """
+	    if -10 < angle < 10:
+		self.motor.publish("f%d" % (int(distance-1))
+	    else:
+		self.motor.publish("r%df%d" % (int(angle), int(distance-1)))
             #while rospy.wait_for_message("/motor_status", std_msgs.msg.String) != "busy":
                 #pass
 
