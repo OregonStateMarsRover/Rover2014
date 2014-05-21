@@ -223,17 +223,17 @@ class RosDetect():
 
     def detect_objects(self, data):
         try:
-                image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-                rect, skel = match_object(image, self.template_skeletons[3:], self.template_skeletons[:3])
-               # cv2.imshow("skel", skel)
-               # cv2.imshow("test", image)
-               # cv2.waitKey(1)
-                if rect == 0:
-                    print "none found"
-                    return
-                draw_bounding_box(image, rect)
-                #cv2.imshow("original", image)
-                self.objects.publish("(%d,%d)" % (rect[0]+(rect[2]/2), rect[1]+(rect[3]/2)))
+            image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            rect, skel = match_object(image, self.template_skeletons[3:], self.template_skeletons[:3])
+            # cv2.imshow("skel", skel)
+            # cv2.imshow("test", image)
+            # cv2.waitKey(1)
+            if rect == 0:
+                print "none found"
+                return
+            draw_bounding_box(image, rect)
+            cv2.imshow("original", image)
+            self.objects.publish("%d,%d" % (rect[0]+(rect[2]/2), rect[1]+(rect[3]/2)))
         except CvBridgeError, e:
             print e
 
