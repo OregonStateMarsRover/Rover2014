@@ -45,16 +45,36 @@ class StereoProcess:
 	def start(self):
 		rospy.loginfo("Starting stereo system...")
 		cam_args = ['roslaunch', 'roscv', 'startCam.launch']
-		self.cam_proc = Popen(cam_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+		self.cam_proc = Popen(cam_args, stdout=PIPE)
+		sleep(1) #TODO
 		stereo_args = ['roslaunch', 'roscv', 'startStereo.launch']
-		self.stereo_proc = Popen(stereo_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-		#Read from stereo_proc.stdout.readlines() ????
-		while True:
-			time.sleep(1)
-			print "xxx"
-			sr = nb_read(self.stereo_proc.stdout)
-			if sr != "":
-				print sr
+		self.stereo_proc = Popen(stereo_args, stdout=PIPE)
+
+	def stop(self):
+		self.proc_stop(self.stereo_proc)
+		self.proc_stop(self.cam_proc)
+
+	def proc_stop(self, proc):
+		if proc is not None:
+			proc.terminate()
+			proc.wait()
+
+
+	def restart(self):
+		self.stop()
+		sleep(1) #TODO
+		self.start()
+
+	def is_running(self):
+		cam_running = self.proc_is_running(self.cam_proc)
+		stereo_running = self.proc_is_running(self.stereo_proc)
+		return cam_running and stereo_running
+
+	def proc_is_running(self, proc):
+		started = proc is not None
+		running = started and proc.poll()
+		return running
+
 
 
 if __name__=="__main__":
