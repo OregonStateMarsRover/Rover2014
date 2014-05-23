@@ -1,0 +1,45 @@
+|-------------------------------------------------------------------------------|
+|Bill Of Materials for BrainBoard.sch on Fri Mar 07 13:22:25 2014               |
+|-------------------------------------------------------------------------------|
+|Item|Qty |Reference|Part Name     |Manufacturer  |Description                  |
+|----+----+---------+--------------+--------------+-----------------------------|
+		|1   |2   |U4-5     |20_PIN_HEADER_|              |                             |
+		|    |    |         |2_ROW         |              |                             |
+		|2   |1   |Y1       |32MHZ_CRYSTAL_|              |                             |
+		|    |    |         |AWSCR-32      |              |                             |
+		|3   |1   |L2       |47UH_INDUCTOR_|              |                             |
+		|    |    |         |7447779147W   |              |                             |
+		|4   |1   |U1       |ATXMEGA32D4AU |              |                             |
+		|5   |1   |C2       |CAP0603,.01uF |IPC SM-782    |SURFACE MOUNT CAPACITOR 0.031|
+		|    |    |         |              |STD.          |X 0.061 INCHES               |
+		|6   |2   |C3 C5    |CAP0603,100nF |IPC SM-782    |SURFACE MOUNT CAPACITOR 0.031|
+		|    |    |         |              |STD.          |X 0.061 INCHES               |
+		|7   |1   |C1       |CAP0603,10nF  |IPC SM-782    |SURFACE MOUNT CAPACITOR 0.031|
+		|    |    |         |              |STD.          |X 0.061 INCHES               |
+		|8   |1   |C4       |CAP0603,4.7uF |IPC SM-782    |SURFACE MOUNT CAPACITOR 0.031|
+		|    |    |         |              |STD.          |X 0.061 INCHES               |
+		|9   |1   |C7       |CAP7343,10uF  |IPC SM-782    |SURFACE MOUNT TANT.          |
+		|    |    |         |              |STD.          |CAPACITOR, 'D' CASE SIZE     |
+		|10  |1   |C6       |CAP7343,47uF  |IPC SM-782    |SURFACE MOUNT TANT.          |
+		|    |    |         |              |STD.          |CAPACITOR, 'D' CASE SIZE     |
+		|11  |1   |L1       |FERRITE_BEAD_M|              |                             |
+		|    |    |         |I0805K400R-10 |              |                             |
+		|12  |1   |U9       |FT232RL_USART |              |                             |
+		|13  |2   |U10-11   |GREENLED_0603 |              |                             |
+		|14  |1   |U2       |ICSP_HEADER   |              |                             |
+		|15  |4   |D2-5     |LED_0603      |              |                             |
+		|16  |1   |U3       |LM2675_8_TSSOP|              |                             |
+		|17  |1   |U6       |MOLEX_POWER_2_|              |                             |
+		|    |    |         |PIN           |              |                             |
+		|18  |1   |R1       |RES0603,10k   |IPC SM-782    |SURFACE MOUNT RESISTOR 0.031 |
+		|    |    |         |              |STD.          |X 0.061 INCHES, 1/10W        |
+		|19  |1   |R6       |RES0603,1M    |IPC SM-782    |SURFACE MOUNT RESISTOR 0.031 |
+		|    |    |         |              |STD.          |X 0.061 INCHES, 1/10W        |
+		|20  |6   |R2-5     |RES0603,68    |IPC SM-782    |SURFACE MOUNT RESISTOR 0.031 |
+		|    |    |R17-18   |              |STD.          |X 0.061 INCHES, 1/10W        |
+		|21  |1   |D1       |SS15_SCHOTTK_D|              |                             |
+		|    |    |         |O_214AC       |              |                             |
+		|22  |1   |S1       |SWITCH_TACTILE|              |                             |
+		|23  |1   |J1       |USB_B_MINI_054|              |                             |
+		|    |    |         |8190519       |              |                             |
+|-------------------------------------------------------------------------------|

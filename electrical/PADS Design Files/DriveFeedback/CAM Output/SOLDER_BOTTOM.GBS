@@ -1,0 +1,113 @@
+*
+*
+G04 PADS 9.3.1 Build Number: 456998 generated Gerber (RS-274-X) file*
+G04 PC Version=2.1*
+*
+%IN "DriveFeedback.pcb"*%
+*
+%MOIN*%
+*
+%FSLAX35Y35*%
+*
+*
+*
+*
+G04 PC Standard Apertures*
+*
+*
+G04 Thermal Relief Aperture macro.*
+%AMTER*
+1,1,$1,0,0*
+1,0,$1-$2,0,0*
+21,0,$3,$4,0,0,45*
+21,0,$3,$4,0,0,135*
+%
+*
+*
+G04 Annular Aperture macro.*
+%AMANN*
+1,1,$1,0,0*
+1,0,$2,0,0*
+%
+*
+*
+G04 Odd Aperture macro.*
+%AMODD*
+1,1,$1,0,0*
+1,0,$1-0.005,0,0*
+%
+*
+*
+G04 PC Custom Aperture Macros*
+*
+*
+*
+*
+*
+*
+G04 PC Aperture Table*
+*
+%ADD010C,0.001*%
+%ADD051C,0.07*%
+%ADD178C,0.05331*%
+%ADD179C,0.12024*%
+%ADD184C,0.12417*%
+%ADD198C,0.08*%
+%ADD199C,0.13598*%
+*
+*
+*
+*
+G04 PC Circuitry*
+G04 Layer Name DriveFeedback.pcb - circuitry*
+%LPD*%
+*
+*
+G04 PC Custom Flashes*
+G04 Layer Name DriveFeedback.pcb - flashes*
+%LPD*%
+*
+*
+G04 PC Circuitry*
+G04 Layer Name DriveFeedback.pcb - circuitry*
+%LPD*%
+*
+G54D10*
+G54D51*
+G01X10157Y106339D03*
+X20157D03*
+X10157Y96339D03*
+X20157D03*
+X10157Y86339D03*
+X20157D03*
+X152362Y91417D03*
+Y101417D03*
+Y111417D03*
+G54D178*
+X34016Y35276D03*
+X29291Y32126D03*
+X34016Y28976D03*
+X29291Y25827D03*
+X34016Y22677D03*
+G54D179*
+X18858Y17165D03*
+Y40787D03*
+G54D184*
+X91417Y243780D03*
+X113071D03*
+G54D198*
+X152362Y167598D03*
+Y157598D03*
+Y147598D03*
+Y137598D03*
+X121890Y15236D03*
+X131890D03*
+X141890D03*
+X151890D03*
+G54D199*
+X13780Y64961D03*
+Y194882D03*
+X153543D03*
+Y64961D03*
+X0Y0D02*
+M02*

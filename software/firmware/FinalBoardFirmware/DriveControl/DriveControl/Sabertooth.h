@@ -41,6 +41,7 @@ public:
 	void StopAll();
 	unsigned char SaberChecksum(unsigned char command, unsigned char value);
 	void ParsePacket(unsigned char left, unsigned char right);
+	void ResetSaber();
 protected:
 private:
 	void SendDriveCmd(char command, char value);

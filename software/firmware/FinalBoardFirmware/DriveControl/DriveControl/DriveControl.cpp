@@ -17,7 +17,7 @@ extern "C"{
 	#include "usart_driver.h"
 	#include "avr_compiler.h"
 };
-#define TIMEOUTMAX 5				//Time in seconds before state change back to init
+#define TIMEOUTMAX 20				//Time in seconds before state change back to init
 
 /*! Define that selects the Usart used in example. */
 #define XBEEDIO0 PIN5_bm //PORTA
@@ -88,6 +88,8 @@ int main(void)
 				if(USART_RXBufferData_Available(&USART_PC_Data)){
 					if(USART_RXBuffer_GetByte(&USART_PC_Data) == 'r'){
 						XMegaState = Driving;
+						DriveSaber.ResetSaber();
+						FlushSerialBuffer(&USART_PC_Data);
 						USART_PutChar(&USARTC0, 'r');
 					}
 				}
@@ -105,10 +107,10 @@ int main(void)
 					if(IsRoving){
 						if(receiveArray[4] == PCComsChecksum(receiveArray[1], receiveArray[2], receiveArray[3])){
 							DriveSaber.ParsePacket(receiveArray[2], receiveArray[3]);
+						}
 					}else if(!IsRoving){
-						_delay_ms(10);
-					}
-				}					
+						DriveSaber.ParsePacket(127, 127);
+					}					
 					BufferIdx = 0;
 					SendDriveControlStatus(&USARTC0, IsRoving, false);
 					TimePrevious = TimeSinceInit;
@@ -122,11 +124,11 @@ int main(void)
 				break;
 				
 		};	
-	
+	/*
 		if(!IsRoving){
 			DriveSaber.StopAll();
 		}
-	
+	*/
 		if((PORTA.IN & XBEEDIO0)){
 			ERROR_CLR();
 			IsRoving = true;

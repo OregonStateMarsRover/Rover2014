@@ -87,8 +87,7 @@ void Sabertooth::ParsePacket(unsigned char left, unsigned char right){
 }
 
 void Sabertooth::StopAll(){
-	SendDriveCmd(LEFT_FORWARD, 0);
-	SendDriveCmd(RIGHT_FORWARD, 0);
+	ParsePacket(127, 127);
 }
 
 unsigned char Sabertooth::SaberChecksum(unsigned char command, unsigned char value){
@@ -108,4 +107,9 @@ void Sabertooth::SendDriveCmd(char command, char value){
 	USART_PutChar(Sabertooth_USART, value);										//Sends the value or speed to the sabertooth
 	while(!USART_IsTXDataRegisterEmpty(Sabertooth_USART));
 	USART_PutChar(Sabertooth_USART, SaberChecksum(command, value));				//Send the checksum of all these values to the sabertooth
+}
+
+void Sabertooth::ResetSaber(){
+	USART_PutChar(Sabertooth_USART, AUTOBAUD_BYTE);		//Send the autobaud byte to get the sabertooth communicating
+	SendDriveCmd(14, 20);								//Sets the communication watchdog on the sabertooth to (x*100ms) It's currently set to two seconds.
 }
