@@ -14,7 +14,7 @@ import os
 import serial
 from serial.tools import list_ports
 
-
+'''
 def handler(signum, frame):
     print "Lethal signal received sending motor kill signal and exiting"
     if con != None:
@@ -22,7 +22,7 @@ def handler(signum, frame):
         con.q.clear()
         con.m.maintain()
     sys.exit(1)
-
+'''
 class SerialHandler(object):
     baud = 9600
     timeout = 3
@@ -300,12 +300,14 @@ con = None
 if __name__ == '__main__':
     try:
         
-        con = RosController("arm_controller", "arm_command")
+        print "Before init node"
+        rospy.init_node("arm_command", "asdf")
+        print "after init node"
+        rcon = RosController("arm_controller", "arm_command")
         #handle lethal signals in order to stop the motors if the script quits
         #signal.signal(signal.SIGHUP, handler)
         #signal.signal(signal.SIGQUIT, handler)
-        pub_motor = rospy.Publisher("motor_command",    String)
-        rospy.init_node("motor_command", "navigation")
+        #pub_motor = rospy.Publisher("arm_status",    String)
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
