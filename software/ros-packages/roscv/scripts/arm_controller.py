@@ -14,7 +14,7 @@ import os
 import serial
 from serial.tools import list_ports
 
-
+'''
 def handler(signum, frame):
     print "Lethal signal received sending motor kill signal and exiting"
     if con != None:
@@ -22,7 +22,7 @@ def handler(signum, frame):
         con.q.clear()
         con.m.maintain()
     sys.exit(1)
-
+'''
 class SerialHandler(object):
     baud = 9600
     timeout = 3
