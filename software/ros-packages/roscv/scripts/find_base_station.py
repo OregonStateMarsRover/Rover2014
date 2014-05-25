@@ -23,9 +23,9 @@ import math
 
 class FindStart():
     def __init__(self):
-        #self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.image)
-        #self.point_callback = rospy.Subscriber("/my_stereo/disparity", stereo_msgs.msg.DisparityImage, self.points)
-        #self.status_update = rospy.Subscriber("/find_base_station", std_msgs.msg.String, self.status)
+        self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.image)
+        self.point_callback = rospy.Subscriber("/my_stereo/disparity", stereo_msgs.msg.DisparityImage, self.points)
+        self.status_update = rospy.Subscriber("/find_base_station", std_msgs.msg.String, self.status)
         self.motor = rospy.Publisher("/motor_command", std_msgs.msg.String)
         self.bridge = CvBridge()
         self.focal = None
@@ -44,6 +44,7 @@ class FindStart():
     def image(self, data):
         if self.started == 0:
             return
+        print "read image"
         image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         self.checker_board(image)
 
@@ -60,16 +61,17 @@ class FindStart():
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(img, self.dim, None)
-
+        print "Checkerboard:", ret
         if ret:
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             cv2.drawChessboardCorners(gray, self.dim, corners, ret)
             height = self.get_height(img, corners)
             center = self.get_center(corners)
             distance = self.get_distance(gray, height)
+            print distance
             angle = self.get_angle(center)
+            """
             skew = self.get_skew(img, corners)
-            print skew
             threta5 = skew-angle
             if threta5 == 0:
                 m = 0
@@ -81,7 +83,6 @@ class FindStart():
                 theta5 = angle-skew
                 m = distance/math.sin(math.radians(threta5))
                 theta = 90+skew
-	    """
             threshold = math.asin(.5/distance)
             #if m is in the threshhold
             if -threshold < skew < threshold:
@@ -94,13 +95,17 @@ class FindStart():
                     self.motor.publish("r%df%dr270" % (int(theta), int(m*10)))
                 else:
                     self.motor.publish("r%df%dr90" % (int(theta), int(m*10)))
-	    """
-	    if -10 < angle < 10:
-		self.motor.publish("f%d" % (int(distance-1))
-	    else:
-		self.motor.publish("r%df%d" % (int(angle), int(distance-1)))
-            #while rospy.wait_for_message("/motor_status", std_msgs.msg.String) != "busy":
-                #pass
+	        """
+            if -10 < angle < 10:
+                print "Moving forward", distance
+                self.motor.publish("f%d" % (int(distance-10)))
+            else:
+                if angle < 0:
+                    angle = 360+angle
+                print "Rotating", angle, "and moving forward", distance
+                self.motor.publish("r%df%d" % (int(angle), int(distance-10)))
+            while rospy.wait_for_message("/motor_status", std_msgs.msg.String) == "busy":
+                pass
 
 
         return False
@@ -112,6 +117,7 @@ class FindStart():
         return end-start
 
     def get_distance(self, img, height):
+        self.focal = (0.5 * img.shape[1] / math.tan(0.5 * 65 * math.pi / 180))*(4.2/1000.0);
         if self.focal is not None:
             return (self.focal*(self.square*6)*img.shape[1])/(height*self.cam_height)
         return -1

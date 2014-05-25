@@ -242,9 +242,9 @@ class MotorController(RosController):
         elif action == "r":
             value = int(value)
             if value < 180:
-                self.m.change(self.meters_to_char(.5), self.meters_to_char(-.5), 0)
+                self.m.change(self.meters_to_char(.75), self.meters_to_char(-.75), 0)
             else:
-                self.m.change(self.meters_to_char(-.5), self.meters_to_char(.5), 0)
+                self.m.change(self.meters_to_char(-.75), self.meters_to_char(.75), 0)
             self.wait_angle(value)
           
 
@@ -267,7 +267,7 @@ class MotorController(RosController):
         if angle > 180:
             angle = 360 - angle
         #assume one degree a second
-        dps = 1.0/20.0
+        dps = 1.0/40.0
         self.distance = angle*dps
         if self.thread is not None:
             self.thread.cancel()
