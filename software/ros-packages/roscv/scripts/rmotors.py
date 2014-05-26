@@ -34,7 +34,8 @@ class SerialHandler(object):
 
     def list_serial_ports(self):
         for port in list_ports.comports():
-            yield port[0]
+            if "ttyUSB" in port[0]:
+                yield port[0]
 
     def get_control_port(self, check_string):
         for port in list(self.list_serial_ports()):

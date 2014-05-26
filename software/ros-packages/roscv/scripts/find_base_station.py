@@ -23,8 +23,8 @@ import math
 
 class FindStart():
     def __init__(self):
-        self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.image)
-        self.point_callback = rospy.Subscriber("/my_stereo/disparity", stereo_msgs.msg.DisparityImage, self.points)
+        #self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.image)
+        #self.point_callback = rospy.Subscriber("/my_stereo/disparity", stereo_msgs.msg.DisparityImage, self.points)
         self.status_update = rospy.Subscriber("/find_base_station", std_msgs.msg.String, self.status)
         self.motor = rospy.Publisher("/motor_command", std_msgs.msg.String)
         self.bridge = CvBridge()
@@ -44,7 +44,6 @@ class FindStart():
     def image(self, data):
         if self.started == 0:
             return
-        print "read image"
         image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         self.checker_board(image)
 
@@ -96,18 +95,22 @@ class FindStart():
                 else:
                     self.motor.publish("r%df%dr90" % (int(theta), int(m*10)))
 	        """
-            if -10 < angle < 10:
-                print "Moving forward", distance
-                self.motor.publish("f%d" % (int(distance-10)))
+            self.motor.publish("flush")
+            threshold = math.asin(.5/distance)
+            distance -= 10
+            distance /= 2
+            if -threshold < angle < threshold:
+                print "Moving forward", distance, "angle was", angle
+                self.motor.publish("f%d" % (int(distance)))
             else:
                 if angle < 0:
                     angle = 360+angle
                 print "Rotating", angle, "and moving forward", distance
-                self.motor.publish("r%df%d" % (int(angle), int(distance-10)))
-            while rospy.wait_for_message("/motor_status", std_msgs.msg.String) == "busy":
+                self.motor.publish("r%df%d" % (int(angle), int(distance)))
+            print rospy.wait_for_message("/motor_status", std_msgs.msg.String) 
+            while rospy.wait_for_message("/motor_status", std_msgs.msg.String).data == "busy":
                 pass
-
-
+            
         return False
 
     def get_height(self, img,  grid):
@@ -170,8 +173,9 @@ if __name__ == '__main__':
         rospy.init_node("Home_search", anonymous=True)
         #handle lethal signals in order to stop the motors if the script quits
         start = FindStart()
-        start.points(rospy.wait_for_message("/my_stereo/disparity", stereo_msgs.msg.DisparityImage))
+        #start.points(rospy.wait_for_message("/my_stereo/disparity", stereo_msgs.msg.DisparityImage))
         while True:
+            print "waiting for image"
             start.image(rospy.wait_for_message("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image))
     except rospy.ROSInterruptException:
         pass

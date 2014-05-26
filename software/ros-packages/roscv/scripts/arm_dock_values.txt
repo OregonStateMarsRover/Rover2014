@@ -1,0 +1,14 @@
+First location:
+Base: 94
+Lower: 320
+Upper: 250
+
+Second Location:
+Base: 94
+Lower: 260
+Upper: 300
+
+Final Location:
+Base: 94
+Lower: 220
+Upper: 220
