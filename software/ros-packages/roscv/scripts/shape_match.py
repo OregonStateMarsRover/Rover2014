@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import sys
-print sys.path
 import numpy as np
 import cv2
 import time
 import random
+import math
 try:
     import roslib
     roslib.load_manifest('roscv')
@@ -110,7 +110,7 @@ def thick_cluster(image):
 
 
 def get_skel(img):
-    _, img = cv2.threshold(img, 157, 255, cv2.THRESH_BINARY)
+    _, img = cv2.threshold(img, 170, 255, cv2.THRESH_BINARY)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     skel = np.zeros(img.shape, img.dtype)
     element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
@@ -130,8 +130,18 @@ def match_object(img, hook_skel, puck_skel):
     skel = get_skel(img)
     #temp_clustering = thick_cluster(temp_skel)
     #clustering = thick_cluster(skel)
-    rect = shape_matches(puck_skel, skel, 10000, 1000)
-    rect2 = shape_matches(hook_skel, skel, 20000, 4000)
+    lines = cv2.HoughLinesP(skel, 1, math.pi / 180, 70, minLineLength=30, maxLineGap=50)
+    borders = np.zeros(skel.shape, np.uint8)
+    for line in lines[0]:
+        p1 = tuple(line[:2])
+        p2 = tuple(line[2:])
+        cv2.line(borders, p1, p2, (255), 5)
+    _, skel = cv2.threshold(skel, 10, 255, cv2.THRESH_BINARY)
+    print skel
+    cv2.imshow("skel_original", skel)
+    skel = cv2.bitwise_xor(skel, borders, mask=skel)
+    rect = shape_matches(puck_skel, skel, 300, 100)
+    rect2 = shape_matches(hook_skel, skel, 300, 100)
     if rect != 0 and rect2 != 0:
         rect = rect if rect[4] < rect2[4] else rect2
     elif rect == 0:
@@ -214,7 +224,7 @@ class RosDetect():
     def __init__(self):
         self.bridge = CvBridge()
         self.template_skeletons = skel_templates()
-        self.left_image_sub = rospy.Subscriber("/my_stereo/right/image_raw", sensor_msgs.msg.Image, self.detect_objects)
+        self.left_image_sub = rospy.Subscriber("/armCam/image_raw", sensor_msgs.msg.Image, self.detect_objects)
         self.objects = rospy.Publisher("objects/position", std_msgs.msg.String)
         rospy.init_node("object_recognition", anonymous=True)
 
@@ -224,21 +234,22 @@ class RosDetect():
     def detect_objects(self, data):
         try:
             image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            image = cv2.inRange(image, [0, 150, 0], [255, 255, 255])
             rect, skel = match_object(image, self.template_skeletons[3:], self.template_skeletons[:3])
-            # cv2.imshow("skel", skel)
-            # cv2.imshow("test", image)
-            # cv2.waitKey(1)
+            cv2.imshow("skel", skel)
             if rect == 0:
                 print "none found"
                 return
             draw_bounding_box(image, rect)
             cv2.imshow("original", image)
+            cv2.waitKey(1)
             self.objects.publish("%d,%d" % (rect[0]+(rect[2]/2), rect[1]+(rect[3]/2)))
         except CvBridgeError, e:
             print e
 
 if __name__ == "__main__":
     if USE_ROS:
+        print "starting ros"
         detect = RosDetect()
         rospy.spin()
     else:

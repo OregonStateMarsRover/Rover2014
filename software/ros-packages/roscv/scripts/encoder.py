@@ -61,9 +61,12 @@ class EncoderReader():
         print self.read_string(data[2:10])
     
     def send_packet(self):
+        """
         self.ser.write(chr(255))
         self.ser.write(chr(2))
         self.ser.write(chr(255))
+        """
+        self.ser.write("r")
 
     @staticmethod
     def read_string(string):
