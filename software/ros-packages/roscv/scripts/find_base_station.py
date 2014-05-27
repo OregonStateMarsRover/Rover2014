@@ -9,6 +9,7 @@ import stereo_msgs
 import stereo_msgs.msg
 import std_msgs
 import math
+import threading
 
 """ 1525 1750 = 60 degrees/ 640 = degrees per pixel = .09375
 " What I need:
@@ -22,8 +23,7 @@ import math
 
 
 class FindStart():
-    def __init__(self):
-        #self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.image)
+    def __init__(self): 
         #self.point_callback = rospy.Subscriber("/my_stereo/disparity", stereo_msgs.msg.DisparityImage, self.points)
         self.status_update = rospy.Subscriber("/find_base_station", std_msgs.msg.String, self.status)
         self.motor = rospy.Publisher("/motor_command", std_msgs.msg.String)
@@ -40,12 +40,29 @@ class FindStart():
         self.started = 1
         self.image_id = 0
         self.image_read = 0
+        self.searching = False
+        self.search_turn = False
+        self.data = None
+        self.image_thread = threading.Thread(target=self.start_thread)
+        self.image_thread.start()
+    def start_thread(self):
+        self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.set_data)
+        rospy.spin()
 
-    def image(self, data):
+    def set_data(self, data):
+        print "got image"
+        self.data = data
+    
+    def image(self):
         if self.started == 0:
             return
-        image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        if self.data == None:
+            return
+        print "checkerboad image"
+        image = self.bridge.imgmsg_to_cv2(self.data, "bgr8")
+        print "converted image"
         self.checker_board(image)
+        self.data = None
 
     def points(self, data):
         self.focal = data.f/6000
@@ -96,9 +113,11 @@ class FindStart():
                     self.motor.publish("r%df%dr90" % (int(theta), int(m*10)))
 	        """
             self.motor.publish("flush")
+            self.motor.publish("rover")
             threshold = math.asin(.5/distance)
             distance -= 10
-            distance /= 2
+            if distance > 20:
+                distance = int(distance*(3.0/4))
             if -threshold < angle < threshold:
                 print "Moving forward", distance, "angle was", angle
                 self.motor.publish("f%d" % (int(distance)))
@@ -107,10 +126,20 @@ class FindStart():
                     angle = 360+angle
                 print "Rotating", angle, "and moving forward", distance
                 self.motor.publish("r%df%d" % (int(angle), int(distance)))
-            print rospy.wait_for_message("/motor_status", std_msgs.msg.String) 
+            if distance < 20 and angle < threshold:
+                self.searching = False
+                self.search_turn = False
+            else:
+                self.searching = True
+                self.searh_turn = False
             while rospy.wait_for_message("/motor_status", std_msgs.msg.String).data == "busy":
                 pass
-            
+        elif self.searching:
+            if not self.search_turn:
+                self.motor.publish("r315")
+                self.search_turn = True
+            else:
+                self.motor.publish("r10")
         return False
 
     def get_height(self, img,  grid):
@@ -175,7 +204,7 @@ if __name__ == '__main__':
         start = FindStart()
         #start.points(rospy.wait_for_message("/my_stereo/disparity", stereo_msgs.msg.DisparityImage))
         while True:
-            print "waiting for image"
-            start.image(rospy.wait_for_message("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image))
+            #start.image(rospy.wait_for_message("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image))
+            start.image()
     except rospy.ROSInterruptException:
         pass

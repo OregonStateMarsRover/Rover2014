@@ -1,0 +1,83 @@
+[0m[ INFO] [1401155890.695503080]: using default calibration URL[0m
+[0m[ INFO] [1401155890.695737694]: camera calibration URL: file:///home/rover/.ros/camera_info/left_camera.yaml[0m
+[0m[ INFO] [1401155890.697242407]: using default calibration URL[0m
+[0m[ INFO] [1401155890.697300026]: camera calibration URL: file:///home/rover/.ros/camera_info/right_camera.yaml[0m
+opening /dev/video0
+pixfmt 0 = 'YUYV' desc = 'YUYV'
+  discrete: 320x240:   1/125 1/100 1/75 1/60 1/50 1/40 1/30 
+  discrete: 640x480:   1/60 1/50 1/40 1/30 1/15 
+  int (Brightness, 32, id = 980900): 0 to 255 (1)
+  int (Contrast, 32, id = 980901): 0 to 255 (1)
+  int (Saturation, 32, id = 980902): 0 to 255 (1)
+  int (Hue, 32, id = 980903): -90 to 90 (1)
+  bool (White Balance, Automatic, 0, id = 98090c): 0 to 1 (1)
+  int (Exposure, 144, id = 980911): 0 to 255 (1)
+  bool (Gain, Automatic, 8, id = 980912): 0 to 1 (1)
+  int (Gain, 144, id = 980913): 0 to 63 (1)
+  bool (Horizontal Flip, 0, id = 980914): 0 to 1 (1)
+  bool (Vertical Flip, 0, id = 980915): 0 to 1 (1)
+  menu (Power Line Frequency, 0, id = 980918): 0 to 1 (1)
+    0: Disabled
+    1: 50 Hz
+  int (Sharpness, 32, id = 98091b): 0 to 63 (1)
+  menu (Auto Exposure, 8, id = 9a0901): 0 to 1 (1)
+    0: Auto Mode
+    1: Manual Mode
+ERROR: could not set some settings.  
+ unable to set control 
+opening /dev/video1
+pixfmt 0 = 'YUYV' desc = 'YUYV'
+  discrete: 320x240:   1/125 1/100 1/75 1/60 1/50 1/40 1/30 
+  discrete: 640x480:   1/60 1/50 1/40 1/30 1/15 
+  int (Brightness, 32, id = 980900): 0 to 255 (1)
+  int (Contrast, 32, id = 980901): 0 to 255 (1)
+  int (Saturation, 32, id = 980902): 0 to 255 (1)
+  int (Hue, 32, id = 980903): -90 to 90 (1)
+  bool (White Balance, Automatic, 0, id = 98090c): 0 to 1 (1)
+  int (Exposure, 144, id = 980911): 0 to 255 (1)
+  bool (Gain, Automatic, 8, id = 980912): 0 to 1 (1)
+  int (Gain, 144, id = 980913): 0 to 63 (1)
+  bool (Horizontal Flip, 0, id = 980914): 0 to 1 (1)
+  bool (Vertical Flip, 0, id = 980915): 0 to 1 (1)
+  menu (Power Line Frequency, 0, id = 980918): 0 to 1 (1)
+    0: Disabled
+    1: 50 Hz
+  int (Sharpness, 32, id = 98091b): 0 to 63 (1)
+  menu (Auto Exposure, 8, id = 9a0901): 0 to 1 (1)
+    0: Auto Mode
+    1: Manual Mode
+ERROR: could not set some settings.  
+ unable to set control 
+... logging to /home/rover/.ros/log/c8367e2c-e531-11e3-9621-eca86bf9ed27/roslaunch-rover-17664.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/rover/ros/rover_ws/src/roscv/launch/startCam.launch
+[1mstarted roslaunch server http://rover:39525/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /my_stereo/uvc_cam_left/fps
+ * /my_stereo/uvc_cam_left/frame_id
+ * /my_stereo/uvc_cam_left/height
+ * /my_stereo/uvc_cam_left/left/device
+ * /my_stereo/uvc_cam_left/right/device
+ * /my_stereo/uvc_cam_left/skip_frames
+ * /my_stereo/uvc_cam_left/width
+ * /rosdistro
+ * /rosversion
+
+NODES
+  /my_stereo/
+    uvc_cam_left (uvc_camera/uvc_stereo_node)
+
+[1mROS_MASTER_URI=http://localhost:11311[0m
+]2;/home/rover/ros/rover_ws/src/roscv/launch/startCam.launch http://localhost:11311
+core service [/rosout] found
+[1mprocess[my_stereo/uvc_cam_left-1]: started with pid [17683][0m
+[my_stereo/uvc_cam_left-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
