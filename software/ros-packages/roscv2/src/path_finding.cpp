@@ -145,14 +145,14 @@ void move(bool blocked, std::map<int, float>& scores) {
 	fss << "flush";
 	std_msgs::String flush_msg;
 	flush_msg.data = fss.str();
-	motor_pub.publish(flush_msg);
+    //motor_pub.publish(flush_msg);
 
 	std_msgs::String move_msg;
 	std::stringstream mss;
 
 	if (!blocked) {
 		turn_direction = FORWARD;
-		mss << "f1";
+		mss << "f10";
 		move_msg.data = mss.str();
 	} else {
 		if (turn_direction == FORWARD) {
@@ -176,12 +176,12 @@ void move(bool blocked, std::map<int, float>& scores) {
 		switch (turn_direction) {
 			case LEFT:
 				ROS_INFO("Moving left");
-				mss << "r359";
+				mss << "r340";
 				move_msg.data = mss.str();
 				break;
 			case RIGHT:
 				ROS_INFO("Moving right");
-				mss << "r1";
+				mss << "r20";
 				move_msg.data = mss.str();
 				break;
 		}
