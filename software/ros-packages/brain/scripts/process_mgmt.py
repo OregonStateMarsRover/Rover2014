@@ -8,18 +8,40 @@ import time
 import signal
 import sys
 
+from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
 class ProcessManager:
 	def __init__(self):
-		self.processes = {}
-
 		def handler(sig, f):
-			print "Got signal!"
+			print "Got shutdown signal"
 			self.stop_all()
 			sys.exit(0)
 
+		self.processes = {}
 		signal.signal(signal.SIGINT, handler)
+
+	def callback(self, data):
+		command, arg = data.data.split()
+		if command == "start":
+			if arg == "stereo":
+				self.start_stereo()
+			elif arg == "obstacle":
+				self.start_obstacle()
+			elif arg == "all":
+				self.start_all()
+		elif command == "stop":
+			if arg == "all":
+				self.stop_all()
+			else:
+				self.stop_process(arg)
+		elif command == "restart":
+			if arg == "all":
+				self.restart_all()
+			else:
+				self.restart_process(arg)
+		elif command == "remove":
+			self.remove(arg)
 
 	def start_all(self):
 		self.start_stereo()
@@ -27,25 +49,42 @@ class ProcessManager:
 
 	def stop_all(self):
 		for p in self.processes.values():
-			p.stop()
+			if p.running():
+				p.stop()
+	
+	def restart_all(self):
+		for p in self.processes.values():
+			p.restart()
 
 	def start_process(self, args, name):
-		proc = Process(args, name)
-		self.processes[name] = proc
-		proc.start()
+		if not name in self.processes:
+			proc = Process(args, name)
+			self.processes[name] = proc
+		self.processes[name].start()
 
 	def stop_process(self, name):
 		if name in self.processes:
 			self.processes[name].stop()
 
+	def restart_process(self, name):
+		if name in self.processes:
+			self.processes[name].restart()
+
+	def remove(self, name):
+		if name in self.processes:
+			proc = self.processes[name]
+			if proc.running():
+				proc.stop()
+			del self.processes[name]
+
 	def start_stereo(self):
 		proc = StereoProcess()
-		self.processes['stereo system'] = proc
+		self.processes['stereo'] = proc
 		proc.start()
 
 	def start_obstacle(self):
 		args = ['rosrun', 'roscv2', 'obstacle_detect']
-		name = "obstacle detection"
+		name = 'obstacle'
 		self.start_process(args, name)
 
 
@@ -57,12 +96,16 @@ class ProcessManager:
 """
 
 class Process:
-	def __init__(self, args, name=None):
+	def __init__(self, args, name=None, keep_alive=False):
 		self.args = args
 		self.proc = None
 		self.name = name
+		self.keep_alive = keep_alive
 		if self.name is None:
 			self.name = "%s" % self.args
+
+	def callback(self, data):
+		print "Got %s" % data.data
 
 	def start(self):
 		if not self.running():
@@ -74,16 +117,17 @@ class Process:
 			rospy.loginfo("Stopping process %s" % self.name)
 			self.proc.terminate()
 			self.proc.wait()
+		print self.name, self.running()
 
 	def restart(self):
 		rospy.loginfo("Restarting process %s" % self.name)
 		self.stop()
-		sleep(1) #TODO
+		time.sleep(1) #TODO
 		self.start()
 
 	def running(self):
 		started = self.proc is not None
-		running = started and self.proc.poll()
+		running = started and self.proc.poll() is True
 		return running
 
 class StereoProcess:
@@ -98,8 +142,10 @@ class StereoProcess:
 		self.stereo_proc.start()
 
 	def stop(self):
-		self.stereo_proc.stop()
-		self.cam_proc.stop()
+		if self.stereo_proc.running():
+			self.stereo_proc.stop()
+		if self.cam_proc.running():
+			self.cam_proc.stop()
 
 	def restart(self):
 		self.cam_proc.restart()
@@ -113,5 +159,6 @@ class StereoProcess:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	proc.start_all()
+
+	rospy.Subscriber("process_mgmt", String, lambda data: proc.callback(data))
 	rospy.spin()
