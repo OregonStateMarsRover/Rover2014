@@ -5,28 +5,49 @@ import std_msgs
 import fcntl
 import os
 import time
+import signal
+import sys
 
 from subprocess import Popen, PIPE
 
-def nb_read(f):
-	fd = f.fileno()
-	fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-	fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-	try:
-		return f.read()
-	except:
-		return ""
-
 class ProcessManager:
 	def __init__(self):
-		self.cam_proc = None
-		self.stereo_proc = None
-		self.obs_proc = None
-		self.move_proc = None
+		self.processes = {}
+
+		def handler(sig, f):
+			print "Got signal!"
+			self.stop_all()
+			sys.exit(0)
+
+		signal.signal(signal.SIGINT, handler)
+
+	def start_all(self):
+		self.start_stereo()
+		self.start_obstacle()
+
+	def stop_all(self):
+		for p in self.processes.values():
+			p.stop()
+
+	def start_process(self, args, name):
+		proc = Process(args, name)
+		self.processes[name] = proc
+		proc.start()
+
+	def stop_process(self, name):
+		if name in self.processes:
+			self.processes[name].stop()
 
 	def start_stereo(self):
-		sp = StereoProcess()
-		sp.start()
+		proc = StereoProcess()
+		self.processes['stereo system'] = proc
+		proc.start()
+
+	def start_obstacle(self):
+		args = ['rosrun', 'roscv2', 'obstacle_detect']
+		name = "obstacle detection"
+		self.start_process(args, name)
+
 
 """
 	def start_pathfinding(self):
@@ -35,50 +56,62 @@ class ProcessManager:
 		rospy.loginfo("Started pathfinding")
 """
 
-class StereoProcess:
-	def __init__(self):
-		self.cam_args = ['roslaunch', 'roscv', 'startCam.launch']
-		self.stero_args = ['roslaunch', 'roscv', 'startStereo.launch']
-		self.cam_running = False
-		self.stereo_running = False
+class Process:
+	def __init__(self, args, name=None):
+		self.args = args
+		self.proc = None
+		self.name = name
+		if self.name is None:
+			self.name = "%s" % self.args
 
 	def start(self):
-		rospy.loginfo("Starting stereo system...")
-		cam_args = ['roslaunch', 'roscv', 'startCam.launch']
-		self.cam_proc = Popen(cam_args, stdout=PIPE)
-		sleep(1) #TODO
-		stereo_args = ['roslaunch', 'roscv', 'startStereo.launch']
-		self.stereo_proc = Popen(stereo_args, stdout=PIPE)
+		if not self.running():
+			rospy.loginfo("Starting process %s" % self.name)
+			self.proc = Popen(self.args, stdout=PIPE, stderr=PIPE)
 
 	def stop(self):
-		self.proc_stop(self.stereo_proc)
-		self.proc_stop(self.cam_proc)
-
-	def proc_stop(self, proc):
-		if proc is not None:
-			proc.terminate()
-			proc.wait()
-
+		if self.proc is not None:
+			rospy.loginfo("Stopping process %s" % self.name)
+			self.proc.terminate()
+			self.proc.wait()
 
 	def restart(self):
+		rospy.loginfo("Restarting process %s" % self.name)
 		self.stop()
 		sleep(1) #TODO
 		self.start()
 
-	def is_running(self):
-		cam_running = self.proc_is_running(self.cam_proc)
-		stereo_running = self.proc_is_running(self.stereo_proc)
-		return cam_running and stereo_running
-
-	def proc_is_running(self, proc):
-		started = proc is not None
-		running = started and proc.poll()
+	def running(self):
+		started = self.proc is not None
+		running = started and self.proc.poll()
 		return running
 
+class StereoProcess:
+	def __init__(self):
+		cam_args = ['roslaunch', 'roscv', 'startCam.launch']
+		stereo_args = ['roslaunch', 'roscv', 'startStereo.launch']
+		self.cam_proc = Process(cam_args, 'camera')
+		self.stereo_proc = Process(stereo_args, 'stereo')
 
+	def start(self):
+		self.cam_proc.start()
+		self.stereo_proc.start()
+
+	def stop(self):
+		self.stereo_proc.stop()
+		self.cam_proc.stop()
+
+	def restart(self):
+		self.cam_proc.restart()
+		self.stereo_proc.restart()
+
+	def running(self):
+		cam_running = self.cam_proc.running()
+		stereo_running = self.stereo_proc.running()
+		return cam_running and stereo_running
 
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	proc.start_stereo()
+	proc.start_all()
 	rospy.spin()
