@@ -18,7 +18,7 @@ PA2 = Limit 3 = Rotation Calibration
  */ 
 
 #define F_CPU 32000000UL
-#define MAXTIMEOUT 5
+#define MAXTIMEOUT 20
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -35,6 +35,7 @@ extern "C" {
 #include "motorInfo.h"  //Include the motor information
 #include "stepperInfo.h"
 #include "rotateStepper.h"
+#include "Misc.h"
 
 int swap = 0;
 USART_data_t USART_PC_Data;
@@ -55,6 +56,10 @@ rotateStepper baseStepper;
 
 volatile bool canAcceptPackets = true;
 volatile bool IsPacketToParse = false;
+
+unsigned char ARM_Dock_State = 0;
+unsigned char ARM_Dock_State_Prev = 0;
+
 volatile unsigned char bufferIndex = 0;
 
 volatile long unsigned int TimeSinceInit = 0;
@@ -97,15 +102,8 @@ ISR(USARTC0_RXC_vect){
 	if((bufferIndex == PACKETSIZE)){
 		FlushSerialBuffer(&USART_PC_Data);
 		if(recieveBuffer[8] == (recieveBuffer[1] ^ recieveBuffer[2] ^ recieveBuffer[3] ^ recieveBuffer[4] ^ recieveBuffer[5] ^ recieveBuffer[6] ^ recieveBuffer[7])){
-			//if(recieveBuffer[1] == 2){
-			//sprintf(SendBuffer)
+			ARM_Dock_State = recieveBuffer[1] & 0b00000100;
 			gripStepper.desiredGripState = !(recieveBuffer[1] & GRIP_BM_SERIAL); //0b00000010	
-				//STATUS1_SET();
-			//}else if(recieveBuffer[1] != 2){
-				
-				//STATUS1_CLR();
-			//}
-
 			baseStepper.desiredPos = (recieveBuffer[3]+recieveBuffer[2]);
 			lowerAct.setDesired((double(recieveBuffer[5]+recieveBuffer[4]) / double(100)));
 			upperAct.setDesired((double(recieveBuffer[7]+recieveBuffer[6]) / double(100)));
@@ -382,33 +380,37 @@ int main(void)
 			bufferIndex = 0;
 		}else if(CurrentState == ARMControl){
 			if(IsPacketToParse){
-				ERROR_SET();									//Show light when done with actuators
-				lowerAct.enable();						//Re-enable lower actuator
-				upperAct.enable();						//Re-enabled lower actuator
+				if(ARM_Dock_State != ARM_Dock_State_Prev){
+					DockArm(ARM_Dock_State);
+					ARM_Dock_State_Prev = ARM_Dock_State;
+				}else{
+					ERROR_SET();									//Show light when done with actuators
+					lowerAct.enable();						//Re-enable lower actuator
+					upperAct.enable();						//Re-enabled lower actuator
 
-				baseStepper.rotateBase(baseStepper.desiredPos);	//Move base to position
+					baseStepper.rotateBase(baseStepper.desiredPos);	//Move base to position
 					
-				checkActPosition();								//Check once to avoid loop is possible
-				while(lowerAct.enabled || upperAct.enabled){	//If a motor needs to move, do below
-					checkActPosition();							//Check positions
-					DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));	//Move to position
-					while(!CHECK_ISROVING());  //e-stop check
-				}												//Exit when done moving
+					checkActPosition();								//Check once to avoid loop is possible
+					while(lowerAct.enabled || upperAct.enabled){	//If a motor needs to move, do below
+						checkActPosition();							//Check positions
+						DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(LOWER)*getMotorDir(UPPER));	//Move to position
+						while(!CHECK_ISROVING()){
+							DriveSaber.ParsePacket(127,127);
+						}  //e-stop check
+					}												//Exit when done moving
 					
 
-				DriveSaber.ParsePacket(127,127);				//Stop actuators from moving any more
-
+					DriveSaber.ParsePacket(127,127);				//Stop actuators from moving any more
 				
-				
-				if(gripStepper.desiredGripState == GRIP){
-					gripStepper.enable();
-					gripStepper.processCommand(GRIP);
-				}else if(gripStepper.desiredGripState == RELEASE){
-					gripStepper.enable();
-					gripStepper.processCommand(RELEASE);
+					if(gripStepper.desiredGripState == GRIP){
+						gripStepper.enable();
+						gripStepper.processCommand(GRIP);
+					}else if(gripStepper.desiredGripState == RELEASE){
+						gripStepper.enable();
+						gripStepper.processCommand(RELEASE);
 
+					}
 				}
-				
 				
 				IsPacketToParse = false;
 				ERROR_CLR();
@@ -419,12 +421,13 @@ int main(void)
 				while(!USART_IsTXDataRegisterEmpty(&USARTC0));
 				USART_PutChar(&USARTC0,255);
 				bufferIndex = 0;
+				TimePrevious = TimeSinceInit;
 			}
 			
-			if((TimePrevious - TimeSinceInit) > MAXTIMEOUT){
-				CurrentState = WaitForHost;
-				bufferIndex = 0;
-			}
+			//if((TimePrevious - TimeSinceInit) > MAXTIMEOUT){
+			//	CurrentState = WaitForHost;
+			//	bufferIndex = 0;
+			//}
 		}
 	}
 

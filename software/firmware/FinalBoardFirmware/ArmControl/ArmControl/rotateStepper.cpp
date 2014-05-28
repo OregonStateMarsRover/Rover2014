@@ -60,6 +60,7 @@ void rotateStepper::calibrateBase(){
 	MD2_DIR_CLR(); //Set arm to turn counter-clockwise
 	
 	while (calInProgress){
+		while(!CHECK_ISROVING());
 		calButtonState = CHECK_CAL();
 
 		if(calButtonState && !calFirstPress){
@@ -76,9 +77,9 @@ void rotateStepper::calibrateBase(){
 		}
 		
 		MD2_STEP_CLR();
-		_delay_us(800);
+		_delay_us(1200);
 		MD2_STEP_SET();
-		_delay_us(800);	
+		_delay_us(1200);	
 		
 	}	
 	multiplier = stepCount / calSpan;
@@ -101,9 +102,9 @@ void rotateStepper::moveBase(int degreesToMove){
 		while(!CHECK_ISROVING());  //e-stop check
 		
 		MD2_STEP_CLR();
-		_delay_us(600);
+		_delay_us(800);
 		MD2_STEP_SET();
-		_delay_us(900);
+		_delay_us(1100);
 	}
 	
 }
