@@ -14,22 +14,23 @@ from subprocess import Popen, PIPE
 class ProcessManager:
 	def __init__(self):
 		def handler(sig, f):
-			print "Got shutdown signal"
+			rospy.loginfo("Caught shutdown signal")
 			self.stop_all()
 			sys.exit(0)
 
 		self.processes = {}
 		signal.signal(signal.SIGINT, handler)
+		rospy.Subscriber("process_mgmt", String, lambda data: self.callback(data))
 
 	def callback(self, data):
 		command, arg = data.data.split()
 		if command == "start":
 			if arg == "stereo":
 				self.start_stereo()
-			elif arg == "obstacle":
-				self.start_obstacle()
 			elif arg == "all":
 				self.start_all()
+			else:
+				self.start_normal(arg)
 		elif command == "stop":
 			if arg == "all":
 				self.stop_all()
@@ -51,6 +52,9 @@ class ProcessManager:
 		for p in self.processes.values():
 			if p.running():
 				p.stop()
+			else:
+				print p.running()
+				print p.proc.poll()
 	
 	def restart_all(self):
 		for p in self.processes.values():
@@ -82,9 +86,9 @@ class ProcessManager:
 		self.processes['stereo'] = proc
 		proc.start()
 
-	def start_obstacle(self):
-		args = ['rosrun', 'roscv2', 'obstacle_detect']
-		name = 'obstacle'
+	def start_normal(self, name):
+		if name == "obstacle":
+			args = ['rosrun', 'roscv2', 'obstacle_detect']
 		self.start_process(args, name)
 
 
@@ -104,9 +108,6 @@ class Process:
 		if self.name is None:
 			self.name = "%s" % self.args
 
-	def callback(self, data):
-		print "Got %s" % data.data
-
 	def start(self):
 		if not self.running():
 			rospy.loginfo("Starting process %s" % self.name)
@@ -117,7 +118,6 @@ class Process:
 			rospy.loginfo("Stopping process %s" % self.name)
 			self.proc.terminate()
 			self.proc.wait()
-		print self.name, self.running()
 
 	def restart(self):
 		rospy.loginfo("Restarting process %s" % self.name)
@@ -159,6 +159,4 @@ class StereoProcess:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-
-	rospy.Subscriber("process_mgmt", String, lambda data: proc.callback(data))
 	rospy.spin()
