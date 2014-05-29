@@ -3,78 +3,116 @@ from std_msgs.msg import String
 
 
 class StateMachine(object):
-    
+
     def __init__(self, state_machine):
-        self.state = "FindingObject"
+        self.state = "SearchPattern"
         self.prevState = None
-        rospy.Subscriber("Object", String, self.Object_Message)
-        rospy.Subscriber("Obstacle", String, self.Obstacle_Message)
-        rospy.Subscriber("Process_Management", String, self.Processes)
-	rospy.Subscriber("/motor_command/path_finding/", String, self.motor_callback)
-	rospy.Subscriber("/motor_command/find_base_station/", String, self.motor_callback)
-	rospy.Subscriber("/motor_command/object_detection/", String, self.motor_callback)
-   
- 
+        self.objectPickedup = False
+        rospy.Subscriber("state_change_request", String, self.state_callback)
+        rospy.Subscriber("/motor_command/path_finding/", String, self.motor_callback)
+        rospy.Subscriber("/motor_command/find_base_station/", String, self.motor_callback)
+        rospy.Subscriber("/motor_command/object_detection/", String, self.motor_callback)
+        self.motor_pub = rospy.Publisher("motor_command", String)
+
 
     def motor_callback(self, data):
-	topic = data._connection_header['topic']
-	topicStates = {'/motor_command/path_finding/' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station/': ['FindBaseStation'], '/motor_command/object_detection' : ['MoveTowardObject'] }
-	for state in topicStates[topic]:
-	    if state == self.state:
-		print state, topic, data.data
-		#pub.Publish(data.data) 
-    
-     
-    def Object_Message(self, data):
-	if self.state == "FindingObject":
-	    if data.data == "Object Found":
-               print "Changing from FindingObject to MoveTowardObject"
-               self.prevState = self.state
-               self.state = "MoveTowardObject"
-	    else:
-		print "In FindingObject state, ignoring"
+        topic = data._connection_header['topic']
+        topicStates = {'/motor_command/path_finding/' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station/': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] }
+        for state in topicStates[topic]:
+            if state == self.state:
+                print state, topic, data.data
+                self.motor_pub.Publish(data.data)
 
-	elif self.state == "MoveTowardObject":
-	    if data.data == "At Object":
-		self.prevState = self.state
-		self.state = "PickupObject"
-	    else:
-		print "In MoveTowardObject state, ignoring"
+
+    def state_callback(self, data):
+        if self.state == "SearchPattern":
+            if data.data == "Object Found" and not(self.objectPickedup):
+                   print "Changing from FindingObject to MoveTowardObject"
+                   self.prevState = self.state
+                   self.state = "MoveTowardObject"
+
+            elif data.data == "Object Found" and self.objectPickedup:
+                print "Object already picked up, ignoring state switch request"
+
+            elif data.data == "Basestation Found" and not(self.objectPickedup):
+                print "Object not picked up, ignoring request to change state to FindBaseStation"
+
+            elif data.data == "Basestation Found" and self.objectPickedup:
+                print "Switching to FindBaseStation state"
+                self.prevState = self.state
+                self.State = "FindBaseStation"
+
+            elif data.data == "Basestation Found Final" and not(self.objectPickedup):
+                print "Object not picked up, ignoring request to change state to FindBaseStationFinal"
+
+            elif data.data == "Basestation Found Final" and self.objectPickedup:
+                print "Switching to FindBasestationFinal state"
+                self.prevState = self.state
+                self.State = "FindBaseStationFinal"
+
+            elif data.data == "Blocked":
+                print "Switching to ObstacleAvoidance state"
+                self.prevState = self.state
+                self.state == "ObstacleAvoidance"
+
+            else:
+                print "Ignoring state change request %s becuase in state SearchPattern" % data.data
+
+        elif self.state == "MoveTowardObject":
+            if data.data == "At Object":
+                self.prevState = self.state
+                self.state = "PickupObject"
+
+            elif data.data == "Blocked":
+                print "Switching to AvoidObstacle state"
+                self.prevState = self.state
+                self.state = "AvoidObstacle"
+
+            else:
+                print "Ignoring state change request %s becuase in state MoveTowardObject" % data.data
 
         elif self.state == "AvoidObstacle":
-	    print "In AvoidObstacle state, ignoring" 
-	
-	elif self.state == "FindBaseStation":
-	    print "In FindBaseStation state, ignoring" 	
-	
-	elif self.state == "PickupObject":
-            if data.data == "Object Retrieved":
-		self.prevState = self.state
-		self.state = "FindBaseStation"
+            if data.data == "Not Blocked":
+                self.state = self.prevState
+                self.prevState = "AvoidObstacle"
 
-	elif self.state == "ProcessManaging":
-	    print "In ProcessManaging state, ignoring"
+            else:
+                print "Ignoring state change request %s becuase in state AvoidObstacle state" % data.data
+
+        elif self.state == "FindBaseStation":
+            if data.data == "Blocked":
+                print "Switching ot ObstacleAvoidance state"
+                self.prevState = self.state
+                self.state = "AvoidObstacle"
+
+            else:
+                print "Ignoring state change request %s becuase in state FindBaseStation state" % data.data
+
+        elif self.state == "FindBaseStationFinal":
+            if data.data == "At Base Station":
+                self.prevState = self.state
+                self.state == "Final"
+
+            else:
+                print "Ignoring state change request %s becuase in state FindBaseStationFinal state" % data.data
+
+        elif self.state == "PickupObject":
+                if data.data == "Object Retrieved":
+                    self.prevState = self.state
+                    self.objectPickedup == True
+                    self.state = "SearchPattern"
+
+                else:
+                    print "Ignoring state change request %s becuase in state PickupObject state" % data.data
+
+        #TODO: Fix this to work with process manager
+        elif self.state == "ProcessManaging":
+            print "In ProcessManaging state, ignoring"
 
         else:
             print "In unknown state: Error"
 
-    def Obstacle_Message(self, data):
-        if data.data == "Blocked":
-            if self.state == "Pickup Object":
-                pass
-            else:
-                self.prevState = self.state
-                self.state == "Avoid Obstacle"
-        elif data.data == "Not Blocked":
-            if self.state == "Avoid Obstacle":
-                self.state = self.prevState
-	    else:
-		print "Rover was not blocked, so ignoring"
-        else:
-            print "Obstacle said something other than Blocked or Not Blocked: Error"
 
-    def Processes(self, data):
-        print "Process"
 
 
 
