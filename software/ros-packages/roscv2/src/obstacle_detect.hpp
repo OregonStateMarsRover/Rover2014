@@ -18,6 +18,7 @@
 /* Options */
 //#define CV_OUTPUT
 //#define __SLICE_DEBUG
+//#define TIMER_OUTPUT
 
 /* Constants */
 
@@ -61,7 +62,7 @@ struct Slice {
 void loop();
 void get_images(sensor_msgs::Image::ConstPtr&,
                 stereo_msgs::DisparityImage::ConstPtr&);
-void find_obstacles(const cv::Mat&, cv::Mat&, float, float);
+float find_obstacles(const cv::Mat&, cv::Mat&, float, float);
 float get_depth_scale(float);
 
 void img_callback(const sensor_msgs::Image::ConstPtr&);
@@ -72,7 +73,7 @@ void fill_slices(const cv::Mat&, std::vector<Slice>&, float);
 void remove_noise(cv::Mat&);
 RectList calc_bboxes(cv::Mat&);
 void calc_topdown(cv::Mat&, const std::vector<Slice>&, const std::vector<RectList>&, float);
-void publish_grid(const Grid &grid);
+void publish_grid(const Grid &grid, float pct_good);
 void calc_topdown_grid(Grid&, const std::vector<Slice>&, const std::vector<RectList>&, float);
 void draw_grid(const Grid&, cv::Mat&);
 
