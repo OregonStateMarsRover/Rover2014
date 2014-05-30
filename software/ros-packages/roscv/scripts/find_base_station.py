@@ -26,7 +26,8 @@ class FindStart():
     def __init__(self): 
         #self.point_callback = rospy.Subscriber("/my_stereo/disparity", stereo_msgs.msg.DisparityImage, self.points)
         self.status_update = rospy.Subscriber("/find_base_station", std_msgs.msg.String, self.status)
-        self.motor = rospy.Publisher("/motor_command", std_msgs.msg.String)
+        self.motor = rospy.Publisher("/motor_command/find_base_station", std_msgs.msg.String)
+        self.change_state = rospy.Publisher("/state_change_request", std_msgs.msg.String)
         self.bridge = CvBridge()
         self.focal = None
         self.baseline = None
@@ -45,22 +46,30 @@ class FindStart():
         self.data = None
         self.image_thread = threading.Thread(target=self.start_thread)
         self.image_thread.start()
+
+
     def start_thread(self):
         self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.set_data)
+        self.state_sub = rospy.Subscriber("/state", std_msgs.std.String, self.set_state)
         rospy.spin()
 
     def set_data(self, data):
         print "got image"
         self.data = data
-    
+
+    def get_state(self, data):
+        #FindBaseStation FindBaseStationFinal
+        if "BaseStation" in data.data or data.data == "SearchPattern":
+            self.started = 1
+        else:
+            self.started = 0
+
     def image(self):
         if self.started == 0:
             return
         if self.data == None:
             return
-        print "checkerboad image"
         image = self.bridge.imgmsg_to_cv2(self.data, "bgr8")
-        print "converted image"
         self.checker_board(image)
         self.data = None
 
@@ -79,12 +88,12 @@ class FindStart():
         ret, corners = cv2.findChessboardCorners(img, self.dim, None)
         print "Checkerboard:", ret
         if ret:
+            self.change_state.publish("Base Station Found")
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             cv2.drawChessboardCorners(gray, self.dim, corners, ret)
             height = self.get_height(img, corners)
             center = self.get_center(corners)
             distance = self.get_distance(gray, height)
-            print distance
             angle = self.get_angle(center)
             """
             skew = self.get_skew(img, corners)
@@ -118,6 +127,8 @@ class FindStart():
             distance -= 10
             if distance > 20:
                 distance = int(distance*(3.0/4))
+            else:
+                self.change_state.publish("Base Station Found Final")
             if -threshold < angle < threshold:
                 print "Moving forward", distance, "angle was", angle
                 self.motor.publish("f%d" % (int(distance)))
@@ -129,6 +140,7 @@ class FindStart():
             if distance < 20 and angle < threshold:
                 self.searching = False
                 self.search_turn = False
+                self.change_state.publish("At Base Station")
             else:
                 self.searching = True
                 self.searh_turn = False
