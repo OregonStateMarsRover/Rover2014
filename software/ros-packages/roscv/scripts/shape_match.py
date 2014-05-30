@@ -224,17 +224,27 @@ class RosDetect():
 
     def __init__(self):
         self.bridge = CvBridge()
+        self.state = "searching"
         self.template_skeletons = skel_templates()
-        self.left_image_sub = rospy.Subscriber("/armCam/image_raw", sensor_msgs.msg.Image, self.detect_objects)
+        self.state_change = rospy.Publisher("/state_change_request", std_msgs.msg.String)
+        self.left_image_sub = rospy.Subscriber("/armCam/image_raw", sensor_msgs.msg.Image, self.get_image)
         self.objects = rospy.Publisher("objects/position", std_msgs.msg.String)
         rospy.init_node("object_recognition", anonymous=True)
 
     def convert_arm(self, x, y):
         return x, y
 
-    def detect_objects(self, data):
+    def get_image(self, data):
+        image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        if self.state == "searching":
+            self.detect_objects(image)
+        elif self.state == "pickup":
+            rect = self.detect_objects()
+            self.track_to_pickup(image, rect)
+
+    def detect_objects(self, image):
         try:
-            image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            image = image.copy()
             rect, skel = match_object(image, self.template_skeletons[3:], self.template_skeletons[:3])
             if GUI:
                 cv2.imshow("skel", skel)
@@ -247,9 +257,27 @@ class RosDetect():
             if GUI:
                 cv2.imshow("original", image)
                 cv2.waitKey(1)
-            self.objects.publish("%d,%d" % (rect[0]+(rect[2]/2), rect[1]+(rect[3]/2)))
+            if self.state == "searching":
+                self.state_change.publish("Object Found")
+                self.state = "pickup"
+            return rect
         except CvBridgeError, e:
             print e
+
+    def track_to_pickup(self, rect):
+        #line it up on forward axis which will require a function
+        #we will need to calibrate to get this line
+        #if object_angle_from_forward > threshold:
+        #   rotate so object is on forward line
+        #if line_length(rect corner to pickup zone corner) > threshold
+        #   move forward
+        #else:
+        #   pick the object up
+        #   store object
+        #   dock arm
+        #   set state to searching
+        pass
+
 
 if __name__ == "__main__":
     if USE_ROS:
