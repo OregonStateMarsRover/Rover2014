@@ -16,6 +16,7 @@ try:
 except ImportError:
     USE_ROS = False
 
+GUI = False
 """
 " See the comments in the color filter code since it is exactly the same code
 """
@@ -60,6 +61,7 @@ def shape_matches(templates, image, cap, smallest):
     area = 0
     rect = 0
     match = 2
+    count = 0
     for cnt in contours:
         #get rid of really small boxes
         narea = cv2.contourArea(cnt)
@@ -67,18 +69,17 @@ def shape_matches(templates, image, cap, smallest):
         if cap > narea > smallest:
             for template in templates:
                 tcontour, th = cv2.findContours(template.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                mm = 0
+                mm = .2
                 temp = tcontour[0]
                 for cnt2 in tcontour:
                     tm = cv2.matchShapes(cnt2, cnt, 3, 0.0)
                     if tm < mm:
                         mm = tm
                         temp = cnt2
-
-                if mm < match:
+                if mm < match and mm != 0:
                     match = mm
                     rect = (x, y, w, h, mm)
-    if match > .02:
+    if match > .12:
         return 0
     else:
         return rect
@@ -127,25 +128,25 @@ def get_skel(img):
 
 
 def match_object(img, hook_skel, puck_skel):
-    skel = get_skel(img)
+    lower = np.array([0, 0, 200], dtype=np.uint8)
+    upper = np.array([255, 255, 255], dtype=np.uint8)
+    skel = cv2.inRange(img.copy(), lower, upper)
+    skel_height = skel.shape[0]/2
+    skel = skel[skel_height:, :]
+    #skel = get_skel(img)
     #temp_clustering = thick_cluster(temp_skel)
     #clustering = thick_cluster(skel)
-    lines = cv2.HoughLinesP(skel, 1, math.pi / 180, 70, minLineLength=30, maxLineGap=50)
-    borders = np.zeros(skel.shape, np.uint8)
-    for line in lines[0]:
-        p1 = tuple(line[:2])
-        p2 = tuple(line[2:])
-        cv2.line(borders, p1, p2, (255), 5)
-    _, skel = cv2.threshold(skel, 10, 255, cv2.THRESH_BINARY)
-    print skel
-    cv2.imshow("skel_original", skel)
-    skel = cv2.bitwise_xor(skel, borders, mask=skel)
-    rect = shape_matches(puck_skel, skel, 300, 100)
-    rect2 = shape_matches(hook_skel, skel, 300, 100)
+    #_, skel = cv2.threshold(skel, 10, 255, cv2.THRESH_BINARY)
+    rect = shape_matches(puck_skel, skel, 500, 100)
+    rect2 = shape_matches(hook_skel, skel, 500, 100)
     if rect != 0 and rect2 != 0:
         rect = rect if rect[4] < rect2[4] else rect2
     elif rect == 0:
         rect = rect2
+    if rect != 0:
+        rect = list(rect)
+        rect[1] += skel_height
+        rect = tuple(rect)
     return rect, skel
 
 
@@ -234,15 +235,18 @@ class RosDetect():
     def detect_objects(self, data):
         try:
             image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-            image = cv2.inRange(image, [0, 150, 0], [255, 255, 255])
             rect, skel = match_object(image, self.template_skeletons[3:], self.template_skeletons[:3])
-            cv2.imshow("skel", skel)
+            if GUI:
+                cv2.imshow("skel", skel)
             if rect == 0:
-                print "none found"
+                #print "none found"
+                if GUI:
+                    cv2.waitKey(1)
                 return
             draw_bounding_box(image, rect)
-            cv2.imshow("original", image)
-            cv2.waitKey(1)
+            if GUI:
+                cv2.imshow("original", image)
+                cv2.waitKey(1)
             self.objects.publish("%d,%d" % (rect[0]+(rect[2]/2), rect[1]+(rect[3]/2)))
         except CvBridgeError, e:
             print e
