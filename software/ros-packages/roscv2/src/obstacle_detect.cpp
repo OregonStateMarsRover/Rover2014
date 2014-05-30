@@ -109,10 +109,12 @@ void loop() {
 		clear = cv::Mat::zeros(IMG_HEIGHT, IMG_WIDTH, CV_32F);
 	}
 
+	float pct_good;
 	/* Find and display obstacles */
 	{
 		Timer obs_t = Timer("find_obstacles");
-		find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
+		pct_good = find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
+		ROS_INFO("%f", pct_good);
 	}
 #ifdef CV_OUTPUT
 	cv::Mat scaled_obs = obstacle / RANGE_MAX;
@@ -185,7 +187,7 @@ void loop() {
 		Timer top_t = Timer("topdown");
 		/* Init top-down image */
 		calc_topdown_grid(grid, slices, slice_bboxes, RANGE_MAX);
-		publish_grid(grid);
+		publish_grid(grid, pct_good);
 
 		draw_grid(grid, top);
 		calc_topdown(top, slices, slice_bboxes, RANGE_MAX);
@@ -205,14 +207,17 @@ void loop() {
 #endif
 }
 
-void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
+float find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img, 
                     float min, float max) {
+	int total_px = depth_img.rows * depth_img.cols;
+	int good_px = 0;
 	for (int row = depth_img.rows-1; row >= 0; row--) {
 		const float *d = (const float*)depth_img.ptr(row);
 		float *o = (float*)obstacle_img.ptr(row);
 		for (int col = depth_img.cols-1; col >= 0; col--) {
 			float depth = d[col];
 			if (depth <= min /*|| depth >= max*/) continue; /* out of range */
+			good_px++;
 			if (o[col] > 0) continue; /* Already an obstacle? Skip. */
 
 			/* Valid for examination */
@@ -246,6 +251,7 @@ void find_obstacles(const cv::Mat& depth_img, cv::Mat& obstacle_img,
 			if (obstacle) o[col] = depth;
 		}
 	}
+	return (float)good_px/(float)total_px;
 }
 
 /* TODO???? */
@@ -398,9 +404,10 @@ void calc_topdown_grid(Grid &grid, const std::vector<Slice> &slices,
 	}
 }
 
-void publish_grid(const Grid &grid) {
+void publish_grid(const Grid &grid, float pct_good) {
 		roscv2::Grid msg;
 		grid.populate_msg(msg);
+		msg.pct_good = pct_good;
 		pub.publish(msg);
 }
 

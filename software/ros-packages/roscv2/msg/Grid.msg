@@ -3,3 +3,4 @@ int8 height
 float32 width_m
 float32 height_m
 int8[] data
+float32 pct_good

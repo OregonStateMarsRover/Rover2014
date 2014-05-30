@@ -10,7 +10,11 @@ public:
 
 	Timer(std::string name, int tabs) : name(name), tabs(tabs) {
 		start = ros::Time::now();
+#ifdef TIMER_OUTPUT
 		disabled = false;
+#else
+		disabled = true;
+#endif
 	}
 
 	~Timer() {

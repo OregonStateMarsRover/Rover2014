@@ -5,6 +5,7 @@
 
 static ros::Publisher motor_pub;
 static float g_distance = MAX_OBS_DIST;
+static float g_good_thresh = 0.3f;
 
 static void catch_sig(int sig) {
     ROS_INFO("Caught signal-- hanging up");
@@ -65,14 +66,24 @@ void print_scores(std::map<int, float>& scores) {
 
 void grid_callback(const roscv2::Grid& msg) {
 	Grid grid = Grid::from_msg(msg);
-	print_grid(grid);
 
-	std::map<int, float> scores;
-	bool blocked = forward_obstacle(grid);
-	score_directions(grid, scores);
-	ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
-	move(blocked, scores);
-	print_scores(scores);
+	float good = msg.pct_good;
+
+	if (good < g_good_thresh * THRESH) {
+		ROS_INFO("Not enough data in grid. - %f/%f", good, g_good_thresh);
+		g_good_thresh = g_good_thresh * THRESH_DECAY;
+	} else {
+		g_good_thresh += (good - g_good_thresh) * THRESH_GROWTH;
+
+		//print_grid(grid);
+
+		std::map<int, float> scores;
+		bool blocked = forward_obstacle(grid);
+		score_directions(grid, scores);
+		ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
+		move(blocked, scores);
+		print_scores(scores);
+	}
 }
 
 bool forward_obstacle(const Grid& grid) {

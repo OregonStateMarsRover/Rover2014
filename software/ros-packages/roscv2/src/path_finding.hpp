@@ -13,6 +13,10 @@
 #define MAX_OBS_DIST (5.0)
 #define ARC_RAD (PI/8)
 
+#define THRESH_DECAY (0.95f)
+#define THRESH_GROWTH (0.2f);
+#define THRESH (0.5f)
+
 #define FORWARD (0)
 #define LEFT (1)
 #define RIGHT (2)
