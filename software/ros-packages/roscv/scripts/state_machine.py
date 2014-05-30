@@ -1,5 +1,6 @@
 import rospy
 from std_msgs.msg import String
+import threading
 
 
 class StateMachine(object):
@@ -13,7 +14,16 @@ class StateMachine(object):
         rospy.Subscriber("/motor_command/find_base_station/", String, self.motor_callback)
         rospy.Subscriber("/motor_command/object_detection/", String, self.motor_callback)
         self.motor_pub = rospy.Publisher("motor_command", String)
+        self.state_pub = rospy.Publisher("state", String)
+        self.state_thread = threading.Thread(target = self.print_state)
 
+        self.state_thread.start()
+
+    def print_state(self):
+        print "Thread started"
+        while True:
+            self.state_pub.publish(self.state)
+            rospy.sleep(.25)
 
     def motor_callback(self, data):
         topic = data._connection_header['topic']
@@ -21,7 +31,7 @@ class StateMachine(object):
         for state in topicStates[topic]:
             if state == self.state:
                 print state, topic, data.data
-                self.motor_pub.Publish(data.data)
+                self.motor_pub.publish(data.data)
 
 
     def state_callback(self, data):
@@ -34,37 +44,38 @@ class StateMachine(object):
             elif data.data == "Object Found" and self.objectPickedup:
                 print "Object already picked up, ignoring state switch request"
 
-            elif data.data == "Basestation Found" and not(self.objectPickedup):
+            elif data.data == "Base Station Found" and not(self.objectPickedup):
                 print "Object not picked up, ignoring request to change state to FindBaseStation"
 
-            elif data.data == "Basestation Found" and self.objectPickedup:
+            elif data.data == "Base Station Found" and self.objectPickedup:
                 print "Switching to FindBaseStation state"
                 self.prevState = self.state
                 self.State = "FindBaseStation"
 
-            elif data.data == "Basestation Found Final" and not(self.objectPickedup):
+            elif data.data == "Base Station Found Final" and not(self.objectPickedup):
                 print "Object not picked up, ignoring request to change state to FindBaseStationFinal"
 
-            elif data.data == "Basestation Found Final" and self.objectPickedup:
+            elif data.data == "Base Station Found Final" and self.objectPickedup:
                 print "Switching to FindBasestationFinal state"
                 self.prevState = self.state
                 self.State = "FindBaseStationFinal"
 
             elif data.data == "Blocked":
-                print "Switching to ObstacleAvoidance state"
+                print "Switching to AvoidObstacle state"
                 self.prevState = self.state
-                self.state == "ObstacleAvoidance"
+                self.state = "AvoidObstacle"
 
             else:
                 print "Ignoring state change request %s becuase in state SearchPattern" % data.data
 
         elif self.state == "MoveTowardObject":
             if data.data == "At Object":
+                print "Changing from MoveTowardObject to PickupObject state"
                 self.prevState = self.state
                 self.state = "PickupObject"
 
             elif data.data == "Blocked":
-                print "Switching to AvoidObstacle state"
+                print "Changing frm MoveTowardObject to AvoidObstacle state"
                 self.prevState = self.state
                 self.state = "AvoidObstacle"
 
@@ -73,6 +84,7 @@ class StateMachine(object):
 
         elif self.state == "AvoidObstacle":
             if data.data == "Not Blocked":
+                print "Changing from  AvoidObstacle to prevstate: %s" % self.prevState
                 self.state = self.prevState
                 self.prevState = "AvoidObstacle"
 
@@ -81,7 +93,7 @@ class StateMachine(object):
 
         elif self.state == "FindBaseStation":
             if data.data == "Blocked":
-                print "Switching ot ObstacleAvoidance state"
+                print "Changing from FindBaseStation to AvoidObstacle state"
                 self.prevState = self.state
                 self.state = "AvoidObstacle"
 
@@ -90,16 +102,19 @@ class StateMachine(object):
 
         elif self.state == "FindBaseStationFinal":
             if data.data == "At Base Station":
+                print "Changing from FindBaseStationFinal to Final state"
                 self.prevState = self.state
-                self.state == "Final"
+                self.state = "Final"
 
             else:
                 print "Ignoring state change request %s becuase in state FindBaseStationFinal state" % data.data
 
         elif self.state == "PickupObject":
                 if data.data == "Object Retrieved":
+                    print "Object retrieved"
+                    print "Changing from PickupObject to SearchPattern"
                     self.prevState = self.state
-                    self.objectPickedup == True
+                    self.objectPickedup = True
                     self.state = "SearchPattern"
 
                 else:
