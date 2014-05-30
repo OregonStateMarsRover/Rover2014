@@ -1,9 +1,11 @@
 #include "path_finding.hpp"
 #include <std_msgs/String.h>
+#include <std_msgs/Int32.h>
 #include <cmath>
 #include <signal.h>
 
 static ros::Publisher motor_pub;
+static ros::Publisher blocked_pub;
 static float g_distance = MAX_OBS_DIST;
 static float g_good_thresh = 0.3f;
 
@@ -19,6 +21,7 @@ static void catch_sig(int sig) {
 
 	exit(0);
 }
+
 
 int main(int argc, char **argv) {
 	char *dval;
@@ -46,6 +49,7 @@ int main(int argc, char **argv) {
 
     ros::Subscriber sub = pf.subscribe("/obstacle_grid", 10, grid_callback);
 	motor_pub = pf.advertise<std_msgs::String>("/motor_command", 100);
+	blocked_pub = pf.advertise<std_msgs::Int32>("/blocked", 10);
 
 	//TODO: FUNCTION ME
 	std::stringstream fss;
@@ -65,6 +69,7 @@ void print_scores(std::map<int, float>& scores) {
 }
 
 void grid_callback(const roscv2::Grid& msg) {
+	std_msgs::Int32 blocked_msg;
 	Grid grid = Grid::from_msg(msg);
 
 	float good = msg.pct_good;
@@ -72,6 +77,7 @@ void grid_callback(const roscv2::Grid& msg) {
 	if (good < g_good_thresh * THRESH) {
 		ROS_INFO("Not enough data in grid. - %f/%f", good, g_good_thresh);
 		g_good_thresh = g_good_thresh * THRESH_DECAY;
+		blocked_msg.data = -1;
 	} else {
 		g_good_thresh += (good - g_good_thresh) * THRESH_GROWTH;
 
@@ -79,11 +85,15 @@ void grid_callback(const roscv2::Grid& msg) {
 
 		std::map<int, float> scores;
 		bool blocked = forward_obstacle(grid);
-		score_directions(grid, scores);
+		blocked_msg.data = blocked ? 1 : 0;
 		ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
+
+		score_directions(grid, scores);
 		move(blocked, scores);
 		print_scores(scores);
 	}
+
+	blocked_pub.publish(blocked_msg);
 }
 
 bool forward_obstacle(const Grid& grid) {
@@ -199,6 +209,6 @@ void move(bool blocked, std::map<int, float>& scores) {
 
 	}
 #ifdef MOVE
-		motor_pub.publish(move_msg);
+	motor_pub.publish(move_msg);
 #endif
 }

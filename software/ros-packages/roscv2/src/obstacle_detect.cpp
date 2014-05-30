@@ -64,7 +64,7 @@ void loop() {
 		if (img_msg == NULL || disp_msg == NULL) {
 			loop_t.disable();
 			setup_t.disable();
-			//ROS_INFO("No images");
+			ROS_INFO("No images");
 			return;
 		}
 
@@ -73,7 +73,7 @@ void loop() {
 		*/
 		unsigned int seq = disp_msg->image.header.seq;
 		if (last_seq == seq) {
-			//ROS_INFO("Old message");
+			ROS_INFO("Old message #%d", seq);
 			loop_t.disable();
 			setup_t.disable();
 			return;
@@ -114,7 +114,6 @@ void loop() {
 	{
 		Timer obs_t = Timer("find_obstacles");
 		pct_good = find_obstacles(depth, obstacle, RANGE_MIN, 100.0);
-		ROS_INFO("%f", pct_good);
 	}
 #ifdef CV_OUTPUT
 	cv::Mat scaled_obs = obstacle / RANGE_MAX;
