@@ -16,7 +16,7 @@ try:
 except ImportError:
     USE_ROS = False
 
-GUI = False
+GUI = True
 """
 " See the comments in the color filter code since it is exactly the same code
 """
@@ -79,7 +79,9 @@ def shape_matches(templates, image, cap, smallest):
                 if mm < match and mm != 0:
                     match = mm
                     rect = (x, y, w, h, mm)
-    if match > .12:
+    if match != 2:
+        print match
+    if match > .2:
         return 0
     else:
         return rect
@@ -137,8 +139,8 @@ def match_object(img, hook_skel, puck_skel):
     #temp_clustering = thick_cluster(temp_skel)
     #clustering = thick_cluster(skel)
     #_, skel = cv2.threshold(skel, 10, 255, cv2.THRESH_BINARY)
-    rect = shape_matches(puck_skel, skel, 500, 100)
-    rect2 = shape_matches(hook_skel, skel, 500, 100)
+    rect = shape_matches(puck_skel, skel, 1000, 100)
+    rect2 = shape_matches(hook_skel, skel, 1000, 100)
     if rect != 0 and rect2 != 0:
         rect = rect if rect[4] < rect2[4] else rect2
     elif rect == 0:
@@ -197,16 +199,17 @@ def test_matching(hook_skel, puck_skel, lower_bound, upper_bound, test_count):
 
 def skel_templates():
     img = cv2.imread('test_images/image002.png')
-    template = [cv2.imread('test_images/template/hockey/template1.png'),
-                cv2.imread('test_images/template/hockey/template2.png'),
-                cv2.imread('test_images/template/hockey/template3.png'),
-                cv2.imread('test_images/template/hook/template1.png'),
-                cv2.imread('test_images/template/hook/template2.png'),
-                cv2.imread('test_images/template/hook/template3.png'),
-                cv2.imread('test_images/template/hook/template4.png'),
-                cv2.imread('test_images/template/hook/template5.png'),
-                cv2.imread('test_images/template/hook/template6.png'),
-                cv2.imread('test_images/template/hook/template7.png')]
+    base = "/home/rover/ros/rover_ws/src/roscv/scripts/"
+    template = [cv2.imread(base + 'test_images/template/hockey/template1.png'),
+                cv2.imread(base + 'test_images/template/hockey/template2.png'),
+                cv2.imread(base + 'test_images/template/hockey/template3.png'),
+                cv2.imread(base + 'test_images/template/hook/template1.png'),
+                cv2.imread(base + 'test_images/template/hook/template2.png'),
+                cv2.imread(base + 'test_images/template/hook/template3.png'),
+                cv2.imread(base + 'test_images/template/hook/template4.png'),
+                cv2.imread(base + 'test_images/template/hook/template5.png'),
+                cv2.imread(base + 'test_images/template/hook/template6.png'),
+                cv2.imread(base + 'test_images/template/hook/template7.png')]
     temp_skel = []
     for x, temp in enumerate(template):
         temp_skel.append(get_skel(temp))
@@ -236,10 +239,11 @@ class RosDetect():
 
     def get_image(self, data):
         image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        print self.state
         if self.state == "searching":
             self.detect_objects(image)
         elif self.state == "pickup":
-            rect = self.detect_objects()
+            rect = self.detect_objects(image)
             self.track_to_pickup(image, rect)
 
     def detect_objects(self, image):
@@ -258,13 +262,14 @@ class RosDetect():
                 cv2.imshow("original", image)
                 cv2.waitKey(1)
             if self.state == "searching":
+                print "switching states"
                 self.state_change.publish("Object Found")
                 self.state = "pickup"
             return rect
         except CvBridgeError, e:
             print e
 
-    def track_to_pickup(self, rect):
+    def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
         #we will need to calibrate to get this line
         #if object_angle_from_forward > threshold:

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import rospy
 from std_msgs.msg import String
 import threading
@@ -27,8 +28,12 @@ class StateMachine(object):
 
     def motor_callback(self, data):
         topic = data._connection_header['topic']
-        topicStates = {'/motor_command/path_finding/' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station/': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] }
+        topicStates = {'/motor_command/path_finding' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] }
+        print "topic is: ", topic
+
         for state in topicStates[topic]:
+            print "state = ", state
+            print "self.state = ", self.state
             if state == self.state:
                 print state, topic, data.data
                 self.motor_pub.publish(data.data)
@@ -40,7 +45,7 @@ class StateMachine(object):
                    print "Changing from FindingObject to MoveTowardObject"
                    self.prevState = self.state
                    self.state = "MoveTowardObject"
-		   self.motor_pub.publish("flush")
+                   self.motor_pub.publish("flush")
 
             elif data.data == "Object Found" and self.objectPickedup:
                 print "Object already picked up, ignoring state switch request"
@@ -50,10 +55,9 @@ class StateMachine(object):
 
             elif data.data == "Base Station Found" and self.objectPickedup:
                 print "Switching to FindBaseStation state"
-		self.motor_pub.publish("flush")
+                self.motor_pub.publish("flush")
                 self.prevState = self.state
-                self.State = "FindBaseStation"
-
+                self.state = "FindBaseStation"
 
             elif data.data == "Base Station Found Final" and not(self.objectPickedup):
                 print "Object not picked up, ignoring request to change state to FindBaseStationFinal"
@@ -61,11 +65,11 @@ class StateMachine(object):
             elif data.data == "Base Station Found Final" and self.objectPickedup:
                 print "Switching to FindBaseStationFinal state"
                 self.prevState = self.state
-                self.State = "FindBaseStationFinal"
+                self.state = "FindBaseStationFinal"
 
             elif data.data == "Blocked":
                 print "Switching to AvoidObstacle state"
-		self.motor_pub.publish("flush")
+                self.motor_pub.publish("flush")
                 self.prevState = self.state
                 self.state = "AvoidObstacle"
 
@@ -77,12 +81,12 @@ class StateMachine(object):
                 print "Changing from MoveTowardObject to PickupObject state"
                 self.prevState = self.state
                 self.state = "PickupObject"
-		self.motor_pub.publish("flush")
+                self.motor_pub.publish("flush")
 
             elif data.data == "Blocked":
                 print "Changing frm MoveTowardObject to AvoidObstacle state"
                 self.motor_pub.publish("flush")
-		self.prevState = self.state
+                self.prevState = self.state
                 self.state = "AvoidObstacle"
 
             else:
@@ -104,7 +108,14 @@ class StateMachine(object):
                 self.motor_pub.publish("flush")
                 self.prevState = self.state
                 self.state = "AvoidObstacle"
+            
+            elif data.data == "Base Station Found Final" and not(self.objectPickedup):
+                print "Object not picked up, ignoring request to change state to FindBaseStationFinal"
 
+            elif data.data == "Base Station Found Final" and self.objectPickedup:
+                print "Switching to FindBaseStationFinal state"
+                self.prevState = self.state
+                self.state = "FindBaseStationFinal"
             else:
                 print "Ignoring state change request %s becuase in state FindBaseStation state" % data.data
 
@@ -120,14 +131,13 @@ class StateMachine(object):
         elif self.state == "PickupObject":
                 if data.data == "Object Retrieved":
                     print "Object retrieved"
-		    self.motor_pub.publish("flush")
+                    self.motor_pub.publish("flush")
                     print "Changing from PickupObject to SearchPattern"
                     self.prevState = self.state
                     self.objectPickedup = True
                     self.state = "SearchPattern"
 
-                else:
-                    print "Ignoring state change request %s becuase in state PickupObject state" % data.data
+                else: print "Ignoring state change request %s becuase in state PickupObject state" % data.data
 
         #TODO: Fix this to work with process manager
         elif self.state == "ProcessManaging":
