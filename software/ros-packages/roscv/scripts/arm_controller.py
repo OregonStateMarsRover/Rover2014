@@ -81,6 +81,7 @@ class Arm(object):
 
 
     def __init__(self):
+        self.is_maintain = False
         self.stopped = False
         self.serial = SerialHandler()
         self.serial.get_control_port("ID: ArmControl")
@@ -92,13 +93,16 @@ class Arm(object):
         open(os.devnull, 'w')
 
     def maintain(self, event=None):
+        self.is_maintain = True
         self.send_packet()
+        self.is_maintain = False
 
 
     def send_packet(self):
         print "Packet: ", self.base1 + self.base2, self.lowerAct1 + self.lowerAct2, self.upperAct1 + self.upperAct2
         print "sending"
-        self.ready = False
+        if not self.is_maintain:
+            self.ready = False
         self.serial.write(chr(255))
         self.serial.write(chr(self.command))
         self.serial.write(chr(self.base1))
