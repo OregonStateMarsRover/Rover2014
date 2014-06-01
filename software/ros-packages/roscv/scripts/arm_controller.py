@@ -272,7 +272,7 @@ class RosController(object):
                 self.pub.publish("Ready")
             else:
                 self.pub.publish("Not")
-
+            time.sleep(1)
     def atand(self,val):
         return degrees(atan(radians(val)))
     def acosd(self,val):

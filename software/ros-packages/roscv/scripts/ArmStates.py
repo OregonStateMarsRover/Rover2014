@@ -41,7 +41,7 @@ class ArmState(object):
 
     def wait_for_arm(self):
         print "starting wait"
-        while rospy.wait_for_message("/arm_controller", std_msgs.msg.String).data != "Not":
+        while rospy.wait_for_message("/arm_controller", std_msgs.msg.String).data == "Not":
             pass
         print "ending wait"
 
