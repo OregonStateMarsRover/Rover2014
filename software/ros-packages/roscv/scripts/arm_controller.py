@@ -163,7 +163,7 @@ class RosController(object):
 
         self.OS_1=0.5
         self.OS_2=0.34808
-        rospy.Subscriber('arm_commands',String, self.read_commands)
+        rospy.Subscriber('arm_commands', String, self.read_commands)
 
         rospy.Timer(rospy.Duration(.001), self.a.maintain)
     def convert_act(self, val):
