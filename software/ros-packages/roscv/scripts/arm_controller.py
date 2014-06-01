@@ -245,6 +245,7 @@ class RosController(object):
         self.a.lowerAct2 = int(act1[1])
         self.a.upperAct1 = int(act2[0])
         self.a.upperAct2 = int(act2[1])
+        self.a.is_maintain = False
         self.a.send_packet()
         x,y,z=0,0,0
         baseXYZ,lowerActXYZ,upperActXYZ = convertXYZ(x,y,z)
