@@ -93,16 +93,17 @@ class Arm(object):
         open(os.devnull, 'w')
 
     def maintain(self, event=None):
-        self.is_maintain = True
         if self.ready:
+            self.is_maintain = True
             self.send_packet()
-        self.is_maintain = False
+            self.is_maintain = False
 
 
     def send_packet(self):
         print "Packet: ", self.base1 + self.base2, self.lowerAct1 + self.lowerAct2, self.upperAct1 + self.upperAct2
-        print "sending"
+        print "sending", self.is_maintain
         if not self.is_maintain:
+            print "ready false"
             self.ready = False
         self.serial.write(chr(255))
         self.serial.write(chr(self.command))
