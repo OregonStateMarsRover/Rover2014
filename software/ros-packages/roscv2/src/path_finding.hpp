@@ -25,8 +25,10 @@
 
 void grid_callback(const roscv2::Grid& msg);
 bool forward_obstacle(const Grid& grid);
-bool goal_obstacle(const Grid& grid);
+bool goal_obstacle(const Grid& grid, float angle);
 void score_directions(const Grid& grid, std::map<int, float>& scores);
 void print_grid(const Grid& grid);
 void move_forward(bool blocked, std::map<int, float>& scores);
+void move_goal(bool goal_blocked, bool direct_blocked, 
+               float angle, std::map<int, float>& scores);
 static void catch_sig(int sig);
