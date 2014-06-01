@@ -20,13 +20,13 @@ class ArmState(object):
         self.item_count = 0
         self.arm = rospy.Publisher("arm_commands", std_msgs.msg.String)
         self.arm_state = rospy.Subscriber("/arm_state", std_msgs.msg.String, self.get_object)
-        self.change_state("docked")
 
     def change_state(self, state):
         try:
             nxt = self.states[state]()
         except KeyError:
             return
+        print "switching from", self.state, "to", state
         prev = self.states[self.state]()
         self.move(prev["from"])
         self.move(nxt["to"])
@@ -34,6 +34,7 @@ class ArmState(object):
     def move(self, commands):
         for l in commands:
             self.wait_for_arm()
+            print "running", l
             self.arm.publish("%d, %d, %d, %d" % l)
 
     def wait_for_arm(self):
