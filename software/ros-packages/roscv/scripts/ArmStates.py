@@ -52,7 +52,7 @@ class ArmState(object):
                     (0, 94, 220, 220)]
         back = [(0, 94, 260, 300),
                 (0, 94, 320, 250),
-                (4, 0, 350, 300)]
+                (8, 0, 350, 300)]
         return {"to": position, "from": back}
 
     def move_home(self):
@@ -68,10 +68,10 @@ class ArmState(object):
     def store(self):
         place = self.item_count
         #position will be a list lists where each list is the instructions to get to the next pocket
-        position = [[(6, 0, 350, 300), (0, 183, 270, 320)],
-                    [(6, 0, 350, 300), (0, 154, 240, 340)]]
+        position = [[(10, 0, 350, 300), (0, 183, 270, 320)],
+                    [(10, 0, 350, 300), (0, 154, 240, 340)]]
         #return will lift then rotate to home
-        back = [(4, 0, 350, 300)]
+        back = [(8, 0, 350, 300)]
         try:
             return {"to": position[place], "from": back}
         except KeyError:
