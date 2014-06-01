@@ -74,7 +74,7 @@ class ArmState(object):
         back = [(8, 0, 350, 300)]
         try:
             return {"to": position[place], "from": back}
-        except KeyError:
+        except IndexError:
             return {"to": [(0, 0, 350, 300)], "from": [(0, 0, 350, 300)]}
 
     def get_object(self, data):
