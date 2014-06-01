@@ -111,6 +111,7 @@ class Arm(object):
         self.serial.write(chr(255))
         while self.serial.inWaiting() != 3:
             time.sleep(.1)
+            print "still waiting"
         self.read_packet()
         print "reading packet"
 
