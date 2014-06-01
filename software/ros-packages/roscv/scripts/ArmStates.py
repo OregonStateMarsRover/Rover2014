@@ -14,13 +14,16 @@ import math
 import time
 import threading
 
+
 class ArmState(object):
     def __init__(self):
         self.states = {"docked": self.docked, "home": self.move_home, "grab": self.grab, "store": self.store}
         self.state = "home"
         self.item_count = 0
         self.arm = rospy.Publisher("arm_commands", std_msgs.msg.String)
-        self.arm_state = rospy.Subscriber("/arm_state", std_msgs.msg.String, self.get_object)
+        self.status = rospy.Publisher("/arm_state", std_msgs.msg.String)
+        self.arm_state = rospy.Subscriber("/arm_state_change", std_msgs.msg.String, self.get_object)
+        self.thread = threading.Thread(target=self.status)
 
     def change_state(self, state):
         try:
@@ -89,6 +92,13 @@ class ArmState(object):
             self.item_count += 1
             self.change_state("docked")
 
+    def status(self):
+        while True:
+            if self.state == "docked":
+                self.status.publish("docked")
+            else:
+                self.status.publish("pickup")
+            time.sleep(.25)
 
 if __name__ == '__main__':
     try:

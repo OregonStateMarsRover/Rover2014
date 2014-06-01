@@ -230,6 +230,8 @@ class RosDetect():
         self.state = "searching"
         self.template_skeletons = skel_templates()
         self.state_change = rospy.Publisher("/state_change_request", std_msgs.msg.String)
+        self.motor = rospy.Publisher("/motor_command/object_detection", std_msgs.msg.String)
+        self.arm = rospy.Publisher("/arm_state_change", std_msgs.msg.String)
         self.left_image_sub = rospy.Subscriber("/armCam/image_raw", sensor_msgs.msg.Image, self.get_image)
         self.objects = rospy.Publisher("objects/position", std_msgs.msg.String)
         rospy.init_node("object_recognition", anonymous=True)
@@ -271,17 +273,17 @@ class RosDetect():
 
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
-        #we will need to calibrate to get this line
-        #if object_angle_from_forward > threshold:
-        #   rotate so object is on forward line
-        #if line_length(rect corner to pickup zone corner) > threshold
-        #   move forward
-        #else:
-        #   pick the object up
-        #   store object
-        #   dock arm
-        #   set state to searching
-        pass
+        if rect[0] < 296:
+            self.motor.publish("r5")
+        elif rect[0] > 306:
+            self.motor.publish("r355")
+        if image.shape[0] - rect[1] > 40:
+            self.motor.publish("f1")
+        else:
+            self.arm.publish("pickup")
+            while rospy.wait_for_message("/arm_staus", std_msgs.msg.String).data == "pickup":
+                pass
+            self.state = "searching"
 
 
 if __name__ == "__main__":
