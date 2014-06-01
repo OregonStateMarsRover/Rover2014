@@ -71,7 +71,7 @@ class ArmState(object):
         position = [[(6, 0, 350, 300), (0, 183, 270, 320)],
                     [(6, 0, 350, 300), (0, 154, 240, 340)]]
         #return will lift then rotate to home
-        back = [[(4, 0, 350, 300)]]
+        back = [(4, 0, 350, 300)]
         try:
             return {"to": position[place], "from": back}
         except KeyError:
