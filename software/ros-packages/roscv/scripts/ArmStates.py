@@ -37,8 +37,10 @@ class ArmState(object):
             self.arm.publish("%d, %d, %d, %d" % l)
 
     def wait_for_arm(self):
+        print "starting wait"
         while rospy.wait_for_message("/arm_controller", std_msgs.msg.String).data != "Not":
             pass
+        print "ending wait"
 
     def docked(self):
         position = [(0, 94, 320, 250),
@@ -72,6 +74,7 @@ class ArmState(object):
             return {"to": [(0, 0, 350, 300)], "from": [(0, 0, 350, 300)]}
 
     def get_object(self, data):
+        print "got state"
         self.change_state("home")
         self.change_state("grab")
         self.change_state("store")
