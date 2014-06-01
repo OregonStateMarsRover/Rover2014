@@ -93,10 +93,8 @@ class Arm(object):
         open(os.devnull, 'w')
 
     def maintain(self, event=None):
-        if self.ready:
-            self.is_maintain = True
+        if self.is_maintain:
             self.send_packet()
-            self.is_maintain = False
 
 
     def send_packet(self):
@@ -248,6 +246,7 @@ class RosController(object):
         self.a.upperAct2 = int(act2[1])
         self.a.is_maintain = False
         self.a.send_packet()
+        self.a.is_maintain = True
         x,y,z=0,0,0
         baseXYZ,lowerActXYZ,upperActXYZ = convertXYZ(x,y,z)
 
