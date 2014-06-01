@@ -8,6 +8,7 @@ static ros::Publisher motor_pub;
 static ros::Publisher blocked_pub;
 static float g_distance = MAX_OBS_DIST;
 static float g_good_thresh = 0.3f;
+static float g_angle = 15.f; //TODO: TEMPORARY
 
 static void catch_sig(int sig) {
     ROS_INFO("Caught signal-- hanging up");
@@ -84,12 +85,12 @@ void grid_callback(const roscv2::Grid& msg) {
 		//print_grid(grid);
 
 		std::map<int, float> scores;
-		bool blocked = forward_obstacle(grid);
-		blocked_msg.data = blocked ? 1 : 0;
-		ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
+		bool direct_blocked = forward_obstacle(grid);
+		blocked_msg.data = direct_blocked ? 1 : 0;
+		ROS_INFO("The rover is %s blocked!", direct_blocked ? "" : "not");
 
 		score_directions(grid, scores);
-		move(blocked, scores);
+		move_forward(direct_blocked, scores);
 		print_scores(scores);
 	}
 
@@ -110,6 +111,27 @@ bool forward_obstacle(const Grid& grid) {
 
 	for (int j = 0; j < max_dist_sq; j++) {
 		for (int i = bound_l; i <= bound_r; i++) {
+			if (grid[i][j] != 0) return true;
+		}
+	}
+	return false;
+}
+
+bool goal_obstacle(const Grid& grid) {
+	float square_width = grid.real_width() / (float)grid.width();
+	float square_height = grid.real_height() / (float)grid.height();
+
+	int rover_w_sq = (int)ceil((ROVER_WIDTH/2.0) / square_width);
+	int max_dist_sq = (int)ceil(g_distance / square_height);
+
+	for (int j = 0; j < max_dist_sq; j++) {
+		float angle_rad = g_angle * (PI / 180.f);
+		int center = round((float)j / tan(angle_rad));
+		for (int i = center-rover_w_sq; i <= center+rover_w_sq; i++) {
+			if (0 > i || i >= grid.width()) {
+				ROS_INFO("i out of bounds");
+				continue;
+			}
 			if (grid[i][j] != 0) return true;
 		}
 	}
@@ -160,7 +182,7 @@ void print_grid(const Grid& grid) {
 }
 
 
-void move(bool blocked, std::map<int, float>& scores) {
+void move_forward(bool blocked, std::map<int, float>& scores) {
 	static int turn_direction = FORWARD;
 	std::stringstream fss;
 	fss << "flush";
