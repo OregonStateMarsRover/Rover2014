@@ -31,7 +31,7 @@ class ArmState(object):
         prev = self.states[self.state]()
         self.move(prev["from"])
         self.move(nxt["to"])
-        self.state = start
+        self.state = state
 
     def move(self, commands):
         for l in commands:
