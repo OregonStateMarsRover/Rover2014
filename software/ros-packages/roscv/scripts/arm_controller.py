@@ -74,7 +74,6 @@ class Arm(object):
     base2 = 0
     estop = 0
 
-
     def __init__(self):
         self.is_maintain = False
         self.lowerAct1 = 255
@@ -100,9 +99,7 @@ class Arm(object):
     def send_packet(self):
         print "Packet: ", self.base1 + self.base2, self.lowerAct1 + self.lowerAct2, self.upperAct1 + self.upperAct2
         print "sending", self.is_maintain
-        if not self.is_maintain:
-            print "ready false"
-            self.ready = False
+        self.ready = False
         self.serial.write(chr(255))
         self.serial.write(chr(self.command))
         self.serial.write(chr(self.base1))
@@ -116,9 +113,7 @@ class Arm(object):
         while self.serial.inWaiting() != 3:
             time.sleep(.1)
         self.read_packet()
-        if not self.is_maintain:
-            print "now ready"
-            self.ready = True
+        self.ready = True
         print "reading packet"
 
     #TODO: fix for return packet and set flag for ready rover, probably rewrite
@@ -167,7 +162,7 @@ class RosController(object):
         self.OS_1=0.5
         self.OS_2=0.34808
         rospy.Subscriber('arm_commands', String, self.read_commands)
-        rospy.Timer(rospy.Duration(.001), self.a.maintain)
+        #rospy.Timer(rospy.Duration(.001), self.a.maintain)
         self.status_thread = threading.Thread(target=self.arm_status)
         self.status_thread.start()
 
@@ -244,9 +239,11 @@ class RosController(object):
         self.a.lowerAct2 = int(act1[1])
         self.a.upperAct1 = int(act2[0])
         self.a.upperAct2 = int(act2[1])
+
         self.a.is_maintain = False
         self.a.send_packet()
         self.a.is_maintain = True
+
         x,y,z=0,0,0
         baseXYZ,lowerActXYZ,upperActXYZ = convertXYZ(x,y,z)
 
