@@ -72,15 +72,15 @@ class Arm(object):
     command = 0
     base1 = 0
     base2 = 0
-    lowerAct1 = 255
-    lowerAct2 = 95
-    upperAct1 = 250
-    upperAct2 = 0
     estop = 0
 
 
     def __init__(self):
         self.is_maintain = False
+        self.lowerAct1 = 255
+        self.lowerAct2 = 95
+        self.upperAct1 = 250
+        self.upperAct2 = 0
         self.ready = True
         self.stopped = False
         self.serial = SerialHandler()
@@ -119,6 +119,7 @@ class Arm(object):
             time.sleep(.1)
         self.read_packet()
         if not self.is_maintain:
+            print "now ready"
             self.ready = True
         print "reading packet"
 
