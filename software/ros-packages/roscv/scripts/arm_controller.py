@@ -130,6 +130,7 @@ class Arm(object):
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
+            self.ready = True
         return False
 
     def arm_ready(self):
