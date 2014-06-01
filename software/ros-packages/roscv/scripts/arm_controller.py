@@ -68,7 +68,6 @@ class SerialHandler(object):
 
 class Arm(object):
     #TODO: change initial values?
-    ready = True
     serial = None
     command = 0
     base1 = 0
@@ -82,6 +81,7 @@ class Arm(object):
 
     def __init__(self):
         self.is_maintain = False
+        self.ready = True
         self.stopped = False
         self.serial = SerialHandler()
         self.serial.get_control_port("ID: ArmControl")
@@ -94,7 +94,8 @@ class Arm(object):
 
     def maintain(self, event=None):
         self.is_maintain = True
-        self.send_packet()
+        if self.ready:
+            self.send_packet()
         self.is_maintain = False
 
 
@@ -116,6 +117,8 @@ class Arm(object):
         while self.serial.inWaiting() != 3:
             time.sleep(.1)
         self.read_packet()
+        if not self.is_maintain:
+            self.ready = True
         print "reading packet"
 
     #TODO: fix for return packet and set flag for ready rover, probably rewrite
@@ -126,15 +129,12 @@ class Arm(object):
         if ord(read[0]) == 255 and ord(read[2]) == 255:
             if (read[1] == 'r'):
                 print "asdf"
-                self.ready = True
                 self.estop = 0
             elif ord(read[1]) == 0:
                 print "asdf2"
-                self.ready = False
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
-        self.ready = True
         return False
 
     def arm_ready(self):
