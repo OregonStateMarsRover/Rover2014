@@ -110,7 +110,6 @@ class Arm(object):
         self.serial.write(chr(self.command ^ self.base1 ^ self.base2 ^ self.lowerAct1 ^ self.lowerAct2 ^ self.upperAct1 ^ self.upperAct2))
         self.serial.write(chr(255))
         while self.serial.inWaiting() != 3:
-            print self.serial.inWaiting()
             time.sleep(.1)
         self.read_packet()
         print "reading packet"
@@ -120,7 +119,6 @@ class Arm(object):
         read = self.serial.read(3)
 
         print "checking r: "
-        print read[1]
         if ord(read[0]) == 255 and ord(read[2]) == 255:
             if (read[1] == 'r'):
                 print "asdf"
