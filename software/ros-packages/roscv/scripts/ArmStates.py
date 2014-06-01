@@ -68,7 +68,7 @@ class ArmState(object):
     def store(self):
         place = self.item_count
         #position will be a list lists where each list is the instructions to get to the next pocket
-        position = [[(10, 0, 350, 300), (0, 183, 270, 320)],
+        position = [[(10, 0, 350, 300), (0, 183, 275, 330)],
                     [(10, 0, 350, 300), (0, 154, 240, 340)]]
         #return will lift then rotate to home
         back = [(8, 0, 350, 300)]
