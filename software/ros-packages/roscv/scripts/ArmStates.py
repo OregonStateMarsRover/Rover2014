@@ -78,13 +78,16 @@ class ArmState(object):
             return {"to": [(0, 0, 350, 300)], "from": [(0, 0, 350, 300)]}
 
     def get_object(self, data):
-        print "got state"
-        self.change_state("home")
-        self.change_state("grab")
-        self.change_state("store")
-        self.change_state("home")
-        self.item_count += 1
-        self.change_state("docked")
+        if data.data == "docked":
+            self.change_state("docked")
+        else:
+            print "got state"
+            self.change_state("home")
+            self.change_state("grab")
+            self.change_state("store")
+            self.change_state("home")
+            self.item_count += 1
+            self.change_state("docked")
 
 
 if __name__ == '__main__':
