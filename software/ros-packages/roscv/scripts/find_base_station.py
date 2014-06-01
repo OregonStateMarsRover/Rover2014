@@ -50,16 +50,17 @@ class FindStart():
 
     def start_thread(self):
         self.left_image_sub = rospy.Subscriber("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image, self.set_data)
-        self.state_sub = rospy.Subscriber("/state", std_msgs.std.String, self.set_state)
+        self.state_sub = rospy.Subscriber("/state", std_msgs.msg.String, self.set_state)
         rospy.spin()
 
     def set_data(self, data):
-        print "got image"
+        #print "got image"
         self.data = data
 
-    def get_state(self, data):
+    def set_state(self, data):
+        #print "'","SearchPattern" in data.data,"'"
         #FindBaseStation FindBaseStationFinal
-        if "BaseStation" in data.data or data.data == "SearchPattern":
+        if "BaseStation" in data.data or "SearchPattern" in data.data:
             self.started = 1
         else:
             self.started = 0
@@ -69,6 +70,7 @@ class FindStart():
             return
         if self.data == None:
             return
+        print "starting checkerboard"
         image = self.bridge.imgmsg_to_cv2(self.data, "bgr8")
         self.checker_board(image)
         self.data = None
@@ -137,10 +139,12 @@ class FindStart():
                     angle = 360+angle
                 print "Rotating", angle, "and moving forward", distance
                 self.motor.publish("r%df%d" % (int(angle), int(distance)))
-            if distance < 20 and angle < threshold:
+            print distance, angle, threshold
+            if distance < 20 and (angle < max(threshold, 8) or angle > min(360-threshold, 352)):
+                print "Final form entered"
                 self.searching = False
                 self.search_turn = False
-                self.change_state.publish("At Base Station")
+                self.change_state.publish("Found Base Station Final")
             else:
                 self.searching = True
                 self.searh_turn = False

@@ -96,10 +96,10 @@ class Arm(object):
 
 
     def send_packet(self):
+        print "Packet: ", self.base1 + self.base2, self.lowerAct1 + self.lowerAct2, self.upperAct1 + self.upperAct2
         print "sending"
         self.ready = False
         self.serial.write(chr(255))
-        print self.command
         self.serial.write(chr(self.command))
         self.serial.write(chr(self.base1))
         self.serial.write(chr(self.base2))
@@ -109,7 +109,7 @@ class Arm(object):
         self.serial.write(chr(self.upperAct2))
         self.serial.write(chr(self.command ^ self.base1 ^ self.base2 ^ self.lowerAct1 ^ self.lowerAct2 ^ self.upperAct1 ^ self.upperAct2))
         self.serial.write(chr(255))
-        while self.serial.inWaiting() != 4:
+        while self.serial.inWaiting() != 3:
             print self.serial.inWaiting()
             time.sleep(.1)
         self.read_packet()
@@ -142,7 +142,7 @@ class Arm(object):
 class RosController(object):
 
     a = None
-    baseStart = 0
+    baseStart = 30
     lowerActStart = 180
     upperActStart = 180
 
