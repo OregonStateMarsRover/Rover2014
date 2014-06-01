@@ -78,14 +78,24 @@ void stepperInfo::processCommand(int cmd){
 	}
 	
 	//MOVE UNTIL LIMIT OR GRIP
-	while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
-		while(!CHECK_ISROVING());  //e-stop check
-		MD1_STEP_SET();
-		_delay_us(20);
-		MD1_STEP_CLR();
-		_delay_us(40);
-	}
-	
+	if(cmd == GRIP){
+		while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
+			while(!CHECK_ISROVING());  //e-stop check
+			MD1_STEP_SET();
+			_delay_us(20);
+			MD1_STEP_CLR();
+			_delay_us(40);
+		}
+		
+	}else if(cmd == RELEASE){
+		while(!CHECK_GRIP_LIMIT()){
+			while(!CHECK_ISROVING());  //e-stop check
+			MD1_STEP_SET();
+			_delay_us(20);
+			MD1_STEP_CLR();
+			_delay_us(40);
+		}	
+	}	
 	enabled = 0;
 	
 }

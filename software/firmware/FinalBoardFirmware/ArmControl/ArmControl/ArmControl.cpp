@@ -57,8 +57,10 @@ rotateStepper baseStepper;
 volatile bool canAcceptPackets = true;
 volatile bool IsPacketToParse = false;
 
-unsigned char ARM_Dock_State = 0;
+volatile unsigned char ARM_Dock_State = 0;
 unsigned char ARM_Dock_State_Prev = 0;
+
+volatile bool ShouldRECAL = 0;
 
 volatile unsigned char bufferIndex = 0;
 
@@ -102,7 +104,8 @@ ISR(USARTC0_RXC_vect){
 	if((bufferIndex == PACKETSIZE)){
 		FlushSerialBuffer(&USART_PC_Data);
 		if(recieveBuffer[8] == (recieveBuffer[1] ^ recieveBuffer[2] ^ recieveBuffer[3] ^ recieveBuffer[4] ^ recieveBuffer[5] ^ recieveBuffer[6] ^ recieveBuffer[7])){
-			ARM_Dock_State = recieveBuffer[1] & 0b00000100;
+			ShouldRECAL = recieveBuffer[1] & 0b00001000;
+  			ARM_Dock_State = recieveBuffer[1] & 0b00000100;
 			gripStepper.desiredGripState = !(recieveBuffer[1] & GRIP_BM_SERIAL); //0b00000010	
 			baseStepper.desiredPos = (recieveBuffer[3]+recieveBuffer[2]);
 			lowerAct.setDesired((double(recieveBuffer[5]+recieveBuffer[4]) / double(100)));
@@ -342,9 +345,12 @@ int main(void)
 	
 	
 	/////////////Initial Calibration and Default Positions//////////////////////
-	while((lowerAct.enabled || upperAct.enabled) && CHECK_ISROVING()){
+	while((lowerAct.enabled || upperAct.enabled)){
 		checkActPosition();
-		DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(UPPER)*getMotorDir(UPPER));	
+		DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(UPPER)*getMotorDir(UPPER));
+		while(!CHECK_ISROVING()){
+			DriveSaber.ParsePacket(127,127);
+		}	
 	}
 
 	baseStepper.calibrateBase();
@@ -380,9 +386,35 @@ int main(void)
 			bufferIndex = 0;
 		}else if(CurrentState == ARMControl){
 			if(IsPacketToParse){
-				if(ARM_Dock_State != ARM_Dock_State_Prev){
-					DockArm(ARM_Dock_State);
-					ARM_Dock_State_Prev = ARM_Dock_State;
+				if(ShouldRECAL == true){
+
+							
+					upperAct.desiredPos = 3.0;
+					lowerAct.desiredPos = 3.5;
+						
+					lowerAct.enable();
+					upperAct.enable();
+						
+					/////////////Initial Calibration and Default Positions//////////////////////
+					while((lowerAct.enabled || upperAct.enabled)){
+						checkActPosition();
+						DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(UPPER)*getMotorDir(UPPER));
+						while(!CHECK_ISROVING()){
+							DriveSaber.ParsePacket(127,127);
+						}
+					}
+
+					baseStepper.calibrateBase();
+					MD2_DIR_CLR();
+					baseStepper.rotateBase(0);  //Note that this function takes an angle relative
+						
+					if(gripStepper.desiredGripState){
+						gripStepper.enable();							 //to the absolute 0 on the robot
+						gripStepper.processCommand(RELEASE);	
+					}
+					
+					ShouldRECAL = false;
+
 				}else{
 					ERROR_SET();									//Show light when done with actuators
 					lowerAct.enable();						//Re-enable lower actuator
@@ -402,7 +434,7 @@ int main(void)
 
 					DriveSaber.ParsePacket(127,127);				//Stop actuators from moving any more
 				
-					if(gripStepper.desiredGripState == GRIP){
+					if((gripStepper.desiredGripState == GRIP)){
 						gripStepper.enable();
 						gripStepper.processCommand(GRIP);
 					}else if(gripStepper.desiredGripState == RELEASE){

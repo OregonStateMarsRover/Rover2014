@@ -51,6 +51,7 @@ void rotateStepper::rotateBase(int desiredAngle){
 void rotateStepper::calibrateBase(){
 	bool calInProgress = true;
 	bool calFirstPress = false;
+
 	//bool calSecondPress = false;
 	
 	int calButtonState;
@@ -64,9 +65,10 @@ void rotateStepper::calibrateBase(){
 		calButtonState = CHECK_CAL();
 
 		if(calButtonState && !calFirstPress){
+			
 			calFirstPress = true;
 			MD2_DIR_SET();  //Sets arm to clockwise
-			_delay_ms(100);  //For gracefulness
+			_delay_ms(1200);  //For gracefulness
 		}
 		
 		if(calFirstPress == true)
@@ -82,7 +84,9 @@ void rotateStepper::calibrateBase(){
 		_delay_us(1200);	
 		
 	}	
+	currentAngle = 0;
 	multiplier = stepCount / calSpan;
+	_delay_ms(1200);  //For gracefulness
 }
 
 
