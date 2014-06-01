@@ -82,8 +82,8 @@ class ArmState(object):
         self.change_state("home")
         self.change_state("grab")
         self.change_state("store")
-        self.item_count += 1
         self.change_state("home")
+        self.item_count += 1
         self.change_state("docked")
 
 
