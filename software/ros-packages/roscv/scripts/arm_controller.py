@@ -111,7 +111,6 @@ class Arm(object):
         self.serial.write(chr(255))
         while self.serial.inWaiting() != 3:
             time.sleep(.1)
-            print "still waiting"
         self.read_packet()
         print "reading packet"
 
@@ -131,7 +130,7 @@ class Arm(object):
                 self.estop = 1
             if (ord(read[1]) & 11) > 10:
                 time.sleep(5)
-            self.ready = True
+        self.ready = True
         return False
 
     def arm_ready(self):
