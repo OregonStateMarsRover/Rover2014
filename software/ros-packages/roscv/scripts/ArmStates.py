@@ -19,7 +19,8 @@ class ArmState(object):
         self.state = "home"
         self.item_count = 0
         self.arm = rospy.Publisher("arm_commands", std_msgs.msg.String)
-        self.arm_state = rospy.Subscriber("/arm_state", std_msgs.msg.String, self.change_state)
+        self.arm_state = rospy.Subscriber("/arm_state", std_msgs.msg.String, self.get_object)
+        self.change_state("docked")
 
     def change_state(self, state):
         try:
@@ -44,7 +45,8 @@ class ArmState(object):
                     (0, 94, 260, 300),
                     (0, 94, 220, 220)]
         back = [(0, 94, 260, 300),
-                (0, 94, 320, 250)]
+                (0, 94, 320, 250),
+                (4, 0, 350, 300)]
         return {"to": position, "from": back}
 
     def move_home(self):
@@ -52,7 +54,6 @@ class ArmState(object):
         back = [(0, 0, 300, 350)]
         return {"to": position, "from": back}
 
-    #TODO find the grab position
     def grab(self):
         position = [(0, 0, 0, 300), (2, 0, 0, 240)]
         back = [(2, 0, 350, 300)]
@@ -61,17 +62,27 @@ class ArmState(object):
     def store(self):
         place = self.item_count
         #position will be a list lists where each list is the instructions to get to the next pocket
-        position = [[(6, 0, 350, 300), (2, 185, 280, 325)]]
+        position = [[(6, 0, 350, 300), (0, 183, 270, 320)],
+                    [(6, 0, 350, 300), (0, 154, 240, 340)]]
         #return will lift then rotate to home
-        back = [[(), ()], [(), ()]]
-        return self.move_home()
+        back = [[(4, 0, 350, 300)]]
+        try:
+            return {"to": position[place], "from": back}
+        except KeyError:
+            return {"to": [(0, 0, 350, 300)], "from": [(0, 0, 350, 300)]}
 
-
+    def get_object(self, data):
+        self.change_state("home")
+        self.change_state("grab")
+        self.change_state("store")
+        self.item_count += 1
+        self.change_state("home")
+        self.change_state("docked")
 
 
 if __name__ == '__main__':
     try:
-        rospy.init_node("Arm State Machine", anonymous=True)
+        rospy.init_node("ArmStateMachine", anonymous=True)
         #handle lethal signals in order to stop the motors if the script quits
         start = ArmState()
         #start.points(rospy.wait_for_message("/my_stereo/disparity", stereo_msgs.msg.DisparityImage))
