@@ -11,6 +11,7 @@ import stereo_msgs
 import stereo_msgs.msg
 import std_msgs
 import math
+import time
 import threading
 
 class ArmState(object):
@@ -36,6 +37,7 @@ class ArmState(object):
             self.wait_for_arm()
             print "running", l
             self.arm.publish("%d, %d, %d, %d" % l)
+            time.sleep(1)
 
     def wait_for_arm(self):
         print "starting wait"
