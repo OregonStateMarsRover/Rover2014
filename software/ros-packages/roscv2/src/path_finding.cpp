@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 	flush_msg.data = fss.str();
 	motor_pub.publish(flush_msg);
 
-	g_has_goal = true;
+	g_has_goal = false;
 	g_angle = 15.0f;
 	g_goal_distance = 20.f;
 
