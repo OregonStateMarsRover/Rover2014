@@ -32,8 +32,8 @@ class StateMachine(object):
         print "topic is: ", topic
 
         for state in topicStates[topic]:
-            print "state = ", state
-            print "self.state = ", self.state
+            print "state = ", state, state == self.state
+            print "self.state = ", self.state,
             if state == self.state:
                 print state, topic, data.data
                 self.motor_pub.publish(data.data)

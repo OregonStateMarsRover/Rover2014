@@ -16,7 +16,7 @@ try:
 except ImportError:
     USE_ROS = False
 
-GUI = False
+GUI = True
 """
 " See the comments in the color filter code since it is exactly the same code
 """
@@ -273,18 +273,23 @@ class RosDetect():
 
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
-        if rect[0] < 296:
-            self.motor.publish("r5")
-        elif rect[0] > 306:
-            self.motor.publish("r355")
-        if image.shape[0] - rect[1] > 40:
-            self.motor.publish("f1")
+        self.motor.publish("controller") 
+        if rect[0] < 176:
+            self.motor.publish("left15right25")
+            time.sleep(.1)
+        elif rect[0] > 216:
+            self.motor.publish("left25right15")
+            time.sleep(.1)
+        elif image.shape[0] - rect[1] > 40:
+            self.motor.publish("left23right23")
+            time.sleep(.1)
         else:
             self.arm.publish("pickup")
-            while rospy.wait_for_message("/arm_staus", std_msgs.msg.String).data == "pickup":
+            while rospy.wait_for_message("/arm_status", std_msgs.msg.String).data == "pickup":
                 pass
             self.state = "searching"
-
+        self.motor.publish("left20right20") 
+        self.motor.publish("rover")
 
 if __name__ == "__main__":
     if USE_ROS:

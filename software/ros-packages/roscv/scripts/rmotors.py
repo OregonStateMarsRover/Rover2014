@@ -96,7 +96,7 @@ class Motor(object):
         if self.right_speed != self.right:
             delta = self.right - self.right_speed
             if abs(delta) > self.ramp_rate:
-                    self.ramp_rate += .5
+                    self.ramp_rate += 1.5
                     self.right_speed += int(self.ramp_rate if delta > 0 else -self.ramp_rate)
                     
             else:
@@ -106,7 +106,7 @@ class Motor(object):
         if self.left_speed != self.left:
             delta = self.left - self.left_speed
             if abs(delta) > self.ramp_rate:
-                    self.ramp_rate += .5
+                    self.ramp_rate += 1.5
                     self.left_speed += int(self.ramp_rate if delta > 0 else -self.ramp_rate)
                     print "left", self.left_speed, "right", self.right_speed
             else:
@@ -238,7 +238,8 @@ class MotorController(RosController):
 
         elif action == "s":
             #ensure the speed is between -2.0 and 2.0 m/s(which is the assumed max speed)
-            self.speed = max(min(int(value), 20), -20)/10
+            self.speed = max(min(int(value), 20), -20)/10.0
+            print self.speed
 
         elif action == "r":
             value = int(value)
@@ -269,7 +270,10 @@ class MotorController(RosController):
             angle = 360 - angle
         #assume one degree a second
         dps = 1.0/40.0
-        self.distance = angle*dps
+        if angle > 2 or angle < 358:
+            self.distance = angle*dps
+        else:
+            self.distance = 10000
         if self.thread is not None:
             self.thread.cancel()
         self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance)
