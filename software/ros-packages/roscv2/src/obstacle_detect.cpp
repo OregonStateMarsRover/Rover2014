@@ -7,6 +7,7 @@ static boost::mutex img_lock;
 static sensor_msgs::Image::ConstPtr last_img;
 static stereo_msgs::DisparityImage::ConstPtr last_disp;
 static unsigned int last_seq = 0;
+static bool last_msg = false;
 
 int main(int argc, char *argv[]) {
 	/* Init ROS */
@@ -64,7 +65,7 @@ void loop() {
 		if (img_msg == NULL || disp_msg == NULL) {
 			loop_t.disable();
 			setup_t.disable();
-			ROS_INFO("No images");
+			//ROS_INFO("No images");
 			return;
 		}
 
@@ -72,13 +73,15 @@ void loop() {
 		   same image twice.
 		*/
 		unsigned int seq = disp_msg->image.header.seq;
-		if (last_seq == seq) {
+		if (last_seq == seq && !last_msg) {
 			ROS_INFO("Old message #%d", seq);
 			loop_t.disable();
 			setup_t.disable();
+			last_msg = true;
 			return;
 		}
 		last_seq = seq;
+		last_msg = false;
 
 		/* Display raw image */
 		img = cv_bridge::toCvCopy(img_msg,

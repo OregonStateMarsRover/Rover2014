@@ -8,6 +8,9 @@ static ros::Publisher motor_pub;
 static ros::Publisher blocked_pub;
 static float g_distance = MAX_OBS_DIST;
 static float g_good_thresh = 0.3f;
+static float g_angle; //TODO: TEMPORARY
+static float g_goal_distance; //TODO: TEMPORARY
+static bool g_has_goal; //TODO: TEMPORARY
 
 static void catch_sig(int sig) {
     ROS_INFO("Caught signal-- hanging up");
@@ -58,6 +61,10 @@ int main(int argc, char **argv) {
 	flush_msg.data = fss.str();
 	motor_pub.publish(flush_msg);
 
+	g_has_goal = false;
+	g_angle = 15.0f;
+	g_goal_distance = 20.f;
+
 	ros::spin();
 }
 
@@ -83,13 +90,20 @@ void grid_callback(const roscv2::Grid& msg) {
 
 		//print_grid(grid);
 
-		std::map<int, float> scores;
-		bool blocked = forward_obstacle(grid);
-		blocked_msg.data = blocked ? 1 : 0;
-		ROS_INFO("The rover is %s blocked!", blocked ? "" : "not");
+		bool direct_blocked = forward_obstacle(grid);
+		bool goal_blocked = goal_obstacle(grid, g_angle, g_goal_distance);
 
+		blocked_msg.data = direct_blocked ? 1 : 0;
+		ROS_INFO("The rover is %sblocked!", direct_blocked ? "" : "not ");
+
+		std::map<int, float> scores;
 		score_directions(grid, scores);
-		move(blocked, scores);
+
+		if (!g_has_goal || std::abs(g_angle) < HALF_ANGLE) {
+			move_forward(direct_blocked, scores);
+		} else {
+			move_goal(goal_blocked, direct_blocked, g_angle, scores);
+		}
 		print_scores(scores);
 	}
 
@@ -110,6 +124,29 @@ bool forward_obstacle(const Grid& grid) {
 
 	for (int j = 0; j < max_dist_sq; j++) {
 		for (int i = bound_l; i <= bound_r; i++) {
+			if (grid[i][j] != 0) return true;
+		}
+	}
+	return false;
+}
+
+bool goal_obstacle(const Grid& grid, float angle, float dist) {
+	float square_width = grid.real_width() / (float)grid.width();
+	float square_height = grid.real_height() / (float)grid.height();
+
+	int rover_w_sq = (int)ceil((ROVER_WIDTH/2.0) / square_width);
+	int max_dist_sq = (int)ceil(dist / square_height);
+
+	for (int j = 0; j < max_dist_sq; j++) {
+		float angle_rad = angle * (PI / 180.f);
+		int c_off = round((float)j * tan(angle_rad));
+		int center = (int)floor(((float)grid.width()-1.0)/2.0) + c_off;
+		ROS_INFO("%d / %d", j, center);
+		for (int i = center-rover_w_sq; i <= center+rover_w_sq; i++) {
+			if (0 > i || i >= grid.width()) {
+				ROS_INFO("i out of bounds");
+				continue;
+			}
 			if (grid[i][j] != 0) return true;
 		}
 	}
@@ -160,7 +197,7 @@ void print_grid(const Grid& grid) {
 }
 
 
-void move(bool blocked, std::map<int, float>& scores) {
+void move_forward(bool blocked, std::map<int, float>& scores) {
 	static int turn_direction = FORWARD;
 	std::stringstream fss;
 	fss << "flush";
@@ -207,6 +244,41 @@ void move(bool blocked, std::map<int, float>& scores) {
 				break;
 		}
 
+	}
+#ifdef MOVE
+	motor_pub.publish(move_msg);
+#endif
+}
+
+void move_goal(bool goal_blocked, bool direct_blocked, 
+               float angle, std::map<int, float>& scores) {
+	std::stringstream fss;
+	fss << "flush";
+	std_msgs::String flush_msg;
+	flush_msg.data = fss.str();
+    //motor_pub.publish(flush_msg);
+
+	std_msgs::String move_msg;
+	std::stringstream mss;
+
+	if (!goal_blocked) {
+		ROS_INFO("Path to goal is clear -- rotating");	
+		if (angle < 0) mss << "r340";
+		else mss << "r20";
+
+		move_msg.data = mss.str();
+	} else {
+		ROS_INFO("Path to goal blocked");
+		if (std::abs(angle) < 45.f) { //We're facing towarsd the goal
+			//Modify scores to weight one direction better?
+			move_forward(direct_blocked, scores);
+			return; //No more messages!
+		} else {
+			//Rotate towards goal so we're at least looking near it
+			if (angle < 0) mss << "r340";
+			else mss << "r20";
+			move_msg.data = mss.str();
+		}
 	}
 #ifdef MOVE
 	motor_pub.publish(move_msg);
