@@ -226,6 +226,7 @@ def main():
 class RosDetect():
 
     def __init__(self):
+        self.forward = False
         self.bridge = CvBridge()
         self.state = "searching"
         self.template_skeletons = skel_templates()
@@ -245,8 +246,11 @@ class RosDetect():
         if self.state == "searching":
             self.detect_objects(image)
         elif self.state == "pickup":
-            rect = self.detect_objects(image)
-            self.track_to_pickup(image, rect)
+            try:
+                rect = self.detect_objects(image)
+                self.track_to_pickup(image, rect)
+            except TypeError:
+                pass
 
     def detect_objects(self, image):
         try:
@@ -274,19 +278,30 @@ class RosDetect():
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
         self.motor.publish("controller") 
-        if rect[0] < 176:
+        if rect[0] < 186:
             self.motor.publish("left15right25")
             time.sleep(.1)
         elif rect[0] > 216:
             self.motor.publish("left25right15")
             time.sleep(.1)
         elif image.shape[0] - rect[1] > 40:
-            self.motor.publish("left23right23")
+            if not self.forward:
+                self.motor.publish("left25right25")
+                time.sleep(.01)
+                self.forward = True
+            self.motor.publish("left22right22")
             time.sleep(.1)
         else:
+            self.forward = False
+            self.motor.publish("left25right25")
+            time.sleep(.25)
+            self.motor.publish("left20right20")
+            self.motor.publish("rover")
+            self.state_change.publish("At Object")
             self.arm.publish("pickup")
             while rospy.wait_for_message("/arm_status", std_msgs.msg.String).data == "pickup":
                 pass
+            self.state_change.publish("Object Retrieved")
             self.state = "searching"
         self.motor.publish("left20right20") 
         self.motor.publish("rover")

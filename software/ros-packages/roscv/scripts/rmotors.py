@@ -96,7 +96,7 @@ class Motor(object):
         if self.right_speed != self.right:
             delta = self.right - self.right_speed
             if abs(delta) > self.ramp_rate:
-                    self.ramp_rate += 1.5
+                    self.ramp_rate += .5
                     self.right_speed += int(self.ramp_rate if delta > 0 else -self.ramp_rate)
                     
             else:
@@ -106,7 +106,7 @@ class Motor(object):
         if self.left_speed != self.left:
             delta = self.left - self.left_speed
             if abs(delta) > self.ramp_rate:
-                    self.ramp_rate += 1.5
+                    self.ramp_rate += .5
                     self.left_speed += int(self.ramp_rate if delta > 0 else -self.ramp_rate)
                     print "left", self.left_speed, "right", self.right_speed
             else:

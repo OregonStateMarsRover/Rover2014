@@ -24,6 +24,7 @@ class ArmState(object):
         self.status = rospy.Publisher("/arm_state", std_msgs.msg.String)
         self.arm_state = rospy.Subscriber("/arm_state_change", std_msgs.msg.String, self.get_object)
         self.thread = threading.Thread(target=self.status)
+        self.change_state("docked")
 
     def change_state(self, state):
         try:
@@ -50,11 +51,12 @@ class ArmState(object):
         print "ending wait"
 
     def docked(self):
-        position = [(0, 94, 320, 250),
-                    (0, 94, 260, 300),
-                    (0, 94, 220, 220)]
-        back = [(0, 94, 260, 300),
-                (0, 94, 320, 250),
+        position = [(8, 92, 320, 250),
+                    (0, 92, 320, 250),
+                    (0, 92, 260, 300),
+                    (0, 92, 220, 220)]
+        back = [(0, 92, 260, 300),
+                (0, 92, 320, 250),
                 (8, 0, 350, 300)]
         return {"to": position, "from": back}
 
