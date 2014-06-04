@@ -24,6 +24,8 @@ PROCESS_ARGS = {"camera" : ['roslaunch', 'roscv', 'startCam.launch'],
 "localization": ['rosrun', 'brain', 'local.py']
 }
 
+DEVNULL = open(os.devnull, 'wb')
+
 class ProcessManager:
 	def __init__(self):
 		def handler(sig, f):
@@ -125,7 +127,7 @@ class Process:
 	def start(self):
 		if not self.running():
 			rospy.loginfo("Starting process %s" % self.name)
-			self.proc = Popen(self.args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+			self.proc = Popen(self.args, stdout=DEVNULL, stdin=DEVNULL, stderr=DEVNULL)
 		else:
 			rospy.loginfo("Process %s already started" % self.name)
 
