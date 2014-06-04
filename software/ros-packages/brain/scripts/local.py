@@ -37,7 +37,7 @@ class Localization:
 		theta = (r1 - r2) / ROVER_WIDTH
 		if theta != 0:
 			x = r1 / theta
-		else
+		else:
 			x = float("inf")
 		#TODO: Finish?
 
