@@ -5,6 +5,7 @@ from std_msgs.msg import String
 import itertools #Used to break apart string
 import collections #used for the command queue
 import threading
+import math
 
 import signal
 import sys
@@ -150,6 +151,7 @@ class RosController(object):
         self.thread = None
         self.distance = 0
         self.m = Motor()
+        self.action = rospy.Publisher("motor_action", String)
 
         rospy.Subscriber(commands_from, String, self.read_commands)
 
@@ -251,49 +253,51 @@ class MotorController(RosController):
           
 
     def wait_distance(self, distance):
-        start = time.time()
-        #the ratio between the actual and theoretical meters per second
-        a_mps = .3*36.0
-        if self.speed == 0:
-            length = 0
+        if self.m.left < 0:
+            self.action.publish("b")
         else:
-            length = float(distance)/(self.speed*a_mps)
-        self.distance = length
-        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance)
+            self.action.publish("f")
+        self.thread = MotorStopperTimer(self.update, self.unset_thread, float(distance))
         self.thread.start()
 
 
     def wait_angle(self, angle):
-        start = time.time()
-        angle = float(angle)
+        self.action.publish("r")
         if angle > 180:
             angle = 360 - angle
-        #assume one degree a second
-        dps = 1.0/40.0
-        if angle > 2 or angle < 358:
-            self.distance = angle*dps
-        else:
-            self.distance = 10000
-        if self.thread is not None:
-            self.thread.cancel()
-        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance)
+        self.thread = MotorStopperTimer(self.update, self.unset_thread, float(angle), "angle")
         self.thread.start()
 
 
 class MotorStopperTimer(threading.Thread):
-    def __init__(self, update, unset, duration):
+    def __init__(self, update, unset, distance, type="forward"):
         threading.Thread.__init__(self)
         self.update = update
         self.unset = unset
-        self.time = time.time()+duration
+        self.position = rospy.wait_for_message("/position", String).data
+        self.position = self.position.split(",")
+        self.x = float(self.position[0])
+        self.y = float(self.position[1])
+        self.bearing = float(self.position[2])
+        self.type = type
+        self.goal = distance
         self.event = threading.Event()
         self.done = False
 
     def run(self):
         while not self.event.is_set():
             #print "Running! %s %s" % (time.time(), self.time)
-            if time.time() > self.time or self.done:
-                break
+            new_position = rospy.wait_for_message("/position", String).data
+            new_position = new_position.split(",")
+            if self.type == "forward":
+                x = float(new_position[0])
+                y = float(new_position[1])
+                if math.sqrt((x-self.x)**2 + (y-self.y)**2) >= self.goal:
+                    break
+            if self.type == "angle":
+                bearing = float(new_position[2])
+                if abs(self.bearing - bearing) >= self.goal:
+                    break
             self.event.wait(.05)
         self.unset()
         self.update()
