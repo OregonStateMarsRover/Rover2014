@@ -11,11 +11,17 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
-PROCESS_ORDER = ("camera", "stereo", "obstacle", "pathfinding")
+PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
 PROCESS_ARGS = {"camera" : ['roslaunch', 'roscv', 'startCam.launch'],
 "stereo": ['roslaunch', 'roscv', 'startStereo.launch'],
+"motor": ['rosrun', 'roscv', 'rmotors.py'],
+"arm": ['rosrun', 'roscv', 'arm_controller.py'],
+"arm_state": ['rosrun', 'roscv', 'ArmStates.py'],
+"rover_state": ['rosrun', 'roscv', 'state_machine.py'],
 "obstacle": ['rosrun', 'roscv2', 'obstacle_detect'],
-"pathfinding": ['rosrun', 'roscv2', 'pathfinding']
+"pathfinding": ['rosrun', 'roscv2', 'pathfinding'],
+"find_base": ['rosrun', 'roscv', 'find_base_station.py'],
+"localization": ['rosrun', 'brain', 'local.py']
 }
 
 class ProcessManager:
