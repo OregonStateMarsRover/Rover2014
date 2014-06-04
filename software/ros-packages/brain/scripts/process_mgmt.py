@@ -11,26 +11,50 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
+PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
+PROCESS_ARGS = {"camera" : ['roslaunch', 'roscv', 'startCam.launch'],
+"stereo": ['roslaunch', 'roscv', 'startStereo.launch'],
+"motor": ['rosrun', 'roscv', 'rmotors.py'],
+"arm": ['rosrun', 'roscv', 'arm_controller.py'],
+"arm_state": ['rosrun', 'roscv', 'ArmStates.py'],
+"rover_state": ['rosrun', 'roscv', 'state_machine.py'],
+"obstacle": ['rosrun', 'roscv2', 'obstacle_detect'],
+"pathfinding": ['rosrun', 'roscv2', 'path_finding'],
+"find_base": ['rosrun', 'roscv', 'find_base_station.py'],
+"localization": ['rosrun', 'brain', 'local.py']
+}
+
 class ProcessManager:
 	def __init__(self):
 		def handler(sig, f):
 			rospy.loginfo("Caught shutdown signal")
-			self.stop_all()
-			sys.exit(0)
+			if not self.stopping:
+				self.stopping = True
+				self.stop_all()
+				sys.exit(0)
+			else:
+				rospy.loginfo("Already stopping!")
 
 		self.processes = {}
+		self.stopping = False
+		for p in PROCESS_ORDER:
+			self.processes[p] = Process(PROCESS_ARGS[p], p)
+
 		signal.signal(signal.SIGINT, handler)
 		rospy.Subscriber("process_mgmt", String, lambda data: self.callback(data))
 
 	def callback(self, data):
-		command, arg = data.data.split()
+		cmds = data.data.split()
+		if len(cmds) == 2:
+			command, arg = cmds
+		else:
+			return
+
 		if command == "start":
-			if arg == "stereo":
-				self.start_stereo()
-			elif arg == "all":
+			if arg == "all":
 				self.start_all()
 			else:
-				self.start_normal(arg)
+				self.start_process(arg)
 		elif command == "stop":
 			if arg == "all":
 				self.stop_all()
@@ -41,63 +65,53 @@ class ProcessManager:
 				self.restart_all()
 			else:
 				self.restart_process(arg)
-		elif command == "remove":
-			self.remove(arg)
+		elif command == "check":
+			if arg == "all":
+				self.health_check()
+			else:
+				self.is_running(arg)
 
 	def start_all(self):
-		self.start_stereo()
-		self.start_obstacle()
+		for p in PROCESS_ORDER:
+			self.start_process(p)
 
 	def stop_all(self):
-		for p in self.processes.values():
-			if p.running():
-				p.stop()
-			else:
-				print p.running()
-				print p.proc.poll()
+		for p in reversed(PROCESS_ORDER):
+			self.stop_process(p)
 	
 	def restart_all(self):
-		for p in self.processes.values():
-			p.restart()
+		self.stop_all()
+		self.start_all()
 
-	def start_process(self, args, name):
-		if not name in self.processes:
-			proc = Process(args, name)
-			self.processes[name] = proc
-		self.processes[name].start()
+	def start_process(self, name):
+		if name in self.processes:
+			self.processes[name].start()
+		else:
+			rospy.loginfo("Error - Can't start process `%s` - not present" % name)
 
 	def stop_process(self, name):
 		if name in self.processes:
 			self.processes[name].stop()
+		else:
+			rospy.loginfo("Error - Can't stop process `%s` - not present" % name)
 
 	def restart_process(self, name):
 		if name in self.processes:
 			self.processes[name].restart()
+		else:
+			rospy.loginfo("Error - Can't restart process `%s` - not present" % name)
 
-	def remove(self, name):
+	def is_running(self, name):
 		if name in self.processes:
-			proc = self.processes[name]
-			if proc.running():
-				proc.stop()
-			del self.processes[name]
+			return self.processes[name].running()
+		else:
+			rospy.loginfo("Error - Can't check `%s` - not present" % name)
+			return False
 
-	def start_stereo(self):
-		proc = StereoProcess()
-		self.processes['stereo'] = proc
-		proc.start()
-
-	def start_normal(self, name):
-		if name == "obstacle":
-			args = ['rosrun', 'roscv2', 'obstacle_detect']
-		self.start_process(args, name)
-
-
-"""
-	def start_pathfinding(self):
-		move_args = ['rosrun', 'roscv', 'pathfinding']
-		self.move_proc = Popen(move_args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-		rospy.loginfo("Started pathfinding")
-"""
+	def health_check(self):
+		for name in PROCESS_ORDER:
+			if not self.is_running(name):
+				rospy.loginfo("Error - %s not running" % name)
 
 class Process:
 	def __init__(self, args, name=None, keep_alive=False):
@@ -111,13 +125,18 @@ class Process:
 	def start(self):
 		if not self.running():
 			rospy.loginfo("Starting process %s" % self.name)
-			self.proc = Popen(self.args, stdout=PIPE, stderr=PIPE)
+			self.proc = Popen(self.args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+		else:
+			rospy.loginfo("Process %s already started" % self.name)
 
 	def stop(self):
 		if self.proc is not None:
-			rospy.loginfo("Stopping process %s" % self.name)
-			self.proc.terminate()
-			self.proc.wait()
+			if self.running():
+				rospy.loginfo("Stopping process %s" % self.name)
+				self.proc.send_signal(signal.SIGINT)
+				self.proc.wait()
+			else:
+				rospy.loginfo("Process %s already stopped" % self.name)
 
 	def restart(self):
 		rospy.loginfo("Restarting process %s" % self.name)
@@ -127,36 +146,13 @@ class Process:
 
 	def running(self):
 		started = self.proc is not None
-		running = started and self.proc.poll() is True
+		running = started and self.proc.poll() is None
 		return running
-
-class StereoProcess:
-	def __init__(self):
-		cam_args = ['roslaunch', 'roscv', 'startCam.launch']
-		stereo_args = ['roslaunch', 'roscv', 'startStereo.launch']
-		self.cam_proc = Process(cam_args, 'camera')
-		self.stereo_proc = Process(stereo_args, 'stereo')
-
-	def start(self):
-		self.cam_proc.start()
-		self.stereo_proc.start()
-
-	def stop(self):
-		if self.stereo_proc.running():
-			self.stereo_proc.stop()
-		if self.cam_proc.running():
-			self.cam_proc.stop()
-
-	def restart(self):
-		self.cam_proc.restart()
-		self.stereo_proc.restart()
-
-	def running(self):
-		cam_running = self.cam_proc.running()
-		stereo_running = self.stereo_proc.running()
-		return cam_running and stereo_running
 
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
+	proc.start_all()
+	time.sleep(1)
+	proc.health_check()
 	rospy.spin()
