@@ -109,7 +109,7 @@ class Motor(object):
             if abs(delta) > self.ramp_rate:
                     self.ramp_rate += .5
                     self.left_speed += int(self.ramp_rate if delta > 0 else -self.ramp_rate)
-                    print "left", self.left_speed, "right", self.right_speed
+                    #print "left", self.left_speed, "right", self.right_speed
             else:
                     self.left_speed = self.left
                     self.ramp_rate = 1
@@ -257,7 +257,7 @@ class MotorController(RosController):
             self.action.publish("b")
         else:
             self.action.publish("f")
-        self.thread = MotorStopperTimer(self.update, self.unset_thread, float(distance))
+        self.thread = MotorStopperTimer(self.update, self.unset_thread, float(distance)/10.0)
         self.thread.start()
 
 
@@ -286,17 +286,21 @@ class MotorStopperTimer(threading.Thread):
 
     def run(self):
         while not self.event.is_set():
-            #print "Running! %s %s" % (time.time(), self.time)
             new_position = rospy.wait_for_message("/position", String).data
             new_position = new_position.split(",")
             if self.type == "forward":
                 x = float(new_position[0])
                 y = float(new_position[1])
-                if math.sqrt((x-self.x)**2 + (y-self.y)**2) >= self.goal:
+                dist = math.sqrt((x-self.x)**2 + (y-self.y)**2)
+                print "%s / %s" % (x, self.x)
+                print "%s / %s" % (dist, self.goal)
+                if dist >= self.goal:
                     break
             if self.type == "angle":
                 bearing = float(new_position[2])
-                if abs(self.bearing - bearing) >= self.goal:
+                dist = abs(self.bearing - bearing)
+                print "%s \t %s / %s" % (bearing, dist, self.goal)
+                if dist >= self.goal:
                     break
             self.event.wait(.05)
         self.unset()

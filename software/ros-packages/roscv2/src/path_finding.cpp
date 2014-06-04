@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
     ROS_INFO("Path finding node online");
 
     ros::Subscriber sub = pf.subscribe("/obstacle_grid", 10, grid_callback);
-	motor_pub = pf.advertise<std_msgs::String>("/motor_command", 100);
-	blocked_pub = pf.advertise<std_msgs::Int32>("/blocked", 10);
+	motor_pub = pf.advertise<std_msgs::String>("/motor_command/path_finding", 100);
+	blocked_pub = pf.advertise<std_msgs::Int32>("/state_change_request", 10);
 
 	//TODO: FUNCTION ME
 	std::stringstream fss;
