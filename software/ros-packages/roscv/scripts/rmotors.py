@@ -150,6 +150,7 @@ class RosController(object):
         self.thread = None
         self.distance = 0
         self.m = Motor()
+        self.action = rospy.Publisher("motor_action", String)
 
         rospy.Subscriber(commands_from, String, self.read_commands)
 
@@ -251,6 +252,10 @@ class MotorController(RosController):
           
 
     def wait_distance(self, distance):
+        if self.m.left < 0:
+            self.action.publish("b")
+        else:
+            self.action.publish("f")
         start = time.time()
         #the ratio between the actual and theoretical meters per second
         a_mps = .3*36.0
@@ -264,6 +269,7 @@ class MotorController(RosController):
 
 
     def wait_angle(self, angle):
+        self.action.publish("r")
         start = time.time()
         angle = float(angle)
         if angle > 180:
