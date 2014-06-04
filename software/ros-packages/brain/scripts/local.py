@@ -8,9 +8,9 @@ from std_msgs.msg import String
 
 #TODO: THESE SUCK
 ROVER_WIDTH=1.093
-WHEEL_DIAMETER=0.284
+WHEEL_DIAMETER=0.300
 WHEEL_CIRC=math.pi*WHEEL_DIAMETER
-TICK_PER_ROT=1.0
+TICK_PER_ROT=540.0
 
 class Localization:
 	def __init__(self, pos=(0,0), angle=0):
