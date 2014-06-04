@@ -17,6 +17,7 @@ class StateMachine(object):
         self.motor_pub = rospy.Publisher("motor_command", String)
         self.state_pub = rospy.Publisher("state", String)
         self.state_thread = threading.Thread(target = self.print_state)
+		self.state_thread.daemon = True
 
         self.state_thread.start()
 
