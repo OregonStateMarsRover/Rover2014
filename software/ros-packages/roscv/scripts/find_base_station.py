@@ -10,6 +10,8 @@ import stereo_msgs.msg
 import std_msgs
 import math
 import threading
+import signal
+import sys
 
 """ 1525 1750 = 60 degrees/ 640 = degrees per pixel = .09375
 " What I need:
@@ -45,6 +47,7 @@ class FindStart():
         self.search_turn = False
         self.data = None
         self.image_thread = threading.Thread(target=self.start_thread)
+        self.image_thread.daemon = True
         self.image_thread.start()
 
 
@@ -122,7 +125,7 @@ class FindStart():
                     self.motor.publish("r%df%dr270" % (int(theta), int(m*10)))
                 else:
                     self.motor.publish("r%df%dr90" % (int(theta), int(m*10)))
-	        """
+            """
             self.motor.publish("flush")
             self.motor.publish("rover")
             threshold = math.asin(.5/distance)
@@ -213,13 +216,22 @@ class FindStart():
     def get_angle(self, center):
         return (center*self.app)-30
 
+#TODO: Any cleanup??
+
 if __name__ == '__main__':
     try:
+        global interrupt
+        interrupt = False
+        def handler(sig, f):
+            global interrupt
+            interrupt = True
+            sys.exit()
         rospy.init_node("Home_search", anonymous=True)
         #handle lethal signals in order to stop the motors if the script quits
+        signal.signal(signal.SIGINT, handler)
         start = FindStart()
         #start.points(rospy.wait_for_message("/my_stereo/disparity", stereo_msgs.msg.DisparityImage))
-        while True:
+        while not interrupt:
             #start.image(rospy.wait_for_message("/my_stereo/left/image_rect_color", sensor_msgs.msg.Image))
             start.image()
     except rospy.ROSInterruptException:
