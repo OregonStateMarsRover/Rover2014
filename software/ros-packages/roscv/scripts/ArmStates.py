@@ -24,6 +24,7 @@ class ArmState(object):
         self.status = rospy.Publisher("/arm_state", std_msgs.msg.String)
         self.arm_state = rospy.Subscriber("/arm_state_change", std_msgs.msg.String, self.get_object)
         self.thread = threading.Thread(target=self.status)
+        self.move(self.cal())
         self.change_state("docked")
 
     def change_state(self, state):
@@ -81,6 +82,8 @@ class ArmState(object):
             return {"to": position[place], "from": back}
         except IndexError:
             return {"to": [(0, 0, 350, 300)], "from": [(0, 0, 350, 300)]}
+    def cal(self):
+        return [(8, 0, 350, 300)]
 
     def get_object(self, data):
         if data.data == "docked":
