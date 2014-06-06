@@ -262,7 +262,7 @@ class MotorController(RosController):
     def wait_distance(self, distance):
         start = time.time()
         #the ratio between the actual and theoretical meters per second
-        a_mps = .3*36.0
+        a_mps = .3*44.0
         if self.speed == 0:
             length = 0
         else:
@@ -278,7 +278,7 @@ class MotorController(RosController):
         if angle > 180:
             angle = 360 - angle
         #assume one degree a second
-        dps = 1.0/40.0
+        dps = 1.0/44.0
         self.distance = angle*dps
 
         if self.thread is not None:
