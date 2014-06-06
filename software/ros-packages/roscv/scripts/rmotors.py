@@ -9,6 +9,8 @@ import threading
 import signal
 import sys
 
+import math
+
 import os
 import serial
 from serial.tools import list_ports
@@ -150,7 +152,9 @@ class RosController(object):
         self.thread = None
         self.distance = 0
         self.m = Motor()
-
+        self.left_ticks = 0
+        self.right_ticks = 0
+        self.encoder = rospy.Publisher("/encoder", String)
         rospy.Subscriber(commands_from, String, self.read_commands)
 
         rospy.Timer(rospy.Duration(.001), self.m.maintain)
@@ -248,7 +252,9 @@ class MotorController(RosController):
             else:
                 self.m.change(self.meters_to_char(-.75), self.meters_to_char(.75), 0)
             self.wait_angle(value)
-          
+
+    def pub_ticks(self, command, distance):
+        self.encoder.publish(command+str(distance))
 
     def wait_distance(self, distance):
         start = time.time()
@@ -259,7 +265,7 @@ class MotorController(RosController):
         else:
             length = float(distance)/(self.speed*a_mps)
         self.distance = length
-        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance)
+        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance, distance, self.pub_ticks, "f")
         self.thread.start()
 
 
@@ -270,31 +276,37 @@ class MotorController(RosController):
             angle = 360 - angle
         #assume one degree a second
         dps = 1.0/40.0
-        if angle > 2 or angle < 358:
-            self.distance = angle*dps
-        else:
-            self.distance = 10000
+        self.distance = angle*dps
+
         if self.thread is not None:
             self.thread.cancel()
-        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance)
+        self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance, angle, self.pub_ticks, "r")
         self.thread.start()
 
 
 class MotorStopperTimer(threading.Thread):
-    def __init__(self, update, unset, duration):
+    def __init__(self, update, unset, duration, distance, pub_ticks, movement="f"):
         threading.Thread.__init__(self)
         self.update = update
         self.unset = unset
         self.time = time.time()+duration
         self.event = threading.Event()
         self.done = False
-
+        self.distance = distance
+        self.type = movement
+        self.pub_ticks = pub_ticks
     def run(self):
         while not self.event.is_set():
             #print "Running! %s %s" % (time.time(), self.time)
             if time.time() > self.time or self.done:
                 break
             self.event.wait(.05)
+        if self.type == "f":
+            meter_distance = float(self.distance)/10.0
+            self.pub_ticks(type, meter_distance)
+        elif self.type == "r":
+            angle = self.distance
+            self.pub_ticks(type, angle)
         self.unset()
         self.update()
 
