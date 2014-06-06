@@ -16,47 +16,33 @@ class Localization:
 	def __init__(self, pos=(0,0), angle=0):
 		self.position = pos
 		self.angle = angle
-		self.last_left = None
-		self.last_right = None
 		rospy.Subscriber("encoder", String, lambda data: self.callback(data))
 		self.pub = rospy.Publisher("position", String)
 
 	def callback(self, data):
-		left, right = map(float,data.data.split(','))
-		print "Got %s / %s" % (left, right)
-		if self.last_left is not None and self.last_right is not None:
-			dl = left - self.last_left
-			dr = right - self.last_right
-			if dl > 0 and dr > 0:
-				dl *= 2
-				dr *= 2
-			self.move(dl, dr)
-		self.last_left = left
-		self.last_right = right
+		try:
+			move_type = data.data[0]
+			amt = float(data.data[1:])
+		except:
+			print "ERROR - %s BAD DATA" % data.data
+			return
 
-	#Assuming small angles
-	def move(self, left_tick, right_tick):
-		#http://www.ridgesoft.com/articles/trackingposition/TrackingPosition.pdf
-		left_rot = left_tick / TICK_PER_ROT
-		right_rot = right_tick / TICK_PER_ROT
+		if move_type == "f":
+			self.move_forward(amt)
+		elif move_type == "r":
+			self.rotate(amt)
 
-		left_dist = left_rot * WHEEL_CIRC
-		right_dist = right_rot * WHEEL_CIRC
-
-		dist = 0.5 * (left_dist + right_dist)
-		rot = (left_dist - right_dist) / (ROVER_WIDTH * 2.0 * math.pi)
-		#TODO: CHECK ABOVE
-
-		xp = self.position[0] + dist * math.cos(self.angle)
-		yp = self.position[1] + dist * math.sin(self.angle)
-		self.position = (xp,yp)
-		ap = self.angle + rot
-		while ap > 2.0 * math.pi:
-			ap -= 2.0 * math.pi
-		while ap < 0:
-			ap += 2.0 * math.pi
-		self.angle = ap
 		self.publish_pos()
+
+
+	def move_forward(self, amt):
+		x1, y1 = self.position
+		x2 = self.position[0] + dist * math.cos(self.angle)
+		y2 = self.position[1] + dist * math.sin(self.angle)
+		self.position = (x2, y2)
+
+	def rotate(self, amt):
+		self.angle = (self.angle + amt) % 360.0
 
 	def publish_pos(self):
 		x, y = self.position
