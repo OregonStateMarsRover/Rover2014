@@ -238,6 +238,9 @@ class MotorController(RosController):
         if action == "f" or action == "b":
             spd = self.meters_to_char(self.speed if action == "f" else -self.speed)
             self.m.change(spd, spd, 0) 
+            val_int = int(value)
+            val_int = val_int if action == "f" else -val_int
+            value = str(val_int)
             self.wait_distance(value)
 
         elif action == "s":
@@ -254,7 +257,7 @@ class MotorController(RosController):
             self.wait_angle(value)
 
     def pub_ticks(self, command, distance):
-        self.encoder.publish(command+str(distance))
+        self.encoder.publish(str(command)+str(distance))
 
     def wait_distance(self, distance):
         start = time.time()
@@ -263,7 +266,7 @@ class MotorController(RosController):
         if self.speed == 0:
             length = 0
         else:
-            length = float(distance)/(self.speed*a_mps)
+            length = abs(float(distance))/(self.speed*a_mps)
         self.distance = length
         self.thread = MotorStopperTimer(self.update, self.unset_thread, self.distance, distance, self.pub_ticks, "f")
         self.thread.start()
@@ -303,10 +306,10 @@ class MotorStopperTimer(threading.Thread):
             self.event.wait(.05)
         if self.type == "f":
             meter_distance = float(self.distance)/10.0
-            self.pub_ticks(type, meter_distance)
+            self.pub_ticks(self.type, meter_distance)
         elif self.type == "r":
             angle = self.distance
-            self.pub_ticks(type, angle)
+            self.pub_ticks(self.type, angle)
         self.unset()
         self.update()
 

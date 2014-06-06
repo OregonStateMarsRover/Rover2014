@@ -37,8 +37,9 @@ class Localization:
 
 	def move_forward(self, amt):
 		x1, y1 = self.position
-		x2 = self.position[0] + dist * math.cos(self.angle)
-		y2 = self.position[1] + dist * math.sin(self.angle)
+		rad = self.angle * math.pi / 180.0
+		x2 = self.position[0] + amt * math.cos(rad)
+		y2 = self.position[1] + amt * math.sin(rad)
 		self.position = (x2, y2)
 
 	def rotate(self, amt):
@@ -46,8 +47,9 @@ class Localization:
 
 	def publish_pos(self):
 		x, y = self.position
-		deg = self.angle * (180.0 / math.pi)
-		s = "%s,%s,%s" % (x, y, deg)
+		x = round(x,2)
+		y = round(y,2)
+		s = "%s,%s,%s" % (x, y, self.angle)
 		print "Sending %s" % s
 		self.pub.publish(s)
 
