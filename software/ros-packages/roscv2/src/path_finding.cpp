@@ -4,13 +4,14 @@
 #include <cmath>
 #include <signal.h>
 
+
 static ros::Publisher motor_pub;
 static ros::Publisher blocked_pub;
 static float g_distance = MAX_OBS_DIST;
 static float g_good_thresh = 0.3f;
 static float g_angle; //TODO: TEMPORARY
 static float g_goal_distance; //TODO: TEMPORARY
-static bool g_has_goal; //TODO: TEMPORARY
+static float g_has_goal;
 
 static void catch_sig(int sig) {
     ROS_INFO("Caught signal-- hanging up");
@@ -51,6 +52,7 @@ int main(int argc, char **argv) {
     ROS_INFO("Path finding node online");
 
     ros::Subscriber sub = pf.subscribe("/obstacle_grid", 10, grid_callback);
+	ros::Subscriber goal_sub = pf.subscribe("/goal", 10, goal_callback);
 	motor_pub = pf.advertise<std_msgs::String>("/motor_command/path_finding", 100);
 	blocked_pub = pf.advertise<std_msgs::Int32>("/state_change_request", 10);
 
@@ -61,9 +63,9 @@ int main(int argc, char **argv) {
 	flush_msg.data = fss.str();
 	motor_pub.publish(flush_msg);
 
-	g_has_goal = false;
 	g_angle = 15.0f;
 	g_goal_distance = 20.f;
+	g_has_goal = NO_GOAL;
 
 	ros::spin();
 }
@@ -72,6 +74,30 @@ void print_scores(std::map<int, float>& scores) {
 	for (std::map<int,float>::iterator i = scores.begin(); 
 	     i != scores.end(); i++) {
 		printf("%d\t%f\n", i->first, i->second);
+	}
+}
+
+void goal_callback(const std_msgs::String &msg) {
+	ROS_INFO("GOT CALLBACK - %s", msg.data.c_str());
+	std::stringstream data(msg.data);
+
+	if (msg.data == "stop") {
+		g_has_goal = NO_GOAL;
+	} else if (msg.data == "roam") {
+		g_has_goal = ANY_GOAL;
+	} else {
+		std::string angle_str, dist_str;
+		std::getline(data, angle_str, ',');
+		std::getline(data, dist_str, ',');
+		ROS_INFO("- %s / %s", angle_str.c_str(), dist_str.c_str());
+
+		float angle = atof(angle_str.c_str());
+		float dist = atof(dist_str.c_str());
+
+		g_angle = angle;
+		g_goal_distance = dist;
+		ROS_INFO("- %f / %f", g_angle, g_goal_distance);
+		g_has_goal = HAS_GOAL;
 	}
 }
 
@@ -99,7 +125,7 @@ void grid_callback(const roscv2::Grid& msg) {
 		std::map<int, float> scores;
 		score_directions(grid, scores);
 
-		if (!g_has_goal || std::abs(g_angle) < HALF_ANGLE) {
+		if (g_has_goal == ANY_GOAL || std::abs(g_angle) < HALF_ANGLE) {
 			move_forward(direct_blocked, scores);
 		} else {
 			move_goal(goal_blocked, direct_blocked, g_angle, scores);

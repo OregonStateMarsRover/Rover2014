@@ -292,30 +292,51 @@ class MotorStopperTimer(threading.Thread):
         threading.Thread.__init__(self)
         self.update = update
         self.unset = unset
+        self.last_time = time.time()
         self.time = time.time()+duration
         self.event = threading.Event()
         self.done = False
         self.distance = distance
         self.type = movement
         self.pub_ticks = pub_ticks
+        self.mps = (float(distance)/10.0)/duration
+        self.aps = float(distance)/duration
+
     def run(self):
         while not self.event.is_set():
             #print "Running! %s %s" % (time.time(), self.time)
             if time.time() > self.time or self.done:
+                self.finish_pub()
                 break
             self.event.wait(.05)
+        now = time.time()
+        dt = now - self.last_time
         if self.type == "f":
-            meter_distance = float(self.distance)/10.0
-            self.pub_ticks(self.type, meter_distance)
+            meter_distance = self.mps * dt
+            if meter_distance >= 0.1:
+                self.pub_ticks(self.type, round(meter_distance,2))
+                self.last_time = now
         elif self.type == "r":
-            angle = self.distance
-            self.pub_ticks(self.type, angle)
+            angle = self.aps * dt
+            if angle > 5:
+                self.pub_ticks(self.type, round(angle,1))
+                self.last_time = now
         self.unset()
         self.update()
 
     def cancel(self):
         self.done = True
 
+    def finish_pub(self):
+        now = time.time()
+        dt = now - self.last_time
+        if self.type == "f":
+            md = self.mps * dt
+            self.pub_ticks(self.type, round(meter_distance,2))
+        elif self.type == "r"
+            angle = self.aps * dt
+            self.pub_ticks(self.type, round(angle,1))
+            
 
 
 

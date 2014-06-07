@@ -1,5 +1,7 @@
 #include "obstacle_detect.hpp"
 #include <map>
+#include <string>
+#include <std_msgs/String.h>
 
 
 //Options
@@ -23,7 +25,12 @@
 #define LEFT (1)
 #define RIGHT (2)
 
+#define HAS_GOAL (0)
+#define ANY_GOAL (1)
+#define NO_GOAL (2)
+
 void grid_callback(const roscv2::Grid& msg);
+void goal_callback(const std_msgs::String& msg);
 bool forward_obstacle(const Grid& grid);
 bool goal_obstacle(const Grid& grid, float angle, float dist);
 void score_directions(const Grid& grid, std::map<int, float>& scores);
@@ -32,3 +39,4 @@ void move_forward(bool blocked, std::map<int, float>& scores);
 void move_goal(bool goal_blocked, bool direct_blocked, 
                float angle, std::map<int, float>& scores);
 static void catch_sig(int sig);
+bool has_goal();
