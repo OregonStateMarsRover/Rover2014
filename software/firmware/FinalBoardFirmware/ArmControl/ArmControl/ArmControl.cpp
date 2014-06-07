@@ -419,8 +419,11 @@ int main(void)
 					ERROR_SET();									//Show light when done with actuators
 					lowerAct.enable();						//Re-enable lower actuator
 					upperAct.enable();						//Re-enabled lower actuator
+					
+					if(!((lowerAct.desiredPos <= 2.95) || (upperAct.desiredPos <= 2.95))){
+						baseStepper.rotateBase(baseStepper.desiredPos);	//Move base to position	
+					}
 
-					baseStepper.rotateBase(baseStepper.desiredPos);	//Move base to position
 					
 					checkActPosition();								//Check once to avoid loop is possible
 					while(lowerAct.enabled || upperAct.enabled){	//If a motor needs to move, do below
