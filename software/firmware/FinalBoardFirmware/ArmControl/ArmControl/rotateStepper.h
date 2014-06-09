@@ -19,8 +19,6 @@ public:
 	
 	int currentAngle;
 	volatile int desiredPos;
-	
-	unsigned char StepperOffset;
 protected:
 private:
 
