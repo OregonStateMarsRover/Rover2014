@@ -14,6 +14,7 @@ class StateMachine(object):
         rospy.Subscriber("/motor_command/path_finding/", String, self.motor_callback)
         rospy.Subscriber("/motor_command/find_base_station/", String, self.motor_callback)
         rospy.Subscriber("/motor_command/object_detection/", String, self.motor_callback)
+        rospy.Subscriber("/motor_command/search_pattern/". String, self.motor_callback)
         self.motor_pub = rospy.Publisher("motor_command", String)
         self.state_pub = rospy.Publisher("state", String)
         self.state_thread = threading.Thread(target = self.print_state)
@@ -29,7 +30,7 @@ class StateMachine(object):
 
     def motor_callback(self, data):
         topic = data._connection_header['topic']
-        topicStates = {'/motor_command/path_finding' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] }
+        topicStates = {'/motor_command/path_finding' : ['AvoidObstacle'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'], '/motor_command/search_pattern' : ['SearchPattern'] }
         print "topic is: ", topic
 
         for state in topicStates[topic]:
@@ -109,7 +110,7 @@ class StateMachine(object):
                 self.motor_pub.publish("flush")
                 self.prevState = self.state
                 self.state = "AvoidObstacle"
-            
+
             elif data.data == "Base Station Found Final" and not(self.objectPickedup):
                 print "Object not picked up, ignoring request to change state to FindBaseStationFinal"
 
