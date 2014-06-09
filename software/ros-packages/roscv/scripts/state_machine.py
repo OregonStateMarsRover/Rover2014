@@ -85,12 +85,6 @@ class StateMachine(object):
                 self.state = "PickupObject"
                 self.motor_pub.publish("flush")
 
-            elif data.data == "Blocked":
-                print "Changing frm MoveTowardObject to AvoidObstacle state"
-                self.motor_pub.publish("flush")
-                self.prevState = self.state
-                self.state = "AvoidObstacle"
-
             else:
                 print "Ignoring state change request %s becuase in state MoveTowardObject" % data.data
 
