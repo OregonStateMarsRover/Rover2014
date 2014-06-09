@@ -11,7 +11,7 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
-PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
+ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
 PROCESS_ARGS = {
 "camera" : (['roslaunch', 'roscv', 'startCam.launch'],),
 "stereo": (['roslaunch', 'roscv', 'startStereo.launch'],),
@@ -33,7 +33,7 @@ class ProcessManager:
 			rospy.loginfo("Caught shutdown signal")
 			if not self.stopping:
 				self.stopping = True
-				self.stop_all()
+				self.stop_procs(ALL_PROCESS_ORDER)
 				sys.exit(0)
 			else:
 				rospy.loginfo("Already stopping!")
@@ -56,17 +56,17 @@ class ProcessManager:
 
 		if command == "start":
 			if arg == "all":
-				self.start_all()
+				self.start_procs(ALL_PROCESS_ORDER)
 			else:
 				self.start_process(arg)
 		elif command == "stop":
 			if arg == "all":
-				self.stop_all()
+				self.stop_procs(ALL_PROCESS_ORDER)
 			else:
 				self.stop_process(arg)
 		elif command == "restart":
 			if arg == "all":
-				self.restart_all()
+				self.restart_procs(ALL_PROCESS_ORDER)
 			else:
 				self.restart_process(arg)
 		elif command == "check":
@@ -75,17 +75,17 @@ class ProcessManager:
 			else:
 				self.is_running(arg)
 
-	def start_all(self):
-		for p in PROCESS_ORDER:
+	def start_procs(self, procs):
+		for p in procs:
 			self.start_process(p)
 
-	def stop_all(self):
-		for p in reversed(PROCESS_ORDER):
+	def stop_procs(self, procs):
+		for p in reversed(procs):
 			self.stop_process(p)
 	
-	def restart_all(self):
-		self.stop_all()
-		self.start_all()
+	def restart_procs(self, procs):
+		self.stop_procs(procs)
+		self.start_procs(procs)
 
 	def start_process(self, name):
 		if name in self.processes:
@@ -156,7 +156,6 @@ class Process:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	proc.start_all()
 	time.sleep(1)
 	proc.health_check()
 	rospy.spin()
