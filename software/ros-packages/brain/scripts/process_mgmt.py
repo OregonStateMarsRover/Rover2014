@@ -12,6 +12,8 @@ from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
 ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
+BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
+
 PROCESS_ARGS = {
 "camera" : (['roslaunch', 'roscv', 'startCam.launch'],),
 "stereo": (['roslaunch', 'roscv', 'startStereo.launch'],),
@@ -23,6 +25,11 @@ PROCESS_ARGS = {
 "pathfinding": (['rosrun', 'roscv2', 'path_finding'],),
 "find_base": (['rosrun', 'roscv', 'find_base_station.py'],),
 "localization": (['rosrun', 'brain', 'local.py'],)
+}
+
+PROC_GROUPS = {
+"all" : ALL_PROCESS_ORDER,
+"board" : BOARD_PROCESS_ORDER
 }
 
 DEVNULL = open(os.devnull, 'wb')
@@ -55,18 +62,18 @@ class ProcessManager:
 			return
 
 		if command == "start":
-			if arg == "all":
-				self.start_procs(ALL_PROCESS_ORDER)
+			if arg in PROC_GROUPS:
+				self.start_procs(PROC_GROUPS[arg])
 			else:
 				self.start_process(arg)
 		elif command == "stop":
-			if arg == "all":
-				self.stop_procs(ALL_PROCESS_ORDER)
+			if arg in PROC_GROUPS:
+				self.stop_procs(PROC_GROUPS[arg])
 			else:
 				self.stop_process(arg)
 		elif command == "restart":
-			if arg == "all":
-				self.restart_procs(ALL_PROCESS_ORDER)
+			if arg in PROC_GROUPS:
+				self.restart_procs(PROC_GROUPS[arg])
 			else:
 				self.restart_process(arg)
 		elif command == "check":
@@ -156,6 +163,4 @@ class Process:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	time.sleep(1)
-	proc.health_check()
 	rospy.spin()
