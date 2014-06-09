@@ -12,16 +12,17 @@ from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
 PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
-PROCESS_ARGS = {"camera" : ['roslaunch', 'roscv', 'startCam.launch'],
-"stereo": ['roslaunch', 'roscv', 'startStereo.launch'],
-"motor": ['rosrun', 'roscv', 'rmotors.py'],
-"arm": ['rosrun', 'roscv', 'arm_controller.py'],
-"arm_state": ['rosrun', 'roscv', 'ArmStates.py'],
-"rover_state": ['rosrun', 'roscv', 'state_machine.py'],
-"obstacle": ['rosrun', 'roscv2', 'obstacle_detect'],
-"pathfinding": ['rosrun', 'roscv2', 'path_finding'],
-"find_base": ['rosrun', 'roscv', 'find_base_station.py'],
-"localization": ['rosrun', 'brain', 'local.py']
+PROCESS_ARGS = {
+"camera" : (['roslaunch', 'roscv', 'startCam.launch'],),
+"stereo": (['roslaunch', 'roscv', 'startStereo.launch'],),
+"motor": (['rosrun', 'roscv', 'rmotors.py'],),
+"arm": (['rosrun', 'roscv', 'arm_controller.py'],),
+"arm_state": (['rosrun', 'roscv', 'ArmStates.py'],),
+"rover_state": (['rosrun', 'roscv', 'state_machine.py'],),
+"obstacle": (['rosrun', 'roscv2', 'obstacle_detect'],),
+"pathfinding": (['rosrun', 'roscv2', 'path_finding'],),
+"find_base": (['rosrun', 'roscv', 'find_base_station.py'],),
+"localization": (['rosrun', 'brain', 'local.py'],)
 }
 
 DEVNULL = open(os.devnull, 'wb')
@@ -40,7 +41,8 @@ class ProcessManager:
 		self.processes = {}
 		self.stopping = False
 		for p in PROCESS_ORDER:
-			self.processes[p] = Process(PROCESS_ARGS[p], p)
+			args = PROCESS_ARGS[p][0]
+			self.processes[p] = Process(args, p)
 
 		signal.signal(signal.SIGINT, handler)
 		rospy.Subscriber("process_mgmt", String, lambda data: self.callback(data))
