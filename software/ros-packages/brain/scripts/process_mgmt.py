@@ -144,7 +144,7 @@ class Process:
 	def start(self):
 		if not self.running():
 			rospy.loginfo("Starting process %s" % self.name)
-			self.proc = Popen(self.args, stdout=DEVNULL, stdin=DEVNULL, stderr=DEVNULL)
+			self.proc = Popen(self.args)
 		else:
 			rospy.loginfo("Process %s already started" % self.name)
 
