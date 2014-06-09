@@ -82,7 +82,6 @@ class Arm(object):
         self.upperAct2 = 0
         self.ready = True
         self.stopped = False
-        self.item_grip = False
         self.serial = SerialHandler()
         self.serial.get_control_port("ID: ArmControl")
         time.sleep(2)
@@ -120,14 +119,17 @@ class Arm(object):
     #TODO: fix for return packet and set flag for ready rover, probably rewrite
     def read_packet(self):
         read = self.serial.read(3)
-        print "checking grip"
+
+        print "checking r: "
         if ord(read[0]) == 255 and ord(read[2]) == 255:
-            if ord(read[1])  & 1:
-                self.item_grip = True
-                return True
-            else:
-                self.item_grip = False
-                return True
+            if (read[1] == 'r'):
+                print "asdf"
+                self.estop = 0
+            elif ord(read[1]) == 0:
+                print "asdf2"
+                self.estop = 1
+            if (ord(read[1]) & 11) > 10:
+                time.sleep(5)
         return False
 
     def arm_ready(self):
@@ -146,13 +148,23 @@ class RosController(object):
     def __init__(self, arm_status, commands_from):
         self.pub = rospy.Publisher(arm_status, String)
         self.a = Arm()
-        self.pub_item = rospy.Publisher(item_grip, String)
+        self.x1=3*self.sind(30)
+        self.z1=3*self.cosd(30)
+        self.h1=sqrt(self.x1**2+self.z1**2)
+        self.M1=11.5
+        self.L1=20
+        self.x2=3*self.cosd(30)
+        self.z2=3*self.sind(30)
+        self.h2=sqrt(self.x2**2+self.z2**2)
+        self.M2=12
+        self.L2=14
+
+        self.OS_1=0.5
+        self.OS_2=0.34808
         rospy.Subscriber('arm_commands', String, self.read_commands)
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)
         self.status_thread = threading.Thread(target=self.arm_status)
         self.status_thread.start()
-        self.grip_thread = threading.Thread(target=self.grip_status)
-        self.grip_thread.start()
 
     def convert_act(self, val):
         print val
@@ -238,6 +250,25 @@ class RosController(object):
         self.change(baseXYZ, lowerActXYZ, upperActXYZ)
 
 
+    def convertXYZ(self,x,y,z):
+        theta_base = self.atand(y/x)
+
+        x_o = (x/(self.cosd(theta_base)))-(self.OS_1+self.OS_2)
+        v = (sqrt(x_o**2+z**2))
+        theta_v = (self.atand(z/x_o))
+        theta_b = (self.acosd((self.L2**2-self.L1**2-v**2)/(-2*self.L1*v)))
+
+        theta1 = theta_b+theta_v
+
+        theta_c = (self.acosd((v**2-self.L1**2-self.L2**2)/(-2*self.L1*self.L2)))
+        theta2 = theta_c+theta1-180
+
+        s1 = sqrt((self.M1-(self.h1*self.cosd(90-self.atand(self.x1/self.z1)+theta1)))**2+(self.h1*self.sind(90-self.atand(self.x1/self.z1)+theta1))**2)
+
+        s2 = sqrt((self.M2+(self.h2*self.cosd(90-self.atand(self.x2/self.z2)-theta2)))**2+(self.h2*self.sind(90-self.atand(self.x2/self.z2)-theta2))**2)
+
+        return theta_base, s1, s2
+
     def arm_status(self):
         while True:
             if self.a.arm_ready():
@@ -245,14 +276,19 @@ class RosController(object):
             else:
                 self.pub.publish("Not")
             time.sleep(1)
+    def atand(self,val):
+        return degrees(atan(radians(val)))
+    def acosd(self,val):
+        return degrees(acos(radians(val)))
+    def asind(self,val):
+        return degrees(asin(radians(val)))
+    def cosd(self,val):
+        return degrees(cos(radians(val)))
+    def sind(self,val):
+        return degrees(sin(radians(val)))
+    def tand(self,val):
+        return degrees(tan(radians(val)))
 
-    def grip_status(self):
-        while True:
-            if self.a.item_grip:
-                self.pub_item.publish("Gripped")
-            else:
-                self.pub_item.publish("Not Gripped")
-            time.sleep(1)
 
 '''class MotorStopperForward(threading.Thread):
     def __init__(self, update, distance):
@@ -267,7 +303,7 @@ class RosController(object):
 con = None
 if __name__ == '__main__':
     try:
-
+        
         print "Before init node"
         rospy.init_node("arm_command", "asdf")
         print "after init node"

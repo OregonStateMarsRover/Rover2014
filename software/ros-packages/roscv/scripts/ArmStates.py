@@ -52,8 +52,8 @@ class ArmState(object):
         print "ending wait"
 
     def docked(self):
-        position = [(8, 92, 320, 350),
-                    (0, 92, 320, 350),
+        position = [(8, 92, 350, 300),
+                    (0, 92, 350, 300),
                     (0, 92, 260, 300),
                     (0, 92, 220, 220)]
         back = [(0, 92, 260, 300),
@@ -62,8 +62,8 @@ class ArmState(object):
         return {"to": position, "from": back}
 
     def move_home(self):
-        position = [(0, 0, 300, 350)]
-        back = [(0, 0, 300, 350)]
+        position = [(0, 0, 350, 300)]
+        back = [(0, 0, 350, 300)]
         return {"to": position, "from": back}
 
     def grab(self):
