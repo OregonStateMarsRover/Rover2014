@@ -38,8 +38,8 @@ class FindStart():
         #the height of the camera off the ground
         self.cam_height = .25
         #the width and height of the square
-        self.square = .097
-        self.dim = (2, 1)
+        self.square = .095
+        self.dim = (8, 7)
         self.started = 1
         self.image_id = 0
         self.image_read = 0
@@ -100,6 +100,7 @@ class FindStart():
             center = self.get_center(corners)
             distance = self.get_distance(gray, height)
             angle = self.get_angle(center)
+            print height, center, distance, angle
             """
             skew = self.get_skew(img, corners)
             threta5 = skew-angle
