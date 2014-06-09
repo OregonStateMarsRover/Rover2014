@@ -29,10 +29,9 @@ def close_to(pos, point):
     dy = py - y
     dist = math.sqrt(dx * dx + dy * dy)
 
-    #return dist < 5.0
-    return True
+    return dist < 1.0
 
-def angle_to(pos, point):
+def angle_to(current_angle, pos, point):
     x, y = pos
     px, py = point
     dx = px - x
@@ -40,8 +39,9 @@ def angle_to(pos, point):
 
     rad = math.atan2(dx, dy)
     angle = rad * 180.0 / math.pi
-    angle = angle % 360
-    return round(angle, 2)
+    da = (current_angle - angle) % 360
+    da -= 180
+    return round(da, 2)
 
 def dist_to(pos, point):
     x, y = pos
@@ -49,14 +49,13 @@ def dist_to(pos, point):
     dx = px - x
     dy = py - y
     dist = math.sqrt(dx * dx + dy * dy)
-    print dx, dy, dist
+    print "Distance: ", dist
     return round(math.sqrt(dist), 2)
 
 class search_pattern(object):
     def __init__(self):
         self.at_point = False
         self.pub = rospy.Publisher("goal", String)
-        self.searchSpiralRect(2)
 
     def blocked(self):
         while rospy.wait_for_message("/state", String).data != "SearchPattern":
@@ -72,8 +71,9 @@ class search_pattern(object):
             #wait for proximity
             if next_point is None or close_to(self.current_pos, next_point):
                 next_point = pg.next()
+                print "NEW GOAL: ", next_point
 
-            angle = angle_to(self.current_pos, next_point)
+            angle = angle_to(self.current_angle, self.current_pos, next_point)
             goal_dist = dist_to(self.current_pos, next_point)
             s = "%s,%s" % (angle, goal_dist)
             self.pub.publish(s)
@@ -83,7 +83,6 @@ class search_pattern(object):
         x, y, angle = map(float, data.data.split(','))
         self.current_pos = (x, y)
         self.current_angle = angle
-        print "GOT: ", self.current_pos, self.current_angle
 
 """
     def returnHome(self):
@@ -98,3 +97,4 @@ if __name__ == "__main__":
     rospy.init_node("search_pattern")
     sp = search_pattern()
     rospy.Subscriber("position", String, lambda data: sp.update_pos(data))
+    sp.searchSpiralRect(2)
