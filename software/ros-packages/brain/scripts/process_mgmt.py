@@ -40,7 +40,7 @@ class ProcessManager:
 
 		self.processes = {}
 		self.stopping = False
-		for p in PROCESS_ORDER:
+		for p in ALL_PROCESS_ORDER:
 			args = PROCESS_ARGS[p][0]
 			self.processes[p] = Process(args, p)
 
@@ -113,7 +113,7 @@ class ProcessManager:
 			return False
 
 	def health_check(self):
-		for name in PROCESS_ORDER:
+		for name in ALL_PROCESS_ORDER:
 			if not self.is_running(name):
 				rospy.loginfo("Error - %s not running" % name)
 
