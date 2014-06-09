@@ -11,17 +11,25 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
-PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
-PROCESS_ARGS = {"camera" : ['roslaunch', 'roscv', 'startCam.launch'],
-"stereo": ['roslaunch', 'roscv', 'startStereo.launch'],
-"motor": ['rosrun', 'roscv', 'rmotors.py'],
-"arm": ['rosrun', 'roscv', 'arm_controller.py'],
-"arm_state": ['rosrun', 'roscv', 'ArmStates.py'],
-"rover_state": ['rosrun', 'roscv', 'state_machine.py'],
-"obstacle": ['rosrun', 'roscv2', 'obstacle_detect'],
-"pathfinding": ['rosrun', 'roscv2', 'path_finding'],
-"find_base": ['rosrun', 'roscv', 'find_base_station.py'],
-"localization": ['rosrun', 'brain', 'local.py']
+ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
+BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
+
+PROCESS_ARGS = {
+"camera" : (['roslaunch', 'roscv', 'startCam.launch'],),
+"stereo": (['roslaunch', 'roscv', 'startStereo.launch'],),
+"motor": (['rosrun', 'roscv', 'rmotors.py'],),
+"arm": (['rosrun', 'roscv', 'arm_controller.py'],),
+"arm_state": (['rosrun', 'roscv', 'ArmStates.py'],),
+"rover_state": (['rosrun', 'roscv', 'state_machine.py'],),
+"obstacle": (['rosrun', 'roscv2', 'obstacle_detect'],),
+"pathfinding": (['rosrun', 'roscv2', 'path_finding'],),
+"find_base": (['rosrun', 'roscv', 'find_base_station.py'],),
+"localization": (['rosrun', 'brain', 'local.py'],)
+}
+
+PROC_GROUPS = {
+"all" : ALL_PROCESS_ORDER,
+"board" : BOARD_PROCESS_ORDER
 }
 
 DEVNULL = open(os.devnull, 'wb')
@@ -32,15 +40,16 @@ class ProcessManager:
 			rospy.loginfo("Caught shutdown signal")
 			if not self.stopping:
 				self.stopping = True
-				self.stop_all()
+				self.stop_procs(ALL_PROCESS_ORDER)
 				sys.exit(0)
 			else:
 				rospy.loginfo("Already stopping!")
 
 		self.processes = {}
 		self.stopping = False
-		for p in PROCESS_ORDER:
-			self.processes[p] = Process(PROCESS_ARGS[p], p)
+		for p in ALL_PROCESS_ORDER:
+			args = PROCESS_ARGS[p][0]
+			self.processes[p] = Process(args, p)
 
 		signal.signal(signal.SIGINT, handler)
 		rospy.Subscriber("process_mgmt", String, lambda data: self.callback(data))
@@ -53,18 +62,18 @@ class ProcessManager:
 			return
 
 		if command == "start":
-			if arg == "all":
-				self.start_all()
+			if arg in PROC_GROUPS:
+				self.start_procs(PROC_GROUPS[arg])
 			else:
 				self.start_process(arg)
 		elif command == "stop":
-			if arg == "all":
-				self.stop_all()
+			if arg in PROC_GROUPS:
+				self.stop_procs(PROC_GROUPS[arg])
 			else:
 				self.stop_process(arg)
 		elif command == "restart":
-			if arg == "all":
-				self.restart_all()
+			if arg in PROC_GROUPS:
+				self.restart_procs(PROC_GROUPS[arg])
 			else:
 				self.restart_process(arg)
 		elif command == "check":
@@ -73,17 +82,17 @@ class ProcessManager:
 			else:
 				self.is_running(arg)
 
-	def start_all(self):
-		for p in PROCESS_ORDER:
+	def start_procs(self, procs):
+		for p in procs:
 			self.start_process(p)
 
-	def stop_all(self):
-		for p in reversed(PROCESS_ORDER):
+	def stop_procs(self, procs):
+		for p in reversed(procs):
 			self.stop_process(p)
 	
-	def restart_all(self):
-		self.stop_all()
-		self.start_all()
+	def restart_procs(self, procs):
+		self.stop_procs(procs)
+		self.start_procs(procs)
 
 	def start_process(self, name):
 		if name in self.processes:
@@ -111,7 +120,7 @@ class ProcessManager:
 			return False
 
 	def health_check(self):
-		for name in PROCESS_ORDER:
+		for name in ALL_PROCESS_ORDER:
 			if not self.is_running(name):
 				rospy.loginfo("Error - %s not running" % name)
 
@@ -154,7 +163,4 @@ class Process:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	proc.start_all()
-	time.sleep(1)
-	proc.health_check()
 	rospy.spin()
