@@ -106,7 +106,7 @@ class FindStart():
 
         if ret_back:
             print "back"
-            height = self.get_height(img, corners_back, "small")
+            height = -self.get_height(img, corners_back, "small")
             center = self.get_center(corners_back)
             distance = self.get_distance(gray, height, "back")
             angle = self.get_angle(center)
