@@ -29,8 +29,13 @@ class StateMachine(object):
             rospy.sleep(.25)
 
     def motor_callback(self, data):
-        topic = data._connection_header['topic']
-        topicStates = {'/motor_command/path_finding' : ['AvoidObstacle'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'], '/motor_command/search_pattern' : ['SearchPattern','FindHome'] }
+        if 'topic' in data._connection_header:
+            topic = data._connection_header['topic']
+        else:
+            if '/path_finding' in data._connection_header['callerid']:
+                topic = '/motor_command/path_finding'
+
+        topicStates = {'/motor_command/path_finding' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] }
         print "topic is: ", topic
 
         for state in topicStates[topic]:

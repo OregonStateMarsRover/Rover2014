@@ -52,8 +52,8 @@ class ArmState(object):
         print "ending wait"
 
     def docked(self):
-        position = [(8, 92, 320, 250),
-                    (0, 92, 320, 250),
+        position = [(8, 92, 320, 350),
+                    (0, 92, 320, 350),
                     (0, 92, 260, 300),
                     (0, 92, 220, 220)]
         back = [(0, 92, 260, 300),

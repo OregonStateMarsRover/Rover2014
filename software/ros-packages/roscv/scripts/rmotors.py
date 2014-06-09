@@ -332,8 +332,8 @@ class MotorStopperTimer(threading.Thread):
         dt = now - self.last_time
         if self.type == "f":
             md = self.mps * dt
-            self.pub_ticks(self.type, round(meter_distance,2))
-        elif self.type == "r"
+            self.pub_ticks(self.type, round(md,2))
+        elif self.type == "r":
             angle = self.aps * dt
             self.pub_ticks(self.type, round(angle,1))
             
