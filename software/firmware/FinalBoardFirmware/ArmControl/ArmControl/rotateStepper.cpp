@@ -25,7 +25,7 @@ extern "C" {
 
 // default constructor
 rotateStepper::rotateStepper() {
-	calSpan = 258.34; //TODO: Set to actual value
+	calSpan = 255; //TODO: Set to actual value
 	multiplier = -1; //Invalid (not set) state
 	
 	currentAngle = 0; //It will have its reference based off of the 2nd limit switch,
@@ -40,7 +40,7 @@ rotateStepper::~rotateStepper()
 void rotateStepper::rotateBase(int desiredAngle){
 	//NEED INPUT CHEKCING
 	
-	int zeroedAngle = desiredAngle + 34.02;
+	int zeroedAngle = desiredAngle + 36.09;
 	
 	moveBase(zeroedAngle - currentAngle);
 	currentAngle = currentAngle + (zeroedAngle - currentAngle);
@@ -79,9 +79,9 @@ void rotateStepper::calibrateBase(){
 		}
 		
 		MD2_STEP_CLR();
-		_delay_us(1200);
+		_delay_us(600);
 		MD2_STEP_SET();
-		_delay_us(1200);	
+		_delay_us(600);	
 		
 	}	
 	currentAngle = 0;
@@ -106,9 +106,9 @@ void rotateStepper::moveBase(int degreesToMove){
 		while(!CHECK_ISROVING());  //e-stop check
 		
 		MD2_STEP_CLR();
-		_delay_us(800);
+		_delay_us(400);
 		MD2_STEP_SET();
-		_delay_us(1100);
+		_delay_us(500);
 	}
 	
 }

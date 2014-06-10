@@ -334,6 +334,7 @@ int main(void)
 	
 	Sabertooth DriveSaber(&USARTD0, &PORTD);
 	
+	
 	upperAct.desiredPos = 3.0;
 	lowerAct.desiredPos = 3.5;
 	
@@ -352,7 +353,6 @@ int main(void)
 			DriveSaber.ParsePacket(127,127);
 		}	
 	}
-
 	baseStepper.calibrateBase();
 	MD2_DIR_CLR();
 	baseStepper.rotateBase(0);  //Note that this function takes an angle relative

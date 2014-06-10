@@ -1576,6 +1576,7 @@ int main(void)
      a92:	01 96       	adiw	r24, 0x01	; 1
      a94:	0e 94 25 09 	call	0x124a	; 0x124a <_ZN10SabertoothC1EP12USART_structP11PORT_struct>
 	
+	
 	upperAct.desiredPos = 3.0;
      a98:	80 e0       	ldi	r24, 0x00	; 0
      a9a:	90 e0       	ldi	r25, 0x00	; 0
@@ -1707,11 +1708,11 @@ int main(void)
      b70:	91 81       	ldd	r25, Z+1	; 0x01
      b72:	89 2b       	or	r24, r25
      b74:	29 f6       	brne	.-118    	; 0xb00 <main+0x9a>
+		DriveSaber.ParsePacket(127+getMotorSpeed(LOWER)*getMotorDir(LOWER), 127+getMotorSpeed(UPPER)*getMotorDir(UPPER));
 		while(!CHECK_ISROVING()){
 			DriveSaber.ParsePacket(127,127);
 		}	
 	}
-
 	baseStepper.calibrateBase();
      b76:	89 e2       	ldi	r24, 0x29	; 41
      b78:	90 e2       	ldi	r25, 0x20	; 32
@@ -2374,10 +2375,10 @@ void motorInfo::setDesired(float desired){
 // default constructor
 rotateStepper::rotateStepper() {
      f84:	fc 01       	movw	r30, r24
-	calSpan = 258.34; //TODO: Set to actual value
-     f86:	45 e8       	ldi	r20, 0x85	; 133
-     f88:	5b e2       	ldi	r21, 0x2B	; 43
-     f8a:	61 e8       	ldi	r22, 0x81	; 129
+	calSpan = 255; //TODO: Set to actual value
+     f86:	40 e0       	ldi	r20, 0x00	; 0
+     f88:	50 e0       	ldi	r21, 0x00	; 0
+     f8a:	6f e7       	ldi	r22, 0x7F	; 127
      f8c:	73 e4       	ldi	r23, 0x43	; 67
      f8e:	44 83       	std	Z+4, r20	; 0x04
      f90:	55 83       	std	Z+5, r21	; 0x05
@@ -2536,19 +2537,19 @@ void rotateStepper::calibrateBase(){
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
-    1014:	8f e7       	ldi	r24, 0x7F	; 127
-    1016:	95 e2       	ldi	r25, 0x25	; 37
+    1014:	8f eb       	ldi	r24, 0xBF	; 191
+    1016:	92 e1       	ldi	r25, 0x12	; 18
     1018:	01 97       	sbiw	r24, 0x01	; 1
     101a:	f1 f7       	brne	.-4      	; 0x1018 <_ZN13rotateStepper13calibrateBaseEv+0x6a>
     101c:	00 c0       	rjmp	.+0      	; 0x101e <_ZN13rotateStepper13calibrateBaseEv+0x70>
     101e:	00 00       	nop
-		_delay_us(1200);
+		_delay_us(600);
 		MD2_STEP_SET();
     1020:	15 96       	adiw	r26, 0x05	; 5
     1022:	5c 93       	st	X, r21
     1024:	15 97       	sbiw	r26, 0x05	; 5
-    1026:	8f e7       	ldi	r24, 0x7F	; 127
-    1028:	95 e2       	ldi	r25, 0x25	; 37
+    1026:	8f eb       	ldi	r24, 0xBF	; 191
+    1028:	92 e1       	ldi	r25, 0x12	; 18
     102a:	01 97       	sbiw	r24, 0x01	; 1
     102c:	f1 f7       	brne	.-4      	; 0x102a <_ZN13rotateStepper13calibrateBaseEv+0x7c>
     102e:	00 c0       	rjmp	.+0      	; 0x1030 <_ZN13rotateStepper13calibrateBaseEv+0x82>
@@ -2564,23 +2565,23 @@ void rotateStepper::calibrateBase(){
     1036:	e0 e6       	ldi	r30, 0x60	; 96
     1038:	f6 e0       	ldi	r31, 0x06	; 6
     103a:	86 83       	std	Z+6, r24	; 0x06
-    103c:	8f e7       	ldi	r24, 0x7F	; 127
-    103e:	95 e2       	ldi	r25, 0x25	; 37
+    103c:	8f eb       	ldi	r24, 0xBF	; 191
+    103e:	92 e1       	ldi	r25, 0x12	; 18
     1040:	01 97       	sbiw	r24, 0x01	; 1
     1042:	f1 f7       	brne	.-4      	; 0x1040 <_ZN13rotateStepper13calibrateBaseEv+0x92>
     1044:	00 c0       	rjmp	.+0      	; 0x1046 <_ZN13rotateStepper13calibrateBaseEv+0x98>
     1046:	00 00       	nop
-		_delay_us(1200);
+		_delay_us(600);
 		MD2_STEP_SET();
     1048:	82 e0       	ldi	r24, 0x02	; 2
     104a:	85 83       	std	Z+5, r24	; 0x05
-    104c:	8f e7       	ldi	r24, 0x7F	; 127
-    104e:	95 e2       	ldi	r25, 0x25	; 37
+    104c:	8f eb       	ldi	r24, 0xBF	; 191
+    104e:	92 e1       	ldi	r25, 0x12	; 18
     1050:	01 97       	sbiw	r24, 0x01	; 1
     1052:	f1 f7       	brne	.-4      	; 0x1050 <_ZN13rotateStepper13calibrateBaseEv+0xa2>
     1054:	00 c0       	rjmp	.+0      	; 0x1056 <_ZN13rotateStepper13calibrateBaseEv+0xa8>
     1056:	00 00       	nop
-		_delay_us(1200);	
+		_delay_us(600);	
 		
 	}	
 	currentAngle = 0;
@@ -2705,19 +2706,19 @@ void rotateStepper::moveBase(int degreesToMove){
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
-    10fe:	cf ef       	ldi	r28, 0xFF	; 255
-    1100:	d8 e1       	ldi	r29, 0x18	; 24
+    10fe:	cf e7       	ldi	r28, 0x7F	; 127
+    1100:	dc e0       	ldi	r29, 0x0C	; 12
     1102:	21 97       	sbiw	r28, 0x01	; 1
     1104:	f1 f7       	brne	.-4      	; 0x1102 <_ZN13rotateStepper8moveBaseEi+0x6e>
     1106:	00 c0       	rjmp	.+0      	; 0x1108 <_ZN13rotateStepper8moveBaseEi+0x74>
     1108:	00 00       	nop
-		_delay_us(800);
+		_delay_us(400);
 		MD2_STEP_SET();
     110a:	15 96       	adiw	r26, 0x05	; 5
     110c:	3c 93       	st	X, r19
     110e:	15 97       	sbiw	r26, 0x05	; 5
-    1110:	cf e5       	ldi	r28, 0x5F	; 95
-    1112:	d2 e2       	ldi	r29, 0x22	; 34
+    1110:	cf e9       	ldi	r28, 0x9F	; 159
+    1112:	df e0       	ldi	r29, 0x0F	; 15
     1114:	21 97       	sbiw	r28, 0x01	; 1
     1116:	f1 f7       	brne	.-4      	; 0x1114 <_ZN13rotateStepper8moveBaseEi+0x80>
     1118:	00 c0       	rjmp	.+0      	; 0x111a <_ZN13rotateStepper8moveBaseEi+0x86>
@@ -2732,9 +2733,9 @@ void rotateStepper::moveBase(int degreesToMove){
     111e:	86 17       	cp	r24, r22
     1120:	97 07       	cpc	r25, r23
     1122:	39 f7       	brne	.-50     	; 0x10f2 <_ZN13rotateStepper8moveBaseEi+0x5e>
-		_delay_us(800);
+		_delay_us(400);
 		MD2_STEP_SET();
-		_delay_us(1100);
+		_delay_us(500);
 	}
 	
     1124:	df 91       	pop	r29
@@ -2757,15 +2758,15 @@ void rotateStepper::rotateBase(int desiredAngle){
     1136:	ec 01       	movw	r28, r24
 	//NEED INPUT CHEKCING
 	
-	int zeroedAngle = desiredAngle + 34.02;
+	int zeroedAngle = desiredAngle + 36.09;
     1138:	88 27       	eor	r24, r24
     113a:	77 fd       	sbrc	r23, 7
     113c:	80 95       	com	r24
     113e:	98 2f       	mov	r25, r24
     1140:	0e 94 55 0b 	call	0x16aa	; 0x16aa <__floatsisf>
-    1144:	2b e7       	ldi	r18, 0x7B	; 123
-    1146:	34 e1       	ldi	r19, 0x14	; 20
-    1148:	48 e0       	ldi	r20, 0x08	; 8
+    1144:	29 e2       	ldi	r18, 0x29	; 41
+    1146:	3c e5       	ldi	r19, 0x5C	; 92
+    1148:	40 e1       	ldi	r20, 0x10	; 16
     114a:	52 e4       	ldi	r21, 0x42	; 66
     114c:	0e 94 56 0a 	call	0x14ac	; 0x14ac <__addsf3>
     1150:	0e 94 22 0b 	call	0x1644	; 0x1644 <__fixsfsi>
@@ -3223,9 +3224,9 @@ void stepperInfo::processCommand(int cmd){
     1312:	35 81       	ldd	r19, Z+5	; 0x05
     1314:	23 2b       	or	r18, r19
     1316:	11 f5       	brne	.+68     	; 0x135c <_ZN11stepperInfo14processCommandEi+0x94>
-    1318:	28 e8       	ldi	r18, 0x88	; 136
-    131a:	33 e1       	ldi	r19, 0x13	; 19
-		for(int i = 0; i < 5000; ++i){
+    1318:	28 e9       	ldi	r18, 0x98	; 152
+    131a:	3a e3       	ldi	r19, 0x3A	; 58
+		for(int i = 0; i < 15000; ++i){
 			
 			while(!CHECK_ISROVING());  //e-stop check
     131c:	e0 e0       	ldi	r30, 0x00	; 0
@@ -3238,7 +3239,7 @@ void stepperInfo::processCommand(int cmd){
 		MD1_DIR_CLR();
 		
 	if(!init){
-		for(int i = 0; i < 5000; ++i){
+		for(int i = 0; i < 15000; ++i){
 			
 			while(!CHECK_ISROVING());  //e-stop check
     1326:	40 85       	ldd	r20, Z+8	; 0x08
@@ -3279,7 +3280,7 @@ void stepperInfo::processCommand(int cmd){
 		MD1_DIR_CLR();
 		
 	if(!init){
-		for(int i = 0; i < 5000; ++i){
+		for(int i = 0; i < 15000; ++i){
     1354:	21 15       	cp	r18, r1
     1356:	31 05       	cpc	r19, r1
     1358:	31 f7       	brne	.-52     	; 0x1326 <_ZN11stepperInfo14processCommandEi+0x5e>

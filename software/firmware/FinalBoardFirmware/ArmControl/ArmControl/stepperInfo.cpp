@@ -63,7 +63,7 @@ void stepperInfo::processCommand(int cmd){
 		MD1_DIR_CLR();
 		
 	if(!init){
-		for(int i = 0; i < 5000; ++i){
+		for(int i = 0; i < 15000; ++i){
 			
 			while(!CHECK_ISROVING());  //e-stop check
 

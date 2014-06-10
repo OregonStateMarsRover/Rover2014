@@ -23,7 +23,7 @@
 volatile unsigned char InterruptCounter = 0;							//A counter for our interrupt function
 const unsigned char InterruptCountMax = 15;								//Hold our interrupt count max to make up for only having an 8 bit timer and needing 1Hz led flash
 volatile unsigned char LEDState = LIT;									//Holds the current Led state
-unsigned char RoverState = NOT_ROVING;									//Holds the current rover roving state
+unsigned char RoverState = ROVING;									//Holds the current rover roving state
 	
 unsigned char ButtonPushed(void){
 	return ((BUTTON & PINB) == 0);										//Returns whether the button has been pushed (active low)
@@ -42,10 +42,12 @@ int main(void)
 	TCCR0B |= ((1 << CS02) | (1 << CS00));								//Sets the counter prescaler to 1024
 	TIMSK = (1 << OCIE0A);												//Sets an interrupt to trigger on counter hitting 255 for timer 0
 
-	sei();																//Enable global interrupts
+	sei();		
+															//Enable global interrupts
+	PORTB |= XBEEIO;
 	
     while(1){	
-		if(ButtonPushed() == 1){
+		if(ButtonPushed()){
 			if(RoverState == ROVING){									//If the button was pushed and the state was previously roving, switch to non-roving
 				PORTB &= ~XBEEIO;										//Send new roving state to rover
 				RoverState = NOT_ROVING;								//We are now not roving
@@ -53,8 +55,8 @@ int main(void)
 				PORTB |= XBEEIO;										//Send new roving state to rover
 				RoverState = ROVING;									//We are now roving
 			}
-			_delay_ms(500);												//Wait 500ms for button debounce
-		}
+			_delay_ms(500);	
+		}											//Wait 500ms for button debounce
     }
 }
 
