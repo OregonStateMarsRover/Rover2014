@@ -104,10 +104,10 @@ class ProcessManager:
 		self.start_procs(procs)
 
 	def start_process(self, name):
-        if name[0:5] == "sleep":
-            t = int(name[6:])
-            time.sleep(t)
-            print name, "SLEEPING FOR ", t
+		if name[0:5] == "sleep":
+			t = int(name[6:])
+			time.sleep(t)
+			print name, "SLEEPING FOR ", t
 		if name in self.processes:
 			self.processes[name].start()
 		else:
