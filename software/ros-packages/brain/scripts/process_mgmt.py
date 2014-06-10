@@ -11,7 +11,7 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
-ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender" )
+ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender", "search_pattern" )
 ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
 STARTUP_PROCESS_ORDER = ("camera", "stereo", "arm_camera", "motor", "arm", "sleep20", "pathfinding", "obstacle", "find_base", "sleep5", "search_pattern", "arm_state", "rover_state")
 BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
@@ -181,5 +181,5 @@ class Process:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	proc.start_procs(STARTUP_PROCESS_ORDER)
+	#proc.start_procs(STARTUP_PROCESS_ORDER)
 	rospy.spin()
