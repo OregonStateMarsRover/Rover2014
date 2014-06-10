@@ -147,7 +147,7 @@ class FindStart():
 	
 	if ret_back:
 	    distance *= 2
-	    self.motor.publish("r45f%dr45%d", distance, distance) 
+	    self.motor.publish("r45f%dr45%d" % (int(distance), int(distance))) 
             while rospy.wait_for_message("/motor_status", std_msgs.msg.String).data == "busy":
                 pass
 
@@ -174,7 +174,7 @@ class FindStart():
         self.focal = (0.5 * img.shape[1] / math.tan(0.5 * 65 * math.pi / 180))*(4.2/1000.0);
         if self.focal is not None:
             if dim == "large":
-                return (self.focal*(self.square*(self.dim[0]-2))*img.shape[1])/(height*self.cam_height)
+                return (2.0 / 2.7) *(self.focal*(self.square*(self.dim[0]-2))*img.shape[1])/(height*self.cam_height)
             else:
                 return (self.focal*(self.square_back*(self.dim_small[0]-2))*img.shape[1])/(height*self.cam_height)	
         return -1
