@@ -35,8 +35,12 @@ class StateMachine(object):
             print topic
             if '/path_finding' in data._connection_header['callerid']:
                 topic = '/motor_command/path_finding'
-            if '/search_pattern' in data._connection_header['callerid']:
+            elif '/search_pattern' in data._connection_header['callerid']:
                 topic = '/motor_command/search_pattern'
+            elif '/path_finding' in data._connection_header['callerid']:
+                topic = '/motor_command/search_pattern'
+            else:
+                print "ERROR:::", data._connection_header['callerid']:
 
         topicStates = {'/motor_command/path_finding' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] , '/motor_command/search_pattern' : ['SearchPattern', 'FindHome']}
         print "topic is: ", topic
