@@ -80,7 +80,7 @@ class Arm(object):
         self.lowerAct2 = 95
         self.upperAct1 = 250
         self.upperAct2 = 0
-        self.ready = True
+        self.ready = False
         self.stopped = False
         self.item_grip = False
         self.serial = SerialHandler()
@@ -91,6 +91,7 @@ class Arm(object):
         self.serial.flushInput()
         time.sleep(2)
         open(os.devnull, 'w')
+        self.ready = True
 
     def maintain(self, event=None):
         if self.is_maintain:
@@ -145,12 +146,12 @@ class RosController(object):
 
     def __init__(self, arm_status, commands_from):
         self.pub = rospy.Publisher(arm_status, String)
+        self.status_thread = threading.Thread(target=self.arm_status)
+        self.status_thread.start()
         self.a = Arm()
         self.pub_item = rospy.Publisher("item_grip", String)
         rospy.Subscriber('arm_commands', String, self.read_commands)
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)
-        self.status_thread = threading.Thread(target=self.arm_status)
-        self.status_thread.start()
         self.grip_thread = threading.Thread(target=self.grip_status)
         self.grip_thread.start()
 
