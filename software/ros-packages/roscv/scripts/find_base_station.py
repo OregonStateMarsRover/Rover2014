@@ -39,7 +39,8 @@ class FindStart():
         self.cam_height = .25
         #the width and height of the square
         self.square = .095
-        self.dim = (8, 7)
+        self.dim = (4, 3)
+        self.dim_small = (3, 2)
         self.started = 1
         self.image_id = 0
         self.image_read = 0
@@ -91,42 +92,28 @@ class FindStart():
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(img, self.dim, None)
-        print "Checkerboard:", ret
+        ret_back, corners_back = cv2.findChessboardCorners(img, self.dim_small, None)
+        print "Checkerboard:",
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if ret:
-            self.change_state.publish("Base Station Found")
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            cv2.drawChessboardCorners(gray, self.dim, corners, ret)
+            print "forward"
+            #cv2.drawChessboardCorners(gray, self.dim, corners, ret)
             height = self.get_height(img, corners)
             center = self.get_center(corners)
             distance = self.get_distance(gray, height)
             angle = self.get_angle(center)
             print height, center, distance, angle
-            """
-            skew = self.get_skew(img, corners)
-            threta5 = skew-angle
-            if threta5 == 0:
-                m = 0
-                theta = angle
-            elif threta5 > 0:
-                m = distance/math.sin(math.radians(threta5))
-                theta = (90-skew)+angle
-            else:
-                theta5 = angle-skew
-                m = distance/math.sin(math.radians(threta5))
-                theta = 90+skew
-            threshold = math.asin(.5/distance)
-            #if m is in the threshhold
-            if -threshold < skew < threshold:
-                #move forward
-                if distance < 1:
-                    self.motor.publish("f%d" % int(10*distance/4))
-            else:
-                #rotate 90% and move m and rotate 90% back
-                if theta > 0:
-                    self.motor.publish("r%df%dr270" % (int(theta), int(m*10)))
-                else:
-                    self.motor.publish("r%df%dr90" % (int(theta), int(m*10)))
-            """
+
+        if ret_back:
+            print "back"
+            height = -self.get_height(img, corners_back, "small")
+            center = self.get_center(corners_back)
+            distance = self.get_distance(gray, height, "back")
+            angle = self.get_angle(center)
+            print height, center, distance, angle
+
+        if ret or ret_back:
+            self.change_state.publish("Base Station Found")
             self.motor.publish("flush")
             self.motor.publish("rover")
             threshold = math.asin(.5/distance)
@@ -162,16 +149,24 @@ class FindStart():
                 self.motor.publish("r10")
         return False
 
-    def get_height(self, img,  grid):
+    def get_height(self, img,  grid, size="large"):
+        if size == "large":
+            dim = self.dim
+        else:
+            dim = self.dim_small
+            
         start = grid[0][0][1]
-        end = grid[-self.dim[0]][0][1]
-        cv2.line(img, tuple(grid[0][0]), tuple(grid[-self.dim[0]][0]), (255, 0, 0))
+        end = grid[-dim[0]][0][1]
+        cv2.line(img, tuple(grid[0][0]), tuple(grid[-dim[0]][0]), (255, 0, 0))
         return end-start
 
-    def get_distance(self, img, height):
+    def get_distance(self, img, height, dim="large"):
         self.focal = (0.5 * img.shape[1] / math.tan(0.5 * 65 * math.pi / 180))*(4.2/1000.0);
         if self.focal is not None:
-            return (self.focal*(self.square*6)*img.shape[1])/(height*self.cam_height)
+            if dim == "large":
+                return (self.focal*(self.square*(self.dim[0]-2))*img.shape[1])/(height*self.cam_height)
+            else:
+                return (self.focal*(self.square*(self.dim_small[0]-2))*img.shape[1])/(height*self.cam_height)	
         return -1
 
     def get_skew(self, img, grid):
@@ -211,8 +206,11 @@ class FindStart():
 
         return math.degrees(math.asin(delta_lr/(self.square*7)))"""
 
-    def get_center(self, grid):
-        return grid[-self.dim[0]/2][0][0]
+    def get_center(self, grid, side="front"):
+        if side == "front":
+            return grid[-self.dim[0]/2][0][0]
+        else:
+            return grid[-self.dim_back[0]/2][0][0]
 
     def get_angle(self, center):
         return (center*self.app)-30

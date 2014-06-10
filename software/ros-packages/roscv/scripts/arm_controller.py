@@ -146,7 +146,7 @@ class RosController(object):
     def __init__(self, arm_status, commands_from):
         self.pub = rospy.Publisher(arm_status, String)
         self.a = Arm()
-        self.pub_item = rospy.Publisher(item_grip, String)
+        self.pub_item = rospy.Publisher("item_grip", String)
         rospy.Subscriber('arm_commands', String, self.read_commands)
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)
         self.status_thread = threading.Thread(target=self.arm_status)
@@ -231,12 +231,6 @@ class RosController(object):
         self.a.is_maintain = False
         self.a.send_packet()
         self.a.is_maintain = True
-
-        x,y,z=0,0,0
-        baseXYZ,lowerActXYZ,upperActXYZ = convertXYZ(x,y,z)
-
-        self.change(baseXYZ, lowerActXYZ, upperActXYZ)
-
 
     def arm_status(self):
         while True:

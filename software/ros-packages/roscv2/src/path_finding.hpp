@@ -19,7 +19,7 @@
 #define THRESH_GROWTH (0.2f)
 #define THRESH (0.5f)
 
-#define HALF_ANGLE (7.5f)
+#define HALF_ANGLE (45.0f)
 
 #define FORWARD (0)
 #define LEFT (1)

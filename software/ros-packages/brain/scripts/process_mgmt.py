@@ -11,8 +11,10 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
+ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender" )
 ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
 BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
+REMOTE_CONTROL_ORDER = ("camera", "stereo", "motor", "socket2ros", "better_sender")
 
 PROCESS_ARGS = {
 "camera" : (['roslaunch', 'roscv', 'startCam.launch'],),
@@ -24,12 +26,15 @@ PROCESS_ARGS = {
 "obstacle": (['rosrun', 'roscv2', 'obstacle_detect'],),
 "pathfinding": (['rosrun', 'roscv2', 'path_finding'],),
 "find_base": (['rosrun', 'roscv', 'find_base_station.py'],),
-"localization": (['rosrun', 'brain', 'local.py'],)
+"localization": (['rosrun', 'brain', 'local.py'],),
+"socket2ros": (['rosrun', 'roscv', 'socket2ros.py'],),
+"better_sender": (['rosrun', 'roscv', 'better_sender.py'],)
 }
 
 PROC_GROUPS = {
 "all" : ALL_PROCESS_ORDER,
-"board" : BOARD_PROCESS_ORDER
+"board" : BOARD_PROCESS_ORDER,
+"remote_control" : REMOTE_CONTROL_ORDER
 }
 
 DEVNULL = open(os.devnull, 'wb')
@@ -40,14 +45,14 @@ class ProcessManager:
 			rospy.loginfo("Caught shutdown signal")
 			if not self.stopping:
 				self.stopping = True
-				self.stop_procs(ALL_PROCESS_ORDER)
+				self.stop_procs(ALL_PROCESSES)
 				sys.exit(0)
 			else:
 				rospy.loginfo("Already stopping!")
 
 		self.processes = {}
 		self.stopping = False
-		for p in ALL_PROCESS_ORDER:
+		for p in ALL_PROCESSES:
 			args = PROCESS_ARGS[p][0]
 			self.processes[p] = Process(args, p)
 
@@ -80,7 +85,10 @@ class ProcessManager:
 			if arg == "all":
 				self.health_check()
 			else:
-				self.is_running(arg)
+				if self.is_running(arg):
+					print arg, "is running"
+				else:
+					print arg, "is not running"
 
 	def start_procs(self, procs):
 		for p in procs:
@@ -136,7 +144,7 @@ class Process:
 	def start(self):
 		if not self.running():
 			rospy.loginfo("Starting process %s" % self.name)
-			self.proc = Popen(self.args, stdout=DEVNULL, stdin=DEVNULL, stderr=DEVNULL)
+			self.proc = Popen(self.args)
 		else:
 			rospy.loginfo("Process %s already started" % self.name)
 
