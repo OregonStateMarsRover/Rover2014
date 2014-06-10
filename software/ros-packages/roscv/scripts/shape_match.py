@@ -306,6 +306,7 @@ class RosDetect():
             self.state = "searching"
         self.motor.publish("left20right20") 
         self.motor.publish("rover")
+        self.state_change.publish("Object Retrieved")
 
 if __name__ == "__main__":
     if USE_ROS:
