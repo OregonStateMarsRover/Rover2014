@@ -13,7 +13,7 @@ from subprocess import Popen, PIPE
 
 ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender" )
 ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
-STARTUP_PROCESS_ORDER = ("camera", "stereo", "motor")
+STARTUP_PROCESS_ORDER = ("sleep15", "camera", "stereo", "motor")
 BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
 REMOTE_CONTROL_ORDER = ("camera", "stereo", "motor", "socket2ros", "better_sender")
 
@@ -105,9 +105,12 @@ class ProcessManager:
 
 	def start_process(self, name):
 		if name[0:5] == "sleep":
-			t = int(name[6:])
+			try:
+				t = int(name[5:])
+			except:
+				t = 0
+			#print name, "SLEEPING FOR", t
 			time.sleep(t)
-			print name, "SLEEPING FOR ", t
 		if name in self.processes:
 			self.processes[name].start()
 		else:
