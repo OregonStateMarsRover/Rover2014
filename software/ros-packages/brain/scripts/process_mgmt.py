@@ -30,7 +30,7 @@ PROCESS_ARGS = {
 "find_base": (['rosrun', 'roscv', 'find_base_station.py'],),
 "localization": (['rosrun', 'brain', 'local.py'],),
 "socket2ros": (['rosrun', 'roscv', 'socket2ros.py'],),
-"better_sender": (['rosrun', 'roscv', 'better_sender.py'],)
+"better_sender": (['rosrun', 'roscv', 'better_sender.py'],),
 "search_pattern": (['rosrun', 'roscv', 'search_patten.py'],)
 }
 
