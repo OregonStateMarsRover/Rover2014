@@ -175,7 +175,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x112
+.text           0x00000000      0x114
  *(.vectors)
  .vectors       0x00000000       0x1e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/crttn85.o
                 0x00000000                __vector_default
@@ -251,16 +251,16 @@ END GROUP
  .text._Z12ButtonPushedv
                 0x00000056        0x8 PauseSwitch.o
                 0x00000056                _Z12ButtonPushedv
- .text.main     0x0000005e       0x50 PauseSwitch.o
+ .text.main     0x0000005e       0x52 PauseSwitch.o
                 0x0000005e                main
  .text.__vector_10
-                0x000000ae       0x60 PauseSwitch.o
-                0x000000ae                __vector_10
-                0x0000010e                . = ALIGN (0x2)
+                0x000000b0       0x60 PauseSwitch.o
+                0x000000b0                __vector_10
+                0x00000110                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000010e        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25\libgcc.a(_exit.o)
-                0x0000010e                _exit
-                0x0000010e                exit
+ .fini9         0x00000110        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25\libgcc.a(_exit.o)
+                0x00000110                _exit
+                0x00000110                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -279,11 +279,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000010e        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25\libgcc.a(_exit.o)
+ .fini0         0x00000110        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25\libgcc.a(_exit.o)
  *(.fini0)
-                0x00000112                _etext = .
+                0x00000114                _etext = .
 
-.data           0x00800060        0x2 load address 0x00000112
+.data           0x00800060        0x2 load address 0x00000114
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800060        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/crttn85.o
@@ -292,38 +292,37 @@ END GROUP
  .data          0x00800060        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25\libgcc.a(_copy_data.o)
  .data          0x00800060        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1051/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25\libgcc.a(_clear_bss.o)
  *(.data*)
- .data.LEDState
+ .data.RoverState
                 0x00800060        0x1 PauseSwitch.o
-                0x00800060                LEDState
+                0x00800060                RoverState
+ .data.LEDState
+                0x00800061        0x1 PauseSwitch.o
+                0x00800061                LEDState
  *(.rodata)
  *(.rodata*)
  *(.gnu.linkonce.d*)
                 0x00800062                . = ALIGN (0x2)
- *fill*         0x00800061        0x1 
                 0x00800062                _edata = .
                 0x00800062                PROVIDE (__data_end, .)
 
-.bss            0x00800062        0x2
+.bss            0x00800062        0x1
                 0x00800062                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.RoverState
-                0x00800062        0x1 PauseSwitch.o
-                0x00800062                RoverState
  .bss.InterruptCounter
-                0x00800063        0x1 PauseSwitch.o
-                0x00800063                InterruptCounter
+                0x00800062        0x1 PauseSwitch.o
+                0x00800062                InterruptCounter
  *(COMMON)
-                0x00800064                PROVIDE (__bss_end, .)
-                0x00000112                __data_load_start = LOADADDR (.data)
-                0x00000114                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00800063                PROVIDE (__bss_end, .)
+                0x00000114                __data_load_start = LOADADDR (.data)
+                0x00000116                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x00800064        0x0
-                0x00800064                PROVIDE (__noinit_start, .)
+.noinit         0x00800063        0x0
+                0x00800063                PROVIDE (__noinit_start, .)
  *(.noinit*)
-                0x00800064                PROVIDE (__noinit_end, .)
-                0x00800064                _end = .
-                0x00800064                PROVIDE (__heap_start, .)
+                0x00800063                PROVIDE (__noinit_end, .)
+                0x00800063                _end = .
+                0x00800063                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
  *(.eeprom*)
@@ -398,9 +397,9 @@ END GROUP
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x141 PauseSwitch.o
 
-.debug_line     0x00000000      0x177
+.debug_line     0x00000000      0x178
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x00000000      0x177 PauseSwitch.o
+ .debug_line    0x00000000      0x178 PauseSwitch.o
 
 .debug_frame    0x00000000       0x54
  *(.debug_frame)
