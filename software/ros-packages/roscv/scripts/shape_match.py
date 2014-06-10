@@ -16,7 +16,7 @@ try:
 except ImportError:
     USE_ROS = False
 
-GUI = True
+GUI = False
 """
 " See the comments in the color filter code since it is exactly the same code
 """

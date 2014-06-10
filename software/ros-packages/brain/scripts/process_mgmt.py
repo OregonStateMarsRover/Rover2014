@@ -11,9 +11,9 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
-ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "arm_camera", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender", "search_pattern" )
+ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "arm_camera", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender", "search_pattern", "shape_match" )
 ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
-STARTUP_PROCESS_ORDER = ("camera", "stereo", "arm_camera", "motor", "arm", "sleep20", "pathfinding", "obstacle", "find_base", "sleep5", "search_pattern", "shape_match", "arm_state", "rover_state")
+STARTUP_PROCESS_ORDER = ("camera", "stereo", "arm_camera", "motor", "arm", "sleep20", "pathfinding", "obstacle", "find_base", "sleep5", "search_pattern", "arm_state", "rover_state", "sleep30", "shape_match")
 BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
 REMOTE_CONTROL_ORDER = ("camera", "stereo", "motor", "socket2ros", "better_sender")
 
@@ -31,7 +31,8 @@ PROCESS_ARGS = {
 "localization": (['rosrun', 'brain', 'local.py'],),
 "socket2ros": (['rosrun', 'roscv', 'socket2ros.py'],),
 "better_sender": (['rosrun', 'roscv', 'better_sender.py'],),
-"search_pattern": (['rosrun', 'roscv', 'search_patten.py'],)
+"search_pattern": (['rosrun', 'roscv', 'search_patten.py'],),
+"shape_match": (['rosrun', 'roscv', 'shape_match.py'],)
 }
 
 PROC_GROUPS = {

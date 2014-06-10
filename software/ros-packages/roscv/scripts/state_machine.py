@@ -11,10 +11,10 @@ class StateMachine(object):
         self.prevState = None
         self.objectPickedup = False
         rospy.Subscriber("state_change_request", String, self.state_callback)
-        rospy.Subscriber("/motor_command/path_finding/", String, self.motor_callback)
-        rospy.Subscriber("/motor_command/find_base_station/", String, self.motor_callback)
-        rospy.Subscriber("/motor_command/object_detection/", String, self.motor_callback)
-        rospy.Subscriber("/motor_command/search_pattern/", String, self.motor_callback)
+        rospy.Subscriber("/motor_command/path_finding/", String, self.path_motor_callback)
+        rospy.Subscriber("/motor_command/find_base_station/", String, self.base_motor_callback)
+        rospy.Subscriber("/motor_command/object_detection/", String, self.object_motor_callback)
+        rospy.Subscriber("/motor_command/search_pattern/", String, self.search_motor_callback)
         self.motor_pub = rospy.Publisher("motor_command", String)
         self.state_pub = rospy.Publisher("state", String)
         self.state_thread = threading.Thread(target = self.print_state)
@@ -32,15 +32,17 @@ class StateMachine(object):
             self.motor_pub.publish(data.data)
 
     def object_motor_callback(self, data):
-        if self.state == "MoveTowardObject":
+        if self.state == "MoveTowardObject" or self.state == "PickingupObject":
             self.motor_pub.publish(data.data)
 
     def search_motor_callback(self, data):
-        if self.state == "SearchPattern":
+        if self.state == "SearchPattern" or self.state == "FindHome":
             self.motor_pub.publish(data.data)
+
     def base_motor_callback(self, data):
-        if self.state == "FindBaseStation":
+        if self.state == "FindBaseStation" or self.state == "FindBaseStationFinal":
             self.motor_pub.publish(data.data)
+    
     def motor_callback(self, data):
         if 'topic' in data._connection_header:
             topic = data._connection_header['topic']
