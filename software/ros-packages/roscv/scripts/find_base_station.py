@@ -39,8 +39,8 @@ class FindStart():
         self.cam_height = .25
         #the width and height of the square
         self.square = .095
-        self.dim = (8, 7)
-        self.dim_small = (7, 6)
+        self.dim = (4, 3)
+        self.dim_small = (3, 2)
         self.started = 1
         self.image_id = 0
         self.image_read = 0
