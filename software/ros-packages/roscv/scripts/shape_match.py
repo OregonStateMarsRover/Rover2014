@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import os
 import numpy as np
 import cv2
 import time
@@ -130,7 +131,7 @@ def get_skel(img):
 
 
 def match_object(img, hook_skel, puck_skel):
-    lower = np.array([0, 0, 200], dtype=np.uint8)
+    lower = np.array([235, 0, 200], dtype=np.uint8)
     upper = np.array([255, 255, 255], dtype=np.uint8)
     skel = cv2.inRange(img.copy(), lower, upper)
     skel_height = skel.shape[0]/2
@@ -200,6 +201,8 @@ def test_matching(hook_skel, puck_skel, lower_bound, upper_bound, test_count):
 def skel_templates():
     img = cv2.imread('test_images/image002.png')
     base = "/home/rover/ros/rover_ws/src/roscv/scripts/"
+    base = os.path.dirname(os.path.realpath(__file__)) + "/"
+    print base
     template = [cv2.imread(base + 'test_images/template/hockey/template1.png'),
                 cv2.imread(base + 'test_images/template/hockey/template2.png'),
                 cv2.imread(base + 'test_images/template/hockey/template3.png'),
