@@ -183,5 +183,5 @@ class Process:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	#proc.start_procs(STARTUP_PROCESS_ORDER)
+	proc.start_procs(STARTUP_PROCESS_ORDER)
 	rospy.spin()
