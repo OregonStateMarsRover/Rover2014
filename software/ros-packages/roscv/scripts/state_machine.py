@@ -27,12 +27,24 @@ class StateMachine(object):
         while True:
             self.state_pub.publish(self.state)
             rospy.sleep(.25)
+    def path_motor_callback(self,data):
+        if self.state == "AvoidObstacle":
+            self.motor_pub.publish(data.data)
 
+    def object_motor_callback(self, data):
+        if self.state == "MoveTowardObject":
+            self.motor_pub.publish(data.data)
+
+    def search_motor_callback(self, data):
+        if self.state == "SearchPattern":
+            self.motor_pub.publish(data.data)
+    def base_motor_callback(self, data):
+        if self.state == "FindBaseStation":
+            self.motor_pub.publish(data.data)
     def motor_callback(self, data):
         if 'topic' in data._connection_header:
             topic = data._connection_header['topic']
         else:
-            print topic
             if '/path_finding' in data._connection_header['callerid']:
                 topic = '/motor_command/path_finding'
             elif '/search_pattern' in data._connection_header['callerid']:
@@ -40,9 +52,9 @@ class StateMachine(object):
             elif '/path_finding' in data._connection_header['callerid']:
                 topic = '/motor_command/search_pattern'
             else:
-                print "ERROR:::", data._connection_header['callerid']:
+                print "ERROR:::", data._connection_header['callerid']
 
-        topicStates = {'/motor_command/path_finding' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] , '/motor_command/search_pattern' : ['SearchPattern', 'FindHome']}
+        topicStates = {'/motor_command/path_finding' : ['SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] , '/motor_command/search_pattern' : ['SearchPattern', 'FindHome']}
         print "topic is: ", topic
         print "topic states: ", topicStates
         for state in topicStates[topic]:
