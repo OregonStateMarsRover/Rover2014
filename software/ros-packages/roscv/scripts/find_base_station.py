@@ -146,25 +146,8 @@ class FindStart():
                 pass
 	
 	if ret_back:
-	    self.motor.publish("r45") 
 	    distance *= 2
-	    threshold = math.asin(.5/distance)
-            distance -= 10
-            if distance > 20:
-                distance = int(distance*(3.0/4))
-            else:
-                self.change_state.publish("Base Station Found Final")
-            if -threshold < angle < threshold:
-                print "Moving forward", distance, "angle was", angle
-                self.motor.publish("f%d" % (int(distance)))
-            else:
-                if angle < 0:
-                    angle = 360+angle
-                print "Rotating", angle, "and moving forward", distance
-                self.motor.publish("r%df%d" % (int(angle), int(distance)))
-                print distance, angle, threshold
-                self.searching = True
-                self.searh_turn = False
+	    self.motor.publish("r45f%dr45%d", distance, distance) 
             while rospy.wait_for_message("/motor_status", std_msgs.msg.String).data == "busy":
                 pass
 
