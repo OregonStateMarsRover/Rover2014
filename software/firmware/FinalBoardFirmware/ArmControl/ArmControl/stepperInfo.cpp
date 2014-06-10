@@ -63,7 +63,10 @@ void stepperInfo::processCommand(int cmd){
 		MD1_DIR_CLR();
 		
 	if(!init){
-		for(int i = 0; i < 5000; ++i){
+		for(int i = 0; i < 15000; ++i){
+			
+			while(!CHECK_ISROVING());  //e-stop check
+
 			MD1_STEP_SET();
 			_delay_us(50);
 			MD1_STEP_CLR();
@@ -75,13 +78,24 @@ void stepperInfo::processCommand(int cmd){
 	}
 	
 	//MOVE UNTIL LIMIT OR GRIP
-	while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
-		MD1_STEP_SET();
-		_delay_us(20);
-		MD1_STEP_CLR();
-		_delay_us(40);
-	}
-	
+	if(cmd == GRIP){
+		while(!CHECK_GRIP_LIMIT() && !CHECK_GRIP_CLOSE()){
+			while(!CHECK_ISROVING());  //e-stop check
+			MD1_STEP_SET();
+			_delay_us(20);
+			MD1_STEP_CLR();
+			_delay_us(40);
+		}
+		
+	}else if(cmd == RELEASE){
+		while(!CHECK_GRIP_LIMIT()){
+			while(!CHECK_ISROVING());  //e-stop check
+			MD1_STEP_SET();
+			_delay_us(20);
+			MD1_STEP_CLR();
+			_delay_us(40);
+		}	
+	}	
 	enabled = 0;
 	
 }

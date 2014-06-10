@@ -25,7 +25,7 @@ extern "C" {
 
 // default constructor
 rotateStepper::rotateStepper() {
-	calSpan = 258.34; //TODO: Set to actual value
+	calSpan = 255; //TODO: Set to actual value
 	multiplier = -1; //Invalid (not set) state
 	
 	currentAngle = 0; //It will have its reference based off of the 2nd limit switch,
@@ -40,7 +40,7 @@ rotateStepper::~rotateStepper()
 void rotateStepper::rotateBase(int desiredAngle){
 	//NEED INPUT CHEKCING
 	
-	int zeroedAngle = desiredAngle + 34.02;
+	int zeroedAngle = desiredAngle + 36.09;
 	
 	moveBase(zeroedAngle - currentAngle);
 	currentAngle = currentAngle + (zeroedAngle - currentAngle);
@@ -51,6 +51,7 @@ void rotateStepper::rotateBase(int desiredAngle){
 void rotateStepper::calibrateBase(){
 	bool calInProgress = true;
 	bool calFirstPress = false;
+
 	//bool calSecondPress = false;
 	
 	int calButtonState;
@@ -60,12 +61,14 @@ void rotateStepper::calibrateBase(){
 	MD2_DIR_CLR(); //Set arm to turn counter-clockwise
 	
 	while (calInProgress){
+		while(!CHECK_ISROVING());
 		calButtonState = CHECK_CAL();
 
 		if(calButtonState && !calFirstPress){
+			
 			calFirstPress = true;
 			MD2_DIR_SET();  //Sets arm to clockwise
-			_delay_ms(100);  //For gracefulness
+			_delay_ms(1200);  //For gracefulness
 		}
 		
 		if(calFirstPress == true)
@@ -76,12 +79,14 @@ void rotateStepper::calibrateBase(){
 		}
 		
 		MD2_STEP_CLR();
-		_delay_us(800);
+		_delay_us(600);
 		MD2_STEP_SET();
-		_delay_us(800);	
+		_delay_us(600);	
 		
 	}	
+	currentAngle = 0;
 	multiplier = stepCount / calSpan;
+	_delay_ms(1200);  //For gracefulness
 }
 
 
@@ -98,10 +103,12 @@ void rotateStepper::moveBase(int degreesToMove){
 	int stepsToMove = abs(degreesToMove) * multiplier;
 	
 	for(int i = 0; i < stepsToMove; ++i){
+		while(!CHECK_ISROVING());  //e-stop check
+		
 		MD2_STEP_CLR();
-		_delay_us(600);
+		_delay_us(400);
 		MD2_STEP_SET();
-		_delay_us(900);
+		_delay_us(500);
 	}
 	
 }

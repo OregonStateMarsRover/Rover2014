@@ -6,6 +6,8 @@ adc.cpp
 
 ArmControl.cpp
 
+Misc.cpp
+
 motorInfo.cpp
 
 rotateStepper.cpp

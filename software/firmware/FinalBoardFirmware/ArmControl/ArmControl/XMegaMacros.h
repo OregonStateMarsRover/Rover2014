@@ -62,6 +62,9 @@
 #define CHECK_GRIP_LIMIT(void) (PORTB.IN & PIN3_bm)     //Returns true if a limit switch has been pressed
 #define CHECK_CAL(void) (PORTA.IN & PIN2_bm)            //Returns true if cal limit switch has been pressed
 
+#define CHECK_ISROVING(void) (PORTA.IN & PIN4_bm)		//Returns true if rover's status is 'roving
+														//Implied to be false during e-stop condition
+
 
 //#define BASE_ROT_LIMIT
 

@@ -38,6 +38,7 @@ SUBDIRS :=
 C_SRCS +=  \
 ../adc.cpp \
 ../ArmControl.cpp \
+../Misc.cpp \
 ../motorInfo.cpp \
 ../rotateStepper.cpp \
 ../Sabertooth.cpp \
@@ -54,6 +55,7 @@ ASM_SRCS +=
 OBJS +=  \
 adc.o \
 ArmControl.o \
+Misc.o \
 motorInfo.o \
 rotateStepper.o \
 Sabertooth.o \
@@ -63,6 +65,7 @@ usart_driver.o
 OBJS_AS_ARGS +=  \
 adc.o \
 ArmControl.o \
+Misc.o \
 motorInfo.o \
 rotateStepper.o \
 Sabertooth.o \
@@ -72,6 +75,7 @@ usart_driver.o
 C_DEPS +=  \
 adc.d \
 ArmControl.d \
+Misc.d \
 motorInfo.d \
 rotateStepper.d \
 Sabertooth.d \
@@ -81,6 +85,7 @@ usart_driver.d
 C_DEPS_AS_ARGS +=  \
 adc.d \
 ArmControl.d \
+Misc.d \
 motorInfo.d \
 rotateStepper.d \
 Sabertooth.d \
@@ -98,6 +103,8 @@ OUTPUT_FILE_DEP:= ./makedep.mk
 LIB_DEP+= 
 
 # AVR32/GNU C Compiler
+
+
 
 
 
