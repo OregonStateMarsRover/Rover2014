@@ -11,9 +11,9 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
-ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender" )
+ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "arm_camera", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender", "search_pattern" )
 ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
-STARTUP_PROCESS_ORDER = ("sleep15", "camera", "stereo", "motor")
+STARTUP_PROCESS_ORDER = ("camera", "stereo", "arm_camera", "motor", "arm", "sleep20", "pathfinding", "obstacle", "find_base", "sleep5", "search_pattern", "arm_state", "rover_state")
 BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
 REMOTE_CONTROL_ORDER = ("camera", "stereo", "motor", "socket2ros", "better_sender")
 
@@ -21,6 +21,7 @@ PROCESS_ARGS = {
 "camera" : (['roslaunch', 'roscv', 'startCam.launch'],),
 "stereo": (['roslaunch', 'roscv', 'startStereo.launch'],),
 "motor": (['rosrun', 'roscv', 'rmotors.py'],),
+"arm_camera": (['roslaunch', 'roscv', 'startArmCamera.launch'],),
 "arm": (['rosrun', 'roscv', 'arm_controller.py'],),
 "arm_state": (['rosrun', 'roscv', 'ArmStates.py'],),
 "rover_state": (['rosrun', 'roscv', 'state_machine.py'],),
@@ -29,7 +30,8 @@ PROCESS_ARGS = {
 "find_base": (['rosrun', 'roscv', 'find_base_station.py'],),
 "localization": (['rosrun', 'brain', 'local.py'],),
 "socket2ros": (['rosrun', 'roscv', 'socket2ros.py'],),
-"better_sender": (['rosrun', 'roscv', 'better_sender.py'],)
+"better_sender": (['rosrun', 'roscv', 'better_sender.py'],),
+"search_pattern": (['rosrun', 'roscv', 'search_patten.py'],)
 }
 
 PROC_GROUPS = {
@@ -179,5 +181,5 @@ class Process:
 if __name__=="__main__":
 	rospy.init_node("process_manage")
 	proc = ProcessManager()
-	proc.start_procs(STARTUP_PROCESS_ORDER)
+	#proc.start_procs(STARTUP_PROCESS_ORDER)
 	rospy.spin()
