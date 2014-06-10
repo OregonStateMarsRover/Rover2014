@@ -14,7 +14,7 @@ class StateMachine(object):
         rospy.Subscriber("/motor_command/path_finding/", String, self.motor_callback)
         rospy.Subscriber("/motor_command/find_base_station/", String, self.motor_callback)
         rospy.Subscriber("/motor_command/object_detection/", String, self.motor_callback)
-        rospy.Subscriber("/motor_command/search_pattern/". String, self.motor_callback)
+        rospy.Subscriber("/motor_command/search_pattern/", String, self.motor_callback)
         self.motor_pub = rospy.Publisher("motor_command", String)
         self.state_pub = rospy.Publisher("state", String)
         self.state_thread = threading.Thread(target = self.print_state)
@@ -35,7 +35,7 @@ class StateMachine(object):
             if '/path_finding' in data._connection_header['callerid']:
                 topic = '/motor_command/path_finding'
 
-        topicStates = {'/motor_command/path_finding' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] }
+		topicStates = {'/motor_command/path_finding' : ['AvoidObstacle','SearchPattern'], '/motor_command/find_base_station': ['FindBaseStation','FindBaseStationFinal'], '/motor_command/object_detection' : ['MoveTowardObject'] , '/motor_command/search_pattern' : ['SearchPattern', 'FindHome']}
         print "topic is: ", topic
 
         for state in topicStates[topic]:
@@ -94,7 +94,7 @@ class StateMachine(object):
                 print "Ignoring state change request %s becuase in state MoveTowardObject" % data.data
 
         elif self.state == "FindHome":
-             if data.data == "Object Found" and not(self.objectPickedup):
+            if data.data == "Object Found" and not(self.objectPickedup):
                    print "Changing from FindingObject to MoveTowardObject"
                    self.prevState = self.state
                    self.state = "MoveTowardObject"
