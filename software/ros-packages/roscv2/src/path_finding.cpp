@@ -127,7 +127,7 @@ void grid_callback(const roscv2::Grid& msg) {
 		std::map<int, float> scores;
 		score_directions(grid, scores);
 
-        if (g_has_goal == ANY_GOAL) {
+        if (g_has_goal == ANY_GOAL || 1) { //GROSS
 			move_forward(direct_blocked, scores);
         } else if (g_has_goal == HAS_GOAL) {
             if (std::abs(g_angle) <= HALF_ANGLE) {
@@ -139,13 +139,6 @@ void grid_callback(const roscv2::Grid& msg) {
             //Nothin'
             ROS_INFO("No goal-- nothin'");
         }
-
-        if (g_has_goal == NO_GOAL) {
-        } else if (g_has_goal == ANY_GOAL || std::abs(g_angle) < HALF_ANGLE) {
-			move_forward(direct_blocked, scores);
-		} else {
-			move_goal(goal_blocked, direct_blocked, g_angle, scores);
-		} 
 		//print_scores(scores);
         blocked_pub.publish(blocked_msg);
 	}
