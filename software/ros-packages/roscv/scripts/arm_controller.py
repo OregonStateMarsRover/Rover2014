@@ -80,7 +80,7 @@ class Arm(object):
         self.lowerAct2 = 95
         self.upperAct1 = 250
         self.upperAct2 = 0
-        self.ready = True
+        self.ready = False 
         self.stopped = False
         self.item_grip = False
         self.serial = SerialHandler()
@@ -91,6 +91,7 @@ class Arm(object):
         self.serial.flushInput()
         time.sleep(2)
         open(os.devnull, 'w')
+	self.ready = True
 
     def maintain(self, event=None):
         if self.is_maintain:
