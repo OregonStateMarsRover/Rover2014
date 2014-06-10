@@ -91,8 +91,7 @@ class Motor(object):
         self.estop = e
 
     def send_packet(self):
-        #print self.left, self.left_speed
-        #print self.right, self.right_speed
+
         if self.left == None or self.right == None:
                 return
         if self.right_speed != self.right:
@@ -114,6 +113,10 @@ class Motor(object):
             else:
                     self.left_speed = self.left
                     self.ramp_rate = 1
+
+        if self.left_speed != 127 or self.right_speed != 127:
+            print "L", self.left, self.left_speed
+            print "R", self.right, self.right_speed
         self.serial.write(chr(255))
         self.serial.write(chr(self.estop))
         self.serial.write(chr(self.left_speed))
@@ -193,6 +196,7 @@ class RosController(object):
                     o_right = self.meters_to_char(amt/10.0)
                 elif command_list[i] == "rover":
                     self.mode = "rover"
+            #print "C", o_left, o_right
             self.m.change(o_left, o_right, 0)
 
         if command_list[0] == "rover":
@@ -289,6 +293,7 @@ class MotorController(RosController):
 
 class MotorStopperTimer(threading.Thread):
     def __init__(self, update, unset, duration, distance, pub_ticks, movement="f"):
+        print "TIMER"
         threading.Thread.__init__(self)
         self.update = update
         self.unset = unset

@@ -24,7 +24,7 @@ ArmControl.d ArmControl.o: .././ArmControl.cpp \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\pgmspace.h \
  .././usart_driver.h .././Sabertooth.h .././XMegaMacros.h .././adc.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\ctype.h \
- .././motorInfo.h .././stepperInfo.h .././rotateStepper.h
+ .././motorInfo.h .././stepperInfo.h .././rotateStepper.h .././Misc.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-gnu-toolchain\avr\include\avr\io.h:
 
@@ -87,3 +87,5 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1051\avr8-g
 .././stepperInfo.h:
 
 .././rotateStepper.h:
+
+.././Misc.h:

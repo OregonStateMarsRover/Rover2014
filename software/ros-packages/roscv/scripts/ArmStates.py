@@ -24,7 +24,7 @@ class ArmState(object):
         self.status = rospy.Publisher("/arm_state", std_msgs.msg.String)
         self.arm_state = rospy.Subscriber("/arm_state_change", std_msgs.msg.String, self.get_object)
         self.thread = threading.Thread(target=self.status)
-        self.move(self.cal())
+        #self.move(self.cal())
         self.change_state("docked")
 
     def change_state(self, state):
@@ -52,13 +52,13 @@ class ArmState(object):
         print "ending wait"
 
     def docked(self):
-        position = [(8, 92, 350, 300),
-                    (0, 92, 350, 300),
-                    (0, 92, 260, 300),
-                    (0, 92, 220, 220)]
-        back = [(0, 92, 260, 300),
-                (0, 92, 320, 250),
-                (8, 0, 350, 300)]
+        position = [(8, 90, 350, 240),
+                    (0, 90, 350, 240),
+                    (0, 90, 260, 300),
+                    (0, 90, 220, 220)]
+        back = [(0, 90, 260, 300),
+                (0, 90, 350, 240),
+                (8, 0, 350, 240)]
         return {"to": position, "from": back}
 
     def move_home(self):
@@ -74,7 +74,7 @@ class ArmState(object):
     def store(self):
         place = self.item_count
         #position will be a list lists where each list is the instructions to get to the next pocket
-        position = [[(10, 0, 350, 300), (0, 183, 275, 330)],
+        position = [[(10, 0, 350, 300), (0, 180, 285, 280)],
                     [(10, 0, 350, 300), (0, 154, 240, 340)]]
         #return will lift then rotate to home
         back = [(8, 0, 350, 300)]

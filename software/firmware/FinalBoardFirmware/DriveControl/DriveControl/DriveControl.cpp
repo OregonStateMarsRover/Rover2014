@@ -88,7 +88,7 @@ int main(void)
 				if(USART_RXBufferData_Available(&USART_PC_Data)){
 					if(USART_RXBuffer_GetByte(&USART_PC_Data) == 'r'){
 						XMegaState = Driving;
-						DriveSaber.ResetSaber();
+						//DriveSaber.ResetSaber();
 						FlushSerialBuffer(&USART_PC_Data);
 						USART_PutChar(&USARTC0, 'r');
 					}
