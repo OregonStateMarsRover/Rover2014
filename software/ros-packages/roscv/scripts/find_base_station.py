@@ -38,9 +38,10 @@ class FindStart():
         #the height of the camera off the ground
         self.cam_height = .25
         #the width and height of the square
-        self.square = .1778
+        self.square_back = .095
+        self.square = 0.1778
         self.dim = (4, 3)
-        self.dim_small = (4, 3)
+        self.dim_small = (8, 7)
         self.started = 1
         self.image_id = 0
         self.image_read = 0
@@ -116,7 +117,9 @@ class FindStart():
             self.change_state.publish("Base Station Found")
             self.motor.publish("flush")
             self.motor.publish("rover")
-            threshold = math.asin(.5/distance)
+	
+	if ret:
+	    threshold = math.asin(.5/distance)
             distance -= 10
             if distance > 20:
                 distance = int(distance*(3.0/4))
@@ -141,6 +144,13 @@ class FindStart():
                 self.searh_turn = False
             while rospy.wait_for_message("/motor_status", std_msgs.msg.String).data == "busy":
                 pass
+	
+	if ret_back:
+	    distance *= 2
+	    self.motor.publish("r45f%dr45%d", distance, distance) 
+            while rospy.wait_for_message("/motor_status", std_msgs.msg.String).data == "busy":
+                pass
+
         elif self.searching:
             if not self.search_turn:
                 self.motor.publish("r315")
@@ -166,7 +176,7 @@ class FindStart():
             if dim == "large":
                 return (self.focal*(self.square*(self.dim[0]-2))*img.shape[1])/(height*self.cam_height)
             else:
-                return (self.focal*(self.square*(self.dim_small[0]-2))*img.shape[1])/(height*self.cam_height)	
+                return (self.focal*(self.square_back*(self.dim_small[0]-2))*img.shape[1])/(height*self.cam_height)	
         return -1
 
     def get_skew(self, img, grid):
