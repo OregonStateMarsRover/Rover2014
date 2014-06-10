@@ -277,6 +277,7 @@ class RosDetect():
 
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
+        
         self.motor.publish("controller") 
         if rect[0] < 186:
             self.motor.publish("left15right25")
