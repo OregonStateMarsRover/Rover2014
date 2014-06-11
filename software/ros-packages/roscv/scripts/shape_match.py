@@ -16,7 +16,7 @@ try:
 except ImportError:
     USE_ROS = False
 
-GUI = False
+GUI = True
 """
 " See the comments in the color filter code since it is exactly the same code
 """
@@ -293,6 +293,7 @@ class RosDetect():
             self.motor.publish("left22right22")
             time.sleep(.1)
         else:
+            print "picking up"
             self.forward = False
             self.motor.publish("left25right25")
             time.sleep(.25)

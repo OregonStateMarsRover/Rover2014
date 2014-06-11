@@ -34,8 +34,7 @@ class SerialHandler(object):
         self.timeout = timeout
 
     def list_serial_ports(self):
-        for port in list_ports.comports():
-            yield port[0]
+        return ["/dev/ttyUSB1", "/dev/ttyUSB0", "/dev/ttyUSB2", "/dev/ttyUSB3"]
 
     def get_control_port(self, check_string):
         for port in list(self.list_serial_ports()):
@@ -83,20 +82,26 @@ class Arm(object):
         self.ready = False
         self.stopped = False
         self.item_grip = False
-        self.serial = SerialHandler()
-        self.serial.get_control_port("ID: ArmControl")
-        time.sleep(2)
-        self.serial.write('r')
-        time.sleep(.5)
-        self.serial.flushInput()
-        time.sleep(2)
-        open(os.devnull, 'w')
-        self.ready = True
-
+        
     def maintain(self, event=None):
         if self.is_maintain:
             self.send_packet()
 
+    
+    def start(self):
+        while not self.ready:
+            try:
+                self.serial = SerialHandler()
+                self.serial.get_control_port("ID: ArmControl")
+                time.sleep(2)
+                self.serial.write('r')
+                time.sleep(.5)
+                self.serial.flushInput()
+                time.sleep(2)
+                open(os.devnull, 'w')
+                self.ready = True
+            except:
+                pass
 
     def send_packet(self):
         print "Packet: ", self.base1 + self.base2, self.lowerAct1 + self.lowerAct2, self.upperAct1 + self.upperAct2
@@ -146,9 +151,10 @@ class RosController(object):
 
     def __init__(self, arm_status, commands_from):
         self.pub = rospy.Publisher(arm_status, String)
+        self.a = Arm()
         self.status_thread = threading.Thread(target=self.arm_status)
         self.status_thread.start()
-        self.a = Arm()
+        self.a.start() 
         self.pub_item = rospy.Publisher("item_grip", String)
         rospy.Subscriber('arm_commands', String, self.read_commands)
         #rospy.Timer(rospy.Duration(.001), self.a.maintain)

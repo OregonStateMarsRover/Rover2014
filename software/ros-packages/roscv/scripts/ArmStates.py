@@ -19,6 +19,7 @@ class ArmState(object):
     def __init__(self):
         self.states = {"docked": self.docked, "home": self.move_home, "grab": self.grab, "store": self.store}
         self.state = "home"
+        self.movable = True
         self.item_count = 0
         self.arm = rospy.Publisher("arm_commands", std_msgs.msg.String)
         self.status = rospy.Publisher("/arm_state", std_msgs.msg.String)
@@ -32,13 +33,16 @@ class ArmState(object):
             nxt = self.states[state]()
         except KeyError:
             return
-        print "switching from", self.state, "to", state
-        prev = self.states[self.state]()
-        self.move(prev["from"])
-        self.move(nxt["to"])
-        self.state = state
-
+        if self.movable:
+            self.movable = False
+            print "switching from", self.state, "to", state
+            prev = self.states[self.state]()
+            self.move(prev["from"])
+            self.move(nxt["to"])
+            self.state = state
+            self.movable = True
     def move(self, commands):
+        self.movable = False
         for l in commands:
             self.wait_for_arm()
             print "running", l
@@ -54,10 +58,9 @@ class ArmState(object):
     def docked(self):
         position = [(8, 90, 350, 240),
                     (0, 90, 350, 240),
-                    (0, 90, 260, 300),
-                    (0, 90, 220, 220)]
-        back = [(0, 90, 260, 260),
-                (0, 90, 350, 240),
+                    (0, 90, 260, 250),
+                    (0, 90, 220, 200)]
+        back = [(0, 90, 350, 300),
                 (8, 0, 350, 240)]
         return {"to": position, "from": back}
 
