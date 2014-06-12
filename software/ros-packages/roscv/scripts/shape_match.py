@@ -248,7 +248,10 @@ class RosDetect():
         elif self.state == "pickup":
             try:
                 rect = self.detect_objects(image)
-                self.track_to_pickup(image, rect)
+                try:
+                    self.track_to_pickup(image, rect)
+                except TypeError:
+                    self.motor.publish("b10")
             except TypeError:
                 pass
 
@@ -278,7 +281,6 @@ class RosDetect():
 
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
-        
         self.motor.publish("controller") 
         if rect[0] < 176:
             self.motor.publish("left15right25")
@@ -286,13 +288,15 @@ class RosDetect():
         elif rect[0] > 206:
             self.motor.publish("left25right15")
             time.sleep(.1)
-        elif 20 < image.shape[0] - rect[1] > 60:
+        elif 40 < image.shape[0] - rect[1] > 60:
             if not self.forward:
                 self.motor.publish("left25right25")
                 time.sleep(.01)
                 self.forward = True
             self.motor.publish("left22right22")
             time.sleep(.1)
+        elif 40 < image.shape[0] - rect[1]:
+            self.motor.publish("b5")
         else:
             print "picking up"
             self.forward = False
