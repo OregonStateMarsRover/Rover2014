@@ -60,8 +60,8 @@ class ArmState(object):
                     (0, 90, 350, 240),
                     (0, 90, 260, 250),
                     (0, 90, 220, 200)]
-        back = [(0, 90, 350, 300),
-                (8, 0, 350, 240)]
+        back = [(8, 90, 350, 300),
+                (0, 0, 350, 300)]
         return {"to": position, "from": back}
 
     def move_home(self):
@@ -70,7 +70,7 @@ class ArmState(object):
         return {"to": position, "from": back}
 
     def grab(self):
-        position = [(0, 0, 0, 300), (2, 0, 0, 240)]
+        position = [(0, 0, 40, 300), (2, 0, 0, 220)]
         back = [(2, 0, 350, 300)]
         return {"to": position, "from": back}
 

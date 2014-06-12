@@ -133,7 +133,7 @@ def match_object(img, hook_skel, puck_skel):
     lower = np.array([0, 0, 200], dtype=np.uint8)
     upper = np.array([255, 255, 255], dtype=np.uint8)
     skel = cv2.inRange(img.copy(), lower, upper)
-    skel_height = skel.shape[0]/2
+    skel_height = skel.shape[0]/4
     skel = skel[skel_height:, :]
     #skel = get_skel(img)
     #temp_clustering = thick_cluster(temp_skel)
@@ -265,7 +265,8 @@ class RosDetect():
                 return
             draw_bounding_box(image, rect)
             if GUI:
-                cv2.imshow("original", image)
+                cv2.imshow("original", image[image.shape[0]/4:, :])
+                cv2.imshow("original2", image)
                 cv2.waitKey(1)
             if self.state == "searching":
                 print "switching states"
@@ -279,13 +280,13 @@ class RosDetect():
         #line it up on forward axis which will require a function
         
         self.motor.publish("controller") 
-        if rect[0] < 186:
+        if rect[0] < 176:
             self.motor.publish("left15right25")
             time.sleep(.1)
-        elif rect[0] > 216:
+        elif rect[0] > 206:
             self.motor.publish("left25right15")
             time.sleep(.1)
-        elif image.shape[0] - rect[1] > 40:
+        elif 20 < image.shape[0] - rect[1] > 60:
             if not self.forward:
                 self.motor.publish("left25right25")
                 time.sleep(.01)
@@ -295,9 +296,6 @@ class RosDetect():
         else:
             print "picking up"
             self.forward = False
-            self.motor.publish("left25right25")
-            time.sleep(.25)
-            self.motor.publish("left20right20")
             self.motor.publish("rover")
             self.state_change.publish("At Object")
             self.arm.publish("pickup")
