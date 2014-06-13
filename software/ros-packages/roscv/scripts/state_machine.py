@@ -115,13 +115,7 @@ class StateMachine(object):
                 print "Ignoring state change request %s becuase in state MoveTowardObject" % data.data
 
         elif self.state == "FindHome":
-            if data.data == "Object Found" and not(self.objectPickedup):
-                   print "Changing from FindingObject to MoveTowardObject"
-                   self.prevState = self.state
-                   self.state = "MoveTowardObject"
-                   self.motor_pub.publish("flush")
-
-            elif data.data == "Object Found" and self.objectPickedup:
+            if data.data == "Object Found" and self.objectPickedup:
                 print "Object already picked up, ignoring state switch request"
 
             elif data.data == "Base Station Found" and not(self.objectPickedup):
@@ -194,6 +188,12 @@ class StateMachine(object):
                     self.prevState = self.state
                     self.objectPickedup = True
                     self.state = "FindHome"
+		
+		elif data.data == "Object Lost":
+		    print "Object Lost, switching to SearchPattern"
+		    self.motor_pub.publish("flush")
+		    self.prevState = self.state
+		    self.state = "SearchPattern"
 
                 else: print "Ignoring state change request %s becuase in state PickupObject state" % data.data
 

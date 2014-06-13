@@ -5,6 +5,7 @@ import cv2
 import time
 import random
 import math
+import time
 try:
     import roslib
     roslib.load_manifest('roscv')
@@ -229,6 +230,7 @@ class RosDetect():
         self.forward = False
         self.bridge = CvBridge()
         self.state = "searching"
+	self.start = time.time()
         self.template_skeletons = skel_templates()
         self.state_change = rospy.Publisher("/state_change_request", std_msgs.msg.String)
         self.motor = rospy.Publisher("/motor_command/object_detection", std_msgs.msg.String)
@@ -252,6 +254,9 @@ class RosDetect():
                     self.track_to_pickup(image, rect)
                 except TypeError:
                     self.motor.publish("b10")
+		if time.time() - self.start > 10:
+		    self.state_change.publish("Object Lost")
+		    self.state = "searching"
             except TypeError:
                 pass
 
@@ -282,7 +287,8 @@ class RosDetect():
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
         self.motor.publish("controller") 
-        if rect[0] < 176:
+        self.time = time.time()
+	if rect[0] < 176:
             self.motor.publish("left15right25")
             time.sleep(.1)
         elif rect[0] > 206:
@@ -312,8 +318,7 @@ class RosDetect():
                 self.state_change.publish("Object Retrieved")
                 self.state = "searching"
         self.motor.publish("left20right20") 
-        self.motor.publish("rover")
-        self.state_change.publish("Object Retrieved")
+        self.motor.publish("rover") 
 
 if __name__ == "__main__":
     if USE_ROS:
