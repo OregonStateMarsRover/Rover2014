@@ -139,8 +139,8 @@ def match_object(img, hook_skel, puck_skel):
     #temp_clustering = thick_cluster(temp_skel)
     #clustering = thick_cluster(skel)
     #_, skel = cv2.threshold(skel, 10, 255, cv2.THRESH_BINARY)
-    rect = shape_matches(puck_skel, skel, 1000, 100)
-    rect2 = shape_matches(hook_skel, skel, 1000, 100)
+    rect = shape_matches(puck_skel, skel, 1500, 100)
+    rect2 = shape_matches(hook_skel, skel, 1500, 100)
     if rect != 0 and rect2 != 0:
         rect = rect if rect[4] < rect2[4] else rect2
     elif rect == 0:
@@ -248,7 +248,10 @@ class RosDetect():
         elif self.state == "pickup":
             try:
                 rect = self.detect_objects(image)
-                self.track_to_pickup(image, rect)
+                try:
+                    self.track_to_pickup(image, rect)
+                except TypeError:
+                    self.motor.publish("b10")
             except TypeError:
                 pass
 
@@ -278,7 +281,6 @@ class RosDetect():
 
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
-        
         self.motor.publish("controller") 
         if rect[0] < 176:
             self.motor.publish("left15right25")
@@ -286,13 +288,15 @@ class RosDetect():
         elif rect[0] > 206:
             self.motor.publish("left25right15")
             time.sleep(.1)
-        elif 20 < image.shape[0] - rect[1] > 60:
+        elif 60 < image.shape[0] - rect[1] > 80:
             if not self.forward:
                 self.motor.publish("left25right25")
                 time.sleep(.01)
                 self.forward = True
             self.motor.publish("left22right22")
             time.sleep(.1)
+        elif 60 > image.shape[0] - rect[1]:
+            self.motor.publish("b5")
         else:
             print "picking up"
             self.forward = False
@@ -301,8 +305,12 @@ class RosDetect():
             self.arm.publish("pickup")
             while rospy.wait_for_message("/arm_status", std_msgs.msg.String).data == "pickup":
                 pass
-            self.state_change.publish("Object Retrieved")
-            self.state = "searching"
+            try:
+                self.detect_object(image)
+                return
+            except:
+                self.state_change.publish("Object Retrieved")
+                self.state = "searching"
         self.motor.publish("left20right20") 
         self.motor.publish("rover")
         self.state_change.publish("Object Retrieved")

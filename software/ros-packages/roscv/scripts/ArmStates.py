@@ -56,11 +56,11 @@ class ArmState(object):
         print "ending wait"
 
     def docked(self):
-        position = [(8, 90, 350, 240),
-                    (0, 90, 350, 240),
-                    (0, 90, 260, 250),
-                    (0, 90, 220, 200)]
-        back = [(8, 90, 350, 300),
+        position = [(8, 91, 350, 240),
+                    (0, 91, 350, 240),
+                    (0, 91, 260, 250),
+                    (0, 91, 220, 200)]
+        back = [(8, 91, 350, 300),
                 (0, 0, 350, 300)]
         return {"to": position, "from": back}
 
