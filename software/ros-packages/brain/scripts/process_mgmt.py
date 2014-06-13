@@ -11,13 +11,14 @@ import sys
 from std_msgs.msg import String
 from subprocess import Popen, PIPE
 
-ALL_PROCESSES = ("camera", "stereo", "motor", "arm", "arm_state", "arm_camera", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender", "search_pattern", "shape_match" )
-ALL_PROCESS_ORDER = ("camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
-STARTUP_PROCESS_ORDER = ("camera", "stereo", "arm_camera", "motor", "arm", "sleep20", "pathfinding", "obstacle", "find_base", "sleep5", "search_pattern", "arm_state","sleep60", "rover_state", "sleep60") #, "shape_match")
+ALL_PROCESSES = ("setup_cam", "camera", "stereo", "motor", "arm", "arm_state", "arm_camera", "rover_state", "obstacle", "pathfinding", "find_base", "localization", "socket2ros", "better_sender", "search_pattern", "shape_match" )
+ALL_PROCESS_ORDER = ("setup_cam", "camera", "stereo", "motor", "arm", "arm_state", "rover_state", "obstacle", "pathfinding", "find_base", "localization" )
+STARTUP_PROCESS_ORDER = ("setup_cam", "sleep1", "camera", "stereo", "arm_camera", "motor", "arm", "sleep20", "pathfinding", "obstacle", "find_base", "sleep5", "search_pattern", "arm_state","sleep60", "rover_state", "sleep10", "shape_match")
 BOARD_PROCESS_ORDER = ("camera", "stereo", "find_base")
 REMOTE_CONTROL_ORDER = ("camera", "stereo", "motor", "socket2ros", "better_sender")
 
 PROCESS_ARGS = {
+"setup_cam" : (['python', '/home/rover/ros/scripts/setup_cameras.py'],),
 "camera" : (['roslaunch', 'roscv', 'startCam.launch'],),
 "stereo": (['roslaunch', 'roscv', 'startStereo.launch'],),
 "motor": (['rosrun', 'roscv', 'rmotors.py'],),
