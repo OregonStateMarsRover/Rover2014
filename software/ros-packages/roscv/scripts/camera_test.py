@@ -10,9 +10,11 @@ import cv2
 
 class stereo_test:
 	def __init__(self):
+		"""
 		cv2.namedWindow("left", cv2.WINDOW_AUTOSIZE)
 		cv2.namedWindow("right", cv2.WINDOW_AUTOSIZE)
 		cv2.namedWindow("sub", cv2.WINDOW_AUTOSIZE)
+		"""
 
 	def spin(self):
 		li = rospy.wait_for_message("/my_stereo/left/image_rect_color", Image)
@@ -26,13 +28,13 @@ class stereo_test:
 		np_arr = np.fromstring(data.data, np.uint8)
 		np_arr = np_arr.reshape((480,640,3))
 		np_arr = cv2.cvtColor(np_arr, cv2.COLOR_BGR2LAB)
-		cv2.imshow(window, np_arr)
-		cv2.waitKey(1)
+		#cv2.imshow(window, np_arr)
+		#cv2.waitKey(1)
 		return np_arr
 
 	def sub_img(self, data1, data2):
 		sub = abs(data1-data2)
-		cv2.imshow("sub", sub)
+		#cv2.imshow("sub", sub)
 		return sub
 
 if __name__ == "__main__":
