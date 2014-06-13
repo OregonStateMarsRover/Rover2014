@@ -110,6 +110,12 @@ class StateMachine(object):
                 self.prevState = self.state
                 self.state = "PickupObject"
                 self.motor_pub.publish("flush")
+            elif data.data == "Object Lost":
+                print "Changing from MoveTowardObject to SearchPattern state"
+                self.prevState = self.state
+                self.state = "SearchPattern"
+                self.motor_pub.publish("flush")
+                self.motor_pub.publish("rover")
 
             else:
                 print "Ignoring state change request %s becuase in state MoveTowardObject" % data.data
@@ -181,21 +187,22 @@ class StateMachine(object):
                 print "Ignoring state change request %s becuase in state FindBaseStationFinal state" % data.data
 
         elif self.state == "PickupObject":
-                if data.data == "Object Retrieved":
-                    print "Object retrieved"
-                    self.motor_pub.publish("flush")
-                    print "Changing from PickupObject to FindHome"
-                    self.prevState = self.state
-                    self.objectPickedup = True
-                    self.state = "FindHome"
-		
-		elif data.data == "Object Lost":
-		    print "Object Lost, switching to SearchPattern"
-		    self.motor_pub.publish("flush")
-		    self.prevState = self.state
-		    self.state = "SearchPattern"
-
-                else: print "Ignoring state change request %s becuase in state PickupObject state" % data.data
+            if data.data == "Object Retrieved":
+                print "Object retrieved"
+                self.motor_pub.publish("flush")
+                print "Changing from PickupObject to FindHome"
+                self.prevState = self.state
+                self.objectPickedup = True
+                self.state = "FindHome"
+                self.motor_pub.publish("rover")
+    
+            elif data.data == "Object Lost":
+                print "Object Lost, switching to SearchPattern"
+                self.motor_pub.publish("flush")
+                self.motor_pub.publish("rover")
+                self.prevState = self.state
+                self.state = "SearchPattern" 
+            else: print "Ignoring state change request %s becuase in state PickupObject state" % data.data
 
         #TODO: Fix this to work with process manager
         elif self.state == "ProcessManaging":

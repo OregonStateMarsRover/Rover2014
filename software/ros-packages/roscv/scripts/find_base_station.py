@@ -40,8 +40,8 @@ class FindStart():
         #the width and height of the square
         self.square_back = .095
         self.square = 0.1778
-        self.dim = (4, 3)
-        self.dim_small = (8, 7)
+        self.dim = (5, 3)
+        self.dim_small = (4, 3)
         self.started = 1
         self.image_id = 0
         self.image_read = 0

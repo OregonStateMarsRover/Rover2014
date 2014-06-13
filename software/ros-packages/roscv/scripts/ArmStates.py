@@ -24,7 +24,8 @@ class ArmState(object):
         self.arm = rospy.Publisher("arm_commands", std_msgs.msg.String)
         self.status = rospy.Publisher("/arm_state", std_msgs.msg.String)
         self.arm_state = rospy.Subscriber("/arm_state_change", std_msgs.msg.String, self.get_object)
-        self.thread = threading.Thread(target=self.status)
+        self.thread = threading.Thread(target=self.pstatus)
+        self.thread.start()
         #self.move(self.cal())
         self.change_state("docked")
 
@@ -101,7 +102,7 @@ class ArmState(object):
             self.item_count += 1
             self.change_state("docked")
 
-    def status(self):
+    def pstatus(self):
         while True:
             if self.state == "docked":
                 self.status.publish("docked")

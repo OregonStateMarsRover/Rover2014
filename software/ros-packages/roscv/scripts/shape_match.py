@@ -230,7 +230,7 @@ class RosDetect():
         self.forward = False
         self.bridge = CvBridge()
         self.state = "searching"
-	self.start = time.time()
+        self.start = time.time()
         self.template_skeletons = skel_templates()
         self.state_change = rospy.Publisher("/state_change_request", std_msgs.msg.String)
         self.motor = rospy.Publisher("/motor_command/object_detection", std_msgs.msg.String)
@@ -254,12 +254,13 @@ class RosDetect():
                     self.track_to_pickup(image, rect)
                 except TypeError:
                     self.motor.publish("b10")
-		if time.time() - self.start > 10:
-		    self.state_change.publish("Object Lost")
-		    self.state = "searching"
+            
             except TypeError:
                 pass
-
+            print self.start, time.time()
+            if time.time() - self.start > 10:
+                self.state_change.publish("Object Lost")
+                self.state = "searching"
     def detect_objects(self, image):
         try:
             image = image.copy()
@@ -279,6 +280,7 @@ class RosDetect():
             if self.state == "searching":
                 print "switching states"
                 self.state_change.publish("Object Found")
+                self.start = time.time()
                 self.state = "pickup"
             return rect
         except CvBridgeError, e:
@@ -287,11 +289,10 @@ class RosDetect():
     def track_to_pickup(self, image, rect):
         #line it up on forward axis which will require a function
         self.motor.publish("controller") 
-        self.time = time.time()
-	if rect[0] < 176:
+        if rect[0] < 173:
             self.motor.publish("left15right25")
             time.sleep(.1)
-        elif rect[0] > 206:
+        elif rect[0] > 203:
             self.motor.publish("left25right15")
             time.sleep(.1)
         elif 60 < image.shape[0] - rect[1] > 80:
@@ -309,15 +310,13 @@ class RosDetect():
             self.motor.publish("rover")
             self.state_change.publish("At Object")
             self.arm.publish("pickup")
-            while rospy.wait_for_message("/arm_status", std_msgs.msg.String).data == "pickup":
-                pass
-            try:
-                self.detect_object(image)
-                return
-            except:
-                self.state_change.publish("Object Retrieved")
-                self.state = "searching"
+            while rospy.wait_for_message("/arm_status", std_msgs.msg.String).data != "docked":
+                pass 
+            print "test"
+            self.state_change.publish("Object Retrieved")
+            self.state = "picked up"
         self.motor.publish("left20right20") 
+        self.start = time.time()
         self.motor.publish("rover") 
 
 if __name__ == "__main__":

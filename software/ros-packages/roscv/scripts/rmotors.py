@@ -75,12 +75,17 @@ class Motor(object):
     def __init__(self):
         self.ramp_rate = 1
         self.stopped = False
-        self.serial = SerialHandler()
-        self.serial.get_control_port("ID: MainDrive")
-        time.sleep(2)
-        self.serial.write('r')
-        time.sleep(2)
-        open(os.devnull, 'w')
+        while True:
+            try:
+                self.serial = SerialHandler()
+                self.serial.get_control_port("ID: MainDrive")
+                time.sleep(2)
+                self.serial.write('r')
+                time.sleep(2)
+                open(os.devnull, 'w')
+                break
+            except:
+                pass
 
     def maintain(self, event=None):
         self.send_packet()
