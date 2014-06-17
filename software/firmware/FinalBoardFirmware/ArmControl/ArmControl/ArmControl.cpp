@@ -181,6 +181,8 @@ void DemInitThingsYouBeenDoing(){
 	PORTB.DIRCLR = (PIN3_bm); //Grip Limit
 	PORTA.DIRCLR = (PIN4_bm); //'IsRoving' check
 		
+	PORTA.PIN3CTRL = PORT_OPC_PULLUP_gc;
+	PORTB.PIN3CTRL = PORT_OPC_PULLUP_gc;	
 
 	//GRIP STEPPER is MD1
 
